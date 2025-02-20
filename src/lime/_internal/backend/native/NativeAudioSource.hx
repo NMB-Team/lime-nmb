@@ -377,13 +377,12 @@ class NativeAudioSource
 			}
 			else
 			{
-				var offset = AL.getSourcei(handle, AL.BYTE_OFFSET);
-				var ratio = (offset / dataLength);
-				var totalSeconds = samples / parent.buffer.sampleRate;
+				// var offset = AL.getSourcei(handle, AL.BYTE_OFFSET);
+				// var ratio = (offset / dataLength);
+				// var totalSeconds = samples / parent.buffer.sampleRate;
 
-				var time = totalSeconds * ratio * 1000 - parent.offset;
-
-				// var time = Std.int (AL.getSourcef (handle, AL.SEC_OFFSET) * 1000) - parent.offset;
+				// var time = totalSeconds * ratio * 1000 - parent.offset;
+				var time = AL.getSourcef(handle, AL.SEC_OFFSET) * 1000.0 - parent.offset;
 				if (time < 0) return 0;
 				return time;
 			}
