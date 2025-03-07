@@ -2,6 +2,7 @@ package lime._internal.backend.html5;
 
 import lime.math.Vector4;
 import lime.media.AudioSource;
+import lime.media.AudioManager;
 
 @:access(lime.media.AudioBuffer)
 class HTML5AudioSource
@@ -133,6 +134,20 @@ class HTML5AudioSource
 			return time;
 		}
 		#end
+
+		return 0;
+	}
+
+	public function getLatency():Float
+	{
+		var ctx = AudioManager.context.web;
+		if (ctx != null)
+		{
+			var baseLatency:Float = untyped ctx.baseLatency != null ? untyped ctx.baseLatency : 0;
+			var outputLatency:Float = untyped ctx.outputLatency != null ? untyped ctx.outputLatency : 0;
+
+			return (baseLatency + outputLatency) * 1000;
+		}
 
 		return 0;
 	}
