@@ -2,6 +2,7 @@
 #include "SDLGamepad.h"
 #include "SDLJoystick.h"
 #include <system/System.h>
+#include <thread>
 
 #ifdef HX_MACOS
 #include <CoreFoundation/CoreFoundation.h>
@@ -22,14 +23,8 @@ namespace lime {
 	std::map<int, std::map<int, int> > gamepadsAxisMap;
 	bool inBackground = false;
 
-	double lastUpdateEvent;
-	double lastScheduledTicks;
-
 	double performanceFrequency = 0.0;
 	double performanceCounter = 0.0;
-
-	double fps = 0.0;
-	double lastRenderDuration = 0.0;
 
 	SDLApplication::SDLApplication () {
 		Uint32 initFlags = SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER | SDL_INIT_JOYSTICK;
@@ -129,9 +124,25 @@ namespace lime {
 	}
 	void busyWait(double ms) {
 		const double start = getTime();
-		while(getTime() - start < ms) {
-			continue;
+		while (getTime() - start < ms) {
+			std::this_thread::yield();
 		}
+	}
+
+	void coolSleep(double sleepFor) {
+		double dt = 0.0;
+		double start = getTime();
+		double threshold = sleepFor - (0.9765625 * 2.2);
+
+		while ((dt = getTime() - start) < threshold)
+			SDL_Delay(1);
+		
+		double end = getTime();
+
+		double remainder = (start - end) - dt;
+
+		if (remainder > 0)
+			busyWait(remainder);
 	}
 
 	void SDLApplication::HandleEvent (SDL_Event* event) {
@@ -149,15 +160,21 @@ namespace lime {
 
 				if (!inBackground) {
 					applicationEvent.type = UPDATE;
-					applicationEvent.deltaTime = (currentUpdate - lastUpdate) / performanceFrequency * 1e+3;
+					applicationEvent.deltaTime = currentUpdate - lastUpdate;
 
 					lastUpdate = currentUpdate;
-					ApplicationEvent::Dispatch (&applicationEvent);
 
 					double start = getTime();
+
+					ApplicationEvent::Dispatch (&applicationEvent);
 					RenderEvent::Dispatch (&renderEvent);
 
-					lastRenderDuration = getTime() - start;
+					double end = getTime();
+					double error = end - start;
+
+					double sleepFor = framePeriod - error;
+					if (sleepFor > 0.0)
+						coolSleep(sleepFor);
 				}
 
 				break;
@@ -343,10 +360,7 @@ namespace lime {
 		active = true;
 		
 		double ticks = (double)SDL_GetPerformanceCounter();
-
 		lastUpdate = ticks;
-		lastUpdateEvent = lastUpdate;
-		lastScheduledTicks = ticks;
 	}
 
 
@@ -842,12 +856,10 @@ namespace lime {
 		if (frameRate > 0) {
 
 			framePeriod = 1000.0 / frameRate;
-			fps = frameRate;
 
 		} else {
 
 			framePeriod = 0.0;
-			fps = 0.0;
 
 		}
 
@@ -868,61 +880,19 @@ namespace lime {
 
 
 	bool SDLApplication::Update () {
-		currentUpdate = SDL_GetPerformanceCounter();
+		currentUpdate = getTime();
 
 		SDL_Event event;
-		event.type = -1;
-
 		while (SDL_PollEvent (&event)) {
-
 			HandleEvent (&event);
 			event.type = -1;
 			if (!active)
 				return active;
 		}
-
-		double curTicks = currentUpdate;
-		if(fps > 0.0) {
-			int ticks_to_wait = static_cast<int>(performanceFrequency / fps);
-
-			bool done = false;
-
-			do
-			{
-				curTicks = (double)SDL_GetPerformanceCounter();
-				int ticks_passed = static_cast<int>(curTicks-lastScheduledTicks);
-
-				int ticks_left = ticks_to_wait - ticks_passed;
-
-				if (curTicks < lastScheduledTicks || ticks_passed >= ticks_to_wait)
-					done = true;
-
-				if (!done)
-				{
-					int scheduled_ticks = static_cast<int>((performanceFrequency * 2) * 1e-3);
-
-					if (ticks_left > scheduled_ticks)
-						SDL_Delay(1);
-					else
-					{
-						double curTime = (double)SDL_GetPerformanceCounter();
-
-						do {
-							curTicks = (double)SDL_GetPerformanceCounter();
-							SDL_Delay(0);
-						}
-						while(curTicks-curTime < ticks_left);
-					}
-
-				}
-			}
-			while(!done);
+		if (currentUpdate >= nextUpdate) {
+			PushUpdate();
+			nextUpdate = currentUpdate + framePeriod;
 		}
-		PushUpdate();
-
-		lastUpdate = currentUpdate;
-		lastScheduledTicks = curTicks;
-
 		return active;
 	}
 
