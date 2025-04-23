@@ -2348,10 +2348,11 @@ namespace lime {
 
 	}
 
-	bool lime_alc_is_extension_present (HxString extname) {
+	bool lime_alc_is_extension_present (value device, HxString extname) {
 
 		#ifdef LIME_OPENALSOFT
-		return alcIsExtensionPresent (NULL, extname.__s);
+		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
+		return alcIsExtensionPresent (alcDevice, extname.__s);
 		#else
 		return false;
 		#endif
@@ -2359,10 +2360,11 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool HL_NAME(hl_alc_is_extension_present) (hl_vstring* extname) {
+	HL_PRIM bool HL_NAME(hl_alc_is_extension_present) (HL_CFFIPointer* device, hl_vstring* extname) {
 
 		#ifdef LIME_OPENALSOFT
-		return alcIsExtensionPresent (NULL, extname ? hl_to_utf8 (extname->bytes) : NULL);
+		ALCdevice* alcDevice = (ALCdevice*)device->ptr;
+		return alcIsExtensionPresent (alcDevice, extname ? hl_to_utf8 (extname->bytes) : NULL);
 		#else
 		return false;
 		#endif
@@ -3639,7 +3641,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_al_is_effect);
 	DEFINE_PRIME1 (lime_al_is_enabled);
 	DEFINE_PRIME1 (lime_al_is_extension_present);
-	DEFINE_PRIME1 (lime_alc_is_extension_present);
+	DEFINE_PRIME2 (lime_alc_is_extension_present);
 	DEFINE_PRIME1 (lime_al_is_filter);
 	DEFINE_PRIME1 (lime_al_is_source);
 	DEFINE_PRIME4v (lime_al_listener3f);
