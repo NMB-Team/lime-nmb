@@ -3,6 +3,7 @@
 #include "SDLJoystick.h"
 #include <system/System.h>
 #include <thread>
+#include <cmath>
 
 #ifdef HX_MACOS
 #include <CoreFoundation/CoreFoundation.h>
@@ -138,9 +139,8 @@ namespace lime {
 			SDL_Delay(1);
 		
 		double end = getTime();
-
-		double remainder = (start - end) - dt;
-
+		
+		double remainder = (end - start) - dt;
 		if (remainder > 0)
 			busyWait(remainder);
 	}
@@ -161,20 +161,20 @@ namespace lime {
 				if (!inBackground) {
 					applicationEvent.type = UPDATE;
 					applicationEvent.deltaTime = currentUpdate - lastUpdate;
-
-					lastUpdate = currentUpdate;
-
+					
 					double start = getTime();
 
 					ApplicationEvent::Dispatch (&applicationEvent);
 					RenderEvent::Dispatch (&renderEvent);
 
 					double end = getTime();
-					double error = end - start;
+					double remainder = end - start;
 
-					double sleepFor = framePeriod - error;
-					if (sleepFor > 0.0)
-						coolSleep(sleepFor);
+					if (framePeriod > 0.0) {
+						double sleepDuration = framePeriod - remainder;
+						if (sleepDuration > 0)
+							coolSleep(sleepDuration);
+					}
 				}
 
 				break;
@@ -880,18 +880,24 @@ namespace lime {
 
 
 	bool SDLApplication::Update () {
+		// i have no idea why this makes fps
+		// more consistent, but i am happy regardless.
+		lastUpdate = currentUpdate;
 		currentUpdate = getTime();
 
+		double dt = currentUpdate - lastUpdate;
+		nextUpdate += dt;
+
+		if(nextUpdate >= framePeriod) {
+			PushUpdate();
+			nextUpdate -= framePeriod;
+		}
 		SDL_Event event;
 		while (SDL_PollEvent (&event)) {
 			HandleEvent (&event);
 			event.type = -1;
 			if (!active)
 				return active;
-		}
-		if (currentUpdate >= nextUpdate) {
-			PushUpdate();
-			nextUpdate = currentUpdate + framePeriod;
 		}
 		return active;
 	}
