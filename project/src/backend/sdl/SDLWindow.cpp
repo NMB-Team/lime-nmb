@@ -94,6 +94,12 @@ namespace lime {
 			SDL_SetHint (SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
 			#endif
 
+			#if defined (HX_MACOS)
+			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 1);
+			#endif
+
 			#if defined (HX_LINUX)
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 3);
