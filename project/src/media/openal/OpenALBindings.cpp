@@ -3767,6 +3767,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_al_is_effect, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_al_is_enabled, _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_al_is_extension_present, _STRING);
+	DEFINE_HL_PRIM (_BOOL, hl_alc_is_extension_present, _TCFFIPOINTER _STRING); 
 	DEFINE_HL_PRIM (_BOOL, hl_al_is_filter, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_al_is_source, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_al_listener3f, _I32 _F32 _F32 _F32);
