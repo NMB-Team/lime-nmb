@@ -346,7 +346,7 @@
 	<include name="lib/pixman/files.xml" />
 	<include name="lib/png/files.xml" />
 	<include name="lib/sdl/files.xml" />
-	<include name="lib/tinyfiledialogs/files.xml" />
+	<include name="lib/tinyfiledialogs-files.xml" />
 	<include name="lib/vorbis/files.xml" />
 	<include name="lib/vpx/files.xml" />
 	<include name="lib/webm/files.xml" />
