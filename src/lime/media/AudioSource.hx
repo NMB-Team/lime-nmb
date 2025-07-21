@@ -18,7 +18,7 @@ class AudioSource
 	public var length(get, set):Float;
 	public var loops(get, set):Int;
 	public var pitch(get, set):Float;
-	public var offset:Int;
+	public var offset:Float;
 	public var position(get, set):Vector4;
 
 	/**
@@ -30,7 +30,7 @@ class AudioSource
 
 	@:noCompletion private var __backend:AudioSourceBackend;
 
-	public function new(buffer:AudioBuffer = null, offset:Int = 0, length:Null<Int> = null, loops:Int = 0)
+	public function new(buffer:AudioBuffer = null, offset:Float = 0, length:Null<Float> = null, loops:Int = 0)
 	{
 		this.buffer = buffer;
 		this.offset = offset;
