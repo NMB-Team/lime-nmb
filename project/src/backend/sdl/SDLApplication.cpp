@@ -27,6 +27,14 @@ namespace lime {
 	double performanceFrequency = 0.0;
 	double performanceCounter = 0.0;
 
+	#if defined(ANDROID) || defined (IPHONE)
+	SDL_SensorID gyroscopeSensorID = -1;
+	SDL_Sensor* gyroscopeSensor = nullptr;
+
+	SDL_SensorID accelerometerSensorID = -1;
+	SDL_Sensor* accelerometerSensor = nullptr;
+	#endif
+
 	SDLApplication::SDLApplication () {
 		Uint32 initFlags = SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER | SDL_INIT_JOYSTICK;
 		#if defined(LIME_MOJOAL) || defined(LIME_OPENALSOFT)
@@ -64,7 +72,15 @@ namespace lime {
 		TouchEvent touchEvent;
 		WindowEvent windowEvent;
 
+		#if defined(ANDROID) || defined (IPHONE)
+		SDL_EventState (SDL_SENSORUPDATE, SDL_ENABLE);
+		#endif
+
 		SDL_EventState (SDL_DROPFILE, SDL_ENABLE);
+
+		#if defined(ANDROID) || defined (IPHONE)
+		InitializeSensors ();
+		#endif
 		SDLJoystick::Init ();
 
 		#ifdef HX_MACOS
@@ -82,10 +98,41 @@ namespace lime {
 
 	}
 
+	#if defined(ANDROID) || defined (IPHONE)
+	void SDLApplication::InitializeSensors () {
+
+		gyroscopeSensorID = System::GetFirstGyroscopeSensorId ();
+
+		if (gyroscopeSensorID > 0)
+			gyroscopeSensor = SDL_SensorOpen (gyroscopeSensorID);
+
+		accelerometerSensorID = System::GetFirstAccelerometerSensorId ();
+
+		if (gyroscopeSensorID > 0)
+			accelerometerSensor = SDL_SensorOpen (gyroscopeSensorID);
+
+	}
+	#endif
 
 	SDLApplication::~SDLApplication () {
 
+		#if defined(ANDROID) || defined(IPHONE)
+		if (gyroscopeSensor) {
 
+			SDL_SensorClose (gyroscopeSensor);
+			gyroscopeSensor = nullptr;
+			gyroscopeSensorID = -1;
+
+		}
+
+		if (accelerometerSensor) {
+
+			SDL_SensorClose (accelerometerSensor);
+			accelerometerSensor = nullptr;
+			accelerometerSensorID = -1;
+
+		}
+		#endif
 
 	}
 
@@ -225,18 +272,17 @@ namespace lime {
 				ProcessTouchEvent (event);
 				break;
 
+			#if defined(ANDROID) || defined (IPHONE)
+			case SDL_SENSORUPDATE:
+
+				ProcessSensorEvent (event);
+				break;
+			
+			#endif
+
 			case SDL_JOYAXISMOTION:
 
-				if (SDLJoystick::IsAccelerometer (event->jaxis.which)) {
-
-					ProcessSensorEvent (event);
-
-				} else {
-
-					ProcessJoystickEvent (event);
-
-				}
-
+				ProcessJoystickEvent (event);
 				break;
 
 			case SDL_JOYBALLMOTION:
@@ -692,26 +738,35 @@ namespace lime {
 	}
 
 
-	void SDLApplication::ProcessSensorEvent (SDL_Event* event) {
+	#if defined(ANDROID) || defined (IPHONE)
+	void SDLApplication::ProcessSensorEvent(SDL_Event* event) {
 
 		if (SensorEvent::callback) {
 
-			double value = event->jaxis.value / 32767.0f;
+			if (event->sensor.which == gyroscopeSensorID) {
 
-			switch (event->jaxis.axis) {
+				sensorEvent.type = SENSOR_GYROSCOPE;
+				sensorEvent.id = event->sensor.which;
+				sensorEvent.x = event->sensor.data[0];
+				sensorEvent.y = event->sensor.data[1];
+				sensorEvent.z = event->sensor.data[2];
+				SensorEvent::Dispatch(&sensorEvent);
 
-				case 0: sensorEvent.x = value; break;
-				case 1: sensorEvent.y = value; break;
-				case 2: sensorEvent.z = value; break;
-				default: break;
+			} else if (event->sensor.which == accelerometerSensorID) {
+
+				sensorEvent.type = SENSOR_ACCELEROMETER;
+				sensorEvent.id = event->sensor.which;
+				sensorEvent.x = event->sensor.data[0];
+				sensorEvent.y = event->sensor.data[1];
+				sensorEvent.z = event->sensor.data[2];
+				SensorEvent::Dispatch(&sensorEvent);
 
 			}
-
-			SensorEvent::Dispatch (&sensorEvent);
 
 		}
 
 	}
+	#endif
 
 
 	void SDLApplication::ProcessTextEvent (SDL_Event* event) {

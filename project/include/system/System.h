@@ -39,6 +39,10 @@ namespace lime {
 			static std::wstring* GetIOSDirectory (SystemDirectory type);
 			static bool GetIOSTablet ();
 			#endif
+			#if defined(ANDROID) || defined (IPHONE)
+			static int GetFirstGyroscopeSensorId ();
+			static int GetFirstAccelerometerSensorId ();
+			#endif
 			static int GetNumDisplays ();
 			static std::wstring* GetPlatformLabel ();
 			static std::wstring* GetPlatformName ();
