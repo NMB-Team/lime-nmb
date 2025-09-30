@@ -5,11 +5,9 @@
 #include "../../graphics/opengl/OpenGLBindings.h"
 
 #ifdef HX_WINDOWS
-#include <SDL_syswm.h>
 #include <Windows.h>
 #undef CreateWindow
 #endif
-
 
 namespace lime {
 
@@ -45,7 +43,7 @@ namespace lime {
 
 		int sdlWindowFlags = 0;
 
-		if (flags & WINDOW_FLAG_FULLSCREEN) sdlWindowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+		if (flags & WINDOW_FLAG_FULLSCREEN) sdlWindowFlags |= displayModeSet ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_FULLSCREEN_DESKTOP;
 		if (flags & WINDOW_FLAG_RESIZABLE) sdlWindowFlags |= SDL_WINDOW_RESIZABLE;
 		if (flags & WINDOW_FLAG_BORDERLESS) sdlWindowFlags |= SDL_WINDOW_BORDERLESS;
 		if (flags & WINDOW_FLAG_HIDDEN) sdlWindowFlags |= SDL_WINDOW_HIDDEN;
@@ -94,7 +92,7 @@ namespace lime {
 			SDL_SetHint (SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
 			#endif
 
-			#if defined (HX_MACOS)
+			#if defined (HX_MACOS) // cuz macos is deprecated opengl, gonna to stable last version 4.1
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 1);
@@ -516,6 +514,35 @@ namespace lime {
 	void SDLWindow::Focus () {
 
 		SDL_RaiseWindow (sdlWindow);
+
+	}
+
+
+	void* SDLWindow::GetHandle () {
+
+		SDL_SysWMinfo info;
+		SDL_VERSION (&info.version);
+		SDL_GetWindowWMInfo (sdlWindow, &info);
+
+		#if defined (SDL_VIDEO_DRIVER_WINDOWS)
+			return info.info.win.window;
+		#elif defined (SDL_VIDEO_DRIVER_WINRT)
+			return info.info.winrt.window;
+		#elif defined (SDL_VIDEO_DRIVER_X11)
+			return (void*)info.info.x11.window;
+		#elif defined (SDL_VIDEO_DRIVER_DIRECTFB)
+			return info.info.dfb.window;
+		#elif defined (SDL_VIDEO_DRIVER_COCOA)
+			return info.info.cocoa.window;
+		#elif defined (SDL_VIDEO_DRIVER_UIKIT)
+			return info.info.uikit.window;
+		#elif defined (SDL_VIDEO_DRIVER_WAYLAND)
+			return info.info.wl.surface;
+		#elif defined (SDL_VIDEO_DRIVER_ANDROID)
+			return info.info.android.window;
+		#else
+			return nullptr;
+		#endif
 
 	}
 
@@ -1074,15 +1101,7 @@ namespace lime {
 
 		#ifndef EMSCRIPTEN
 
-		if (resizable) {
-
-			SDL_SetWindowResizable (sdlWindow, SDL_TRUE);
-
-		} else {
-
-			SDL_SetWindowResizable (sdlWindow, SDL_FALSE);
-
-		}
+		SDL_SetWindowResizable(sdlWindow, resizable ? SDL_TRUE : SDL_FALSE);
 
 		return (SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_RESIZABLE);
 
@@ -1140,6 +1159,23 @@ namespace lime {
 		SDL_GL_SetSwapInterval(vsync ? 1 : 0);
 
 		return vsync;
+
+	}
+
+
+	bool SDLWindow::SetAlwaysOnTop (bool enabled) {
+
+		if (enabled) {
+
+			SDL_SetWindowAlwaysOnTop (sdlWindow, SDL_TRUE);
+
+		} else {
+
+			SDL_SetWindowAlwaysOnTop (sdlWindow, SDL_FALSE);
+
+		}
+
+		return enabled;
 
 	}
 

@@ -168,6 +168,7 @@ namespace lime {
 
 			}
 
+			#ifdef LIME_GLES3_API
 			size = gc_gl_ptr.size ();
 			void* ptr;
 
@@ -176,11 +177,10 @@ namespace lime {
 				ptr = gc_gl_ptr[i];
 				//type = gc_gl_type[i];
 
-				#ifdef LIME_GLES3_API
 				if (glIsSync ((GLsync)ptr)) glDeleteSync ((GLsync)ptr);
-				#endif
 
 			}
+			#endif
 
 			gc_gl_id.clear ();
 			gc_gl_ptr.clear ();

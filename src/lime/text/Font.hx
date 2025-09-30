@@ -33,14 +33,57 @@ import haxe.io.Path;
 @:access(lime.text.Glyph)
 class Font
 {
+	/**
+    * The ascender value of the font.
+    */
 	public var ascender:Int;
+
+	/**
+    * The descender value of the font.
+    */
 	public var descender:Int;
+
+	/**
+    * The height of the font.
+    */
 	public var height:Int;
+
+	/**
+    * The name of the font.
+    */
 	public var name(default, null):String;
+
+	/**
+    * The number of glyphs in the font.
+    */
 	public var numGlyphs:Int;
+
+
 	public var src:Dynamic;
+
+	/**
+    * The underline position of the font.
+    */
 	public var underlinePosition:Int;
+
+	/**
+    * The underline thickness of the font.
+    */
 	public var underlineThickness:Int;
+
+	/**
+    * The underline position of the font.
+    */
+	public var strikethroughPosition:Int;
+
+	/**
+    * The underline thickness of the font.
+    */
+	public var strikethroughThickness:Int;
+
+	/**
+    * The units per EM of the font.
+    */
 	public var unitsPerEM:Int;
 
 	@:noCompletion private var __fontID:String;
@@ -217,31 +260,54 @@ class Font
 	public function renderGlyph(glyph:Glyph, fontSize:Int):Image
 	{
 		#if (lime_cffi && !macro)
-		__setSize(fontSize);
+		__setSize(fontSize, 96);
 
-		var bytes = Bytes.alloc(0);
-		// bytes.endian = (System.endianness == BIG_ENDIAN ? "bigEndian" : "littleEndian");
+		// Allocate an estimated buffer size - adjust if necessary
+		var bytes:Bytes = Bytes.alloc(0); // Allocate some reasonable initial size
 
-		var dataPosition = 0;
+		// Call native function to render glyph and get byte data
 		bytes = NativeCFFI.lime_font_render_glyph(src, glyph, bytes);
 
 		if (bytes != null && bytes.length > 0)
 		{
-			var index = bytes.getInt32(dataPosition);
-			dataPosition += 4;
-			var width = bytes.getInt32(dataPosition);
-			dataPosition += 4;
-			var height = bytes.getInt32(dataPosition);
-			dataPosition += 4;
-			var x = bytes.getInt32(dataPosition);
-			dataPosition += 4;
-			var y = bytes.getInt32(dataPosition);
+			var dataPosition = 0;
+
+			// Extract glyph information from the byte array
+			var index:Int = bytes.getInt32(dataPosition);
 			dataPosition += 4;
 
-			var data = bytes.sub(dataPosition, width * height);
-			dataPosition += (width * height);
+			var width:Int = bytes.getInt32(dataPosition);
+			dataPosition += 4;
 
-			var buffer = new ImageBuffer(new UInt8Array(data), width, height, 8);
+			var height:Int = bytes.getInt32(dataPosition);
+			dataPosition += 4;
+
+			var x:Int = bytes.getInt32(dataPosition);
+			dataPosition += 4;
+
+			var y:Int = bytes.getInt32(dataPosition);
+			dataPosition += 4;
+
+			// Check if width and height are valid before proceeding
+			if (width <= 0 || height <= 0)
+			{
+				return null;
+			}
+
+			// Extract pixel data from the byte array, accounting for 32-bit RGBA data
+			var pitch = width * 4; // 32-bit color data
+
+			// Create a new Bytes array to store the extracted bitmap data without padding
+			var dataBytes = Bytes.alloc(width * height * 4);
+
+			// Extract row by row to handle RGBA data
+			for (i in 0...height)
+			{
+				dataBytes.blit(i * width * 4, bytes, dataPosition + (i * pitch), width * 4);
+			}
+
+			// Create ImageBuffer and Image from the extracted data
+			var buffer = new ImageBuffer(new UInt8Array(dataBytes), width, height, 32);
 			var image = new Image(buffer, 0, 0, width, height);
 			image.x = x;
 			image.y = y;
@@ -281,7 +347,7 @@ class Font
 		var glyphList = _glyphList;
 		#end
 
-		NativeCFFI.lime_font_set_size(src, fontSize);
+		__setSize(fontSize, 96);
 
 		var bytes = Bytes.alloc(0);
 		bytes = NativeCFFI.lime_font_render_glyphs(src, glyphList, bytes);
@@ -428,6 +494,8 @@ class Font
 			src = other.src;
 			underlinePosition = other.underlinePosition;
 			underlineThickness = other.underlineThickness;
+			strikethroughPosition = other.strikethroughPosition;
+			strikethroughThickness = other.strikethroughThickness;
 			unitsPerEM = other.unitsPerEM;
 
 			__fontID = other.__fontID;
@@ -487,6 +555,8 @@ class Font
 			numGlyphs = NativeCFFI.lime_font_get_num_glyphs(src);
 			underlinePosition = NativeCFFI.lime_font_get_underline_position(src);
 			underlineThickness = NativeCFFI.lime_font_get_underline_thickness(src);
+			strikethroughPosition = NativeCFFI.lime_font_get_strikethrough_position(src);
+			strikethroughThickness = NativeCFFI.lime_font_get_strikethrough_thickness(src);
 			unitsPerEM = NativeCFFI.lime_font_get_units_per_em(src);
 		}
 		#end
@@ -589,10 +659,10 @@ class Font
 	}
 	#end
 
-	@:noCompletion private function __setSize(size:Int):Void
+	@:noCompletion private function __setSize(size:Int, dpi:Int = 72):Void
 	{
 		#if (lime_cffi && !macro)
-		NativeCFFI.lime_font_set_size(src, size);
+		NativeCFFI.lime_font_set_size(src, size, dpi);
 		#end
 	}
 }

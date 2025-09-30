@@ -409,6 +409,11 @@ class HTML5Window
 		return System.getDisplay(0).currentMode;
 	}
 
+	public function getNativeHandle():Dynamic
+	{
+		return 0;
+	}
+
 	public function getFrameRate():Float
 	{
 		if (parent.application == null) return 0;
@@ -480,7 +485,8 @@ class HTML5Window
 	private function handleCutOrCopyEvent(event:ClipboardEvent):Void
 	{
 		var text = Clipboard.text;
-		if (text == null) {
+		if (text == null)
+		{
 			text = "";
 		}
 		event.clipboardData.setData("text/plain", text);
@@ -1042,19 +1048,15 @@ class HTML5Window
 
 	public function setFrameRate(value:Float):Float
 	{
-		if (parent.application != null)
+		if (parent.application != null && parent == parent.application.window)
 		{
-			if (value >= 60)
+			if (value > 0)
 			{
-				if (parent == parent.application.window) parent.application.__backend.framePeriod = -1;
-			}
-			else if (value > 0)
-			{
-				if (parent == parent.application.window) parent.application.__backend.framePeriod = 1000 / value;
+				parent.application.__backend.framePeriod = 1000 / value;
 			}
 			else
 			{
-				if (parent == parent.application.window) parent.application.__backend.framePeriod = 1000;
+				parent.application.__backend.framePeriod = -1;
 			}
 		}
 
@@ -1239,7 +1241,6 @@ class HTML5Window
 				textInput.removeEventListener('paste', handlePasteEvent, true);
 				textInput.removeEventListener('compositionstart', handleCompositionstartEvent, true);
 				textInput.removeEventListener('compositionend', handleCompositionendEvent, true);
-
 			}
 		}
 
@@ -1284,9 +1285,33 @@ class HTML5Window
 		return value;
 	}
 
+	public function setAlwaysOnTop(value:Bool):Bool
+	{
+		return value;
+	}
+
 	private function updateSize():Void
 	{
 		if (!parent.__resizable) return;
+
+		var attributes = parent.__attributes;
+		var newScale:Float = scale;
+		if (Reflect.hasField(attributes, "allowHighDPI") && attributes.allowHighDPI && renderType != DOM)
+		{
+			newScale = Browser.window.devicePixelRatio;
+		}
+		if (scale != newScale)
+		{
+			scale = newScale;
+			parent.__scale = scale;
+			if (canvas != null)
+			{
+				canvas.width = Math.floor(parent.__width * scale);
+				canvas.height = Math.floor(parent.__height * scale);
+				canvas.style.width = parent.__width + "px";
+				canvas.style.height = parent.__height + "px";
+			}
+		}
 
 		var elementWidth, elementHeight;
 

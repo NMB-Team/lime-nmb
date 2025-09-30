@@ -80,15 +80,13 @@ class NativeApplication
 
 		#if (!macro && lime_cffi)
 		handle = NativeCFFI.lime_application_create();
-		
+
 		#if (ios || android)
 		final accelerometerID:Int = NativeCFFI.lime_system_get_first_accelerometer_sensor_id();
-		if (accelerometerID > 0)
-			Sensor.registerSensor(SensorType.ACCELEROMETER, accelerometerID);
+		if (accelerometerID > 0) Sensor.registerSensor(SensorType.ACCELEROMETER, accelerometerID);
 
 		final gyroscopeID:Int = NativeCFFI.lime_system_get_first_gyroscope_sensor_id();
-		if (gyroscopeID > 0)
-			Sensor.registerSensor(SensorType.GYROSCOPE, gyroscopeID);
+		if (gyroscopeID > 0) Sensor.registerSensor(SensorType.GYROSCOPE, gyroscopeID);
 		#end
 		#end
 	}
@@ -99,9 +97,9 @@ class NativeApplication
 		if (pauseTimer > -1)
 		{
 			var offset = System.getTimer() - pauseTimer;
-			for (i in 0...Timer.sRunningTimers.length)
+			for (timer in Timer.sRunningTimers)
 			{
-				if (Timer.sRunningTimers[i] != null) Timer.sRunningTimers[i].mFireAt += offset;
+				if (timer.mRunning) timer.mFireAt += offset;
 			}
 			pauseTimer = -1;
 		}
@@ -268,32 +266,32 @@ class NativeApplication
 			{
 				case KEY_DOWN:
 					window.onKeyDown.dispatch(keyCode, modifier);
-					window.onKeyDownPrecise.dispatch(keyCode,modifier,System.getTimerPrecise());
+					window.onKeyDownPrecise.dispatch(keyCode, modifier, System.getTimerPrecise());
 				case KEY_UP:
 					window.onKeyUp.dispatch(keyCode, modifier);
-					window.onKeyUpPrecise.dispatch(keyCode,modifier,System.getTimerPrecise());
+					window.onKeyUpPrecise.dispatch(keyCode, modifier, System.getTimerPrecise());
 			}
 
 			#if (windows || linux)
-			if (keyCode == RETURN)
-			{
-				if (type == KEY_DOWN)
-				{
-					if (toggleFullscreen && modifier.altKey && (!modifier.ctrlKey && !modifier.shiftKey && !modifier.metaKey))
-					{
-						toggleFullscreen = false;
+			// if (keyCode == RETURN)
+			// {
+			// 	if (type == KEY_DOWN)
+			// 	{
+			// 		if (toggleFullscreen && modifier.altKey && (!modifier.ctrlKey && !modifier.shiftKey && !modifier.metaKey))
+			// 		{
+			// 			toggleFullscreen = false;
 
-						if (!window.onKeyDown.canceled)
-						{
-							window.fullscreen = !window.fullscreen;
-						}
-					}
-				}
-				else
-				{
-					toggleFullscreen = true;
-				}
-			}
+			// 			if (!window.onKeyDown.canceled)
+			// 			{
+			// 				window.fullscreen = !window.fullscreen;
+			// 			}
+			// 		}
+			// 	}
+			// 	else
+			// 	{
+			// 		toggleFullscreen = true;
+			// 	}
+			// }
 
 			#if rpi
 			if (keyCode == ESCAPE && modifier == KeyModifier.NONE && type == KEY_UP && !window.onKeyUp.canceled)
@@ -588,16 +586,15 @@ class NativeApplication
 		if (Timer.sRunningTimers.length > 0)
 		{
 			var currentTime = System.getTimer();
-			var foundNull = false;
+			var len = Timer.sRunningTimers.length - 1;
+			var i = 0;
 			var timer;
-
-			for (i in 0...Timer.sRunningTimers.length)
+			do
 			{
 				timer = Timer.sRunningTimers[i];
-
-				if (timer != null)
+				if (timer.mRunning)
 				{
-					if (timer.mRunning && currentTime >= timer.mFireAt)
+					if (currentTime >= timer.mFireAt)
 					{
 						timer.mFireAt += timer.mTime;
 						timer.run();
@@ -605,17 +602,13 @@ class NativeApplication
 				}
 				else
 				{
-					foundNull = true;
+					Timer.sRunningTimers.splice(i, 1);
+					i--;
+					len--;
 				}
+				i++;
 			}
-
-			if (foundNull)
-			{
-				Timer.sRunningTimers = Timer.sRunningTimers.filter(function(val)
-				{
-					return val != null;
-				});
-			}
+			while (i < len);
 		}
 
 		#if (haxe_ver >= 4.2)
@@ -768,12 +761,12 @@ class NativeApplication
 
 @:keep /*private*/ class KeyEventInfo
 {
-	public var keyCode: Float;
+	public var keyCode:Float;
 	public var modifier:Int;
 	public var type:KeyEventType;
 	public var windowID:Int;
 
-	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode: Float = 0, modifier:Int = 0)
+	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode:Float = 0, modifier:Int = 0)
 	{
 		this.type = type;
 		this.windowID = windowID;
@@ -804,7 +797,8 @@ class NativeApplication
 	public var y:Float;
 	public var clickCount:Int;
 
-	public function new(type:MouseEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0, clickCount:Int = 0)
+	public function new(type:MouseEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0,
+			clickCount:Int = 0)
 	{
 		this.type = type;
 		this.windowID = 0;

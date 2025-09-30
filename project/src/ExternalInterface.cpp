@@ -47,6 +47,7 @@
 #include <utils/compress/LZMA.h>
 #include <utils/compress/Zlib.h>
 #include <vm/NekoVM.h>
+#include <SDL_hints.h>
 
 #ifdef HX_WINDOWS
 #include <locale>
@@ -60,6 +61,12 @@ DEFINE_KIND (k_finalizer);
 
 
 namespace lime {
+
+	enum HintPriority {
+		HINT_DEFAULT = -1,
+		HINT_NORMAL = 0,
+		HINT_OVERRIDE = 1,
+	};
 
 
 	void gc_application (value handle) {
@@ -1324,6 +1331,54 @@ namespace lime {
 	}
 
 
+	int lime_font_get_strikethrough_position (value fontHandle) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)val_data (fontHandle);
+		return font->GetStrikethroughPosition ();
+		#else
+		return 0;
+		#endif
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_font_get_strikethrough_position) (HL_CFFIPointer* fontHandle) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)fontHandle->ptr;
+		return font->GetStrikethroughPosition ();
+		#else
+		return 0;
+		#endif
+
+	}
+
+
+	int lime_font_get_strikethrough_thickness (value fontHandle) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)val_data (fontHandle);
+		return font->GetStrikethroughThickness ();
+		#else
+		return 0;
+		#endif
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_font_get_strikethrough_thickness) (HL_CFFIPointer* fontHandle) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)fontHandle->ptr;
+		return font->GetStrikethroughThickness ();
+		#else
+		return 0;
+		#endif
+
+	}
+
+
 	int lime_font_get_units_per_em (value fontHandle) {
 
 		#ifdef LIME_FREETYPE
@@ -1564,11 +1619,11 @@ namespace lime {
 	}
 
 
-	void lime_font_set_size (value fontHandle, int fontSize) {
+	void lime_font_set_size (value fontHandle, int fontSize, int dpi) {
 
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
-		font->SetSize (fontSize);
+		font->SetSize (fontSize, dpi);
 		#endif
 
 	}
@@ -1578,7 +1633,7 @@ namespace lime {
 
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)fontHandle->ptr;
-		font->SetSize (fontSize);
+		font->SetSize (fontSize, dpi);
 		#endif
 
 	}
@@ -2014,7 +2069,17 @@ namespace lime {
 
 		} else {
 
-			ImageDataUtil::CopyPixels (image, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha);
+			if (!alphaPoint) {
+
+				Vector2 _alphaPoint = Vector2 (0, 0);
+
+				ImageDataUtil::CopyPixels (image, sourceImage, sourceRect, destPoint, alphaImage, &_alphaPoint, mergeAlpha);
+
+			} else {
+
+				ImageDataUtil::CopyPixels (image, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha);
+
+			}
 
 		}
 
@@ -3312,6 +3377,22 @@ namespace lime {
 	}
 
 
+	double lime_window_get_handle (value window) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		return (uintptr_t)targetWindow->GetHandle ();
+
+	}
+
+
+	HL_PRIM double HL_NAME(hl_window_get_handle) (HL_CFFIPointer* window) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return (uintptr_t)targetWindow->GetHandle ();
+
+	}
+
+
 	double lime_window_get_context (value window) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -3903,6 +3984,22 @@ namespace lime {
 	}
 
 
+	bool lime_window_set_always_on_top (value window, bool enabled) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->SetAlwaysOnTop(enabled);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_set_always_on_top) (HL_CFFIPointer* window, bool enabled) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->SetAlwaysOnTop (enabled);
+
+	}
+
+
 	void lime_window_warp_mouse (value window, int x, int y) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -3975,6 +4072,57 @@ namespace lime {
 	}
 
 
+	value lime_hint_get(HxString name)
+	{
+		const char* result = SDL_GetHint(hxs_utf8(name, nullptr));
+
+		return result ? alloc_string (result) : alloc_null ();
+	}
+
+
+	HL_PRIM vbyte* HL_NAME(hl_hint_get) (hl_vstring* title) {
+
+		const char* result = SDL_GetHint((char*)hl_to_utf8 ((const uchar*)title->bytes));
+
+		return (vbyte*)result;
+
+	}
+
+
+	bool lime_hint_set(HxString name, HxString value, int priority)
+	{
+		SDL_HintPriority nativePriorty = SDL_HINT_DEFAULT;
+		switch(priority)
+		{
+			case HINT_NORMAL:
+				nativePriorty = SDL_HINT_NORMAL;
+				break;
+			case HINT_OVERRIDE:
+				nativePriorty = SDL_HINT_OVERRIDE;
+				break;
+		}
+		return SDL_SetHintWithPriority(hxs_utf8(name, nullptr), hxs_utf8(value, nullptr), nativePriorty);
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_hint_set) (hl_vstring* name, hl_vstring* value, int priority)
+	{
+		SDL_HintPriority nativePriorty = SDL_HINT_DEFAULT;
+		switch(priority)
+		{
+			case HINT_NORMAL:
+				nativePriorty = SDL_HINT_NORMAL;
+				break;
+			case HINT_OVERRIDE:
+				nativePriorty = SDL_HINT_OVERRIDE;
+				break;
+		}
+		const char* _name = hl_to_utf8 ((const uchar*)name->bytes);
+		const char* _value = hl_to_utf8 ((const uchar*)value->bytes);
+		return SDL_SetHintWithPriority(_name, _value, nativePriorty);
+	}
+
+
 	DEFINE_PRIME0 (lime_application_create);
 	DEFINE_PRIME2v (lime_application_event_manager_register);
 	DEFINE_PRIME1 (lime_application_exec);
@@ -4015,6 +4163,8 @@ namespace lime {
 	DEFINE_PRIME1 (lime_font_get_height);
 	DEFINE_PRIME1 (lime_font_get_num_glyphs);
 	DEFINE_PRIME1 (lime_font_get_underline_position);
+	DEFINE_PRIME1 (lime_font_get_strikethrough_position);
+	DEFINE_PRIME1 (lime_font_get_strikethrough_thickness);
 	DEFINE_PRIME1 (lime_font_get_underline_thickness);
 	DEFINE_PRIME1 (lime_font_get_units_per_em);
 	DEFINE_PRIME1 (lime_font_load);
@@ -4023,7 +4173,7 @@ namespace lime {
 	DEFINE_PRIME2 (lime_font_outline_decompose);
 	DEFINE_PRIME3 (lime_font_render_glyph);
 	DEFINE_PRIME3 (lime_font_render_glyphs);
-	DEFINE_PRIME2v (lime_font_set_size);
+	DEFINE_PRIME3v (lime_font_set_size);
 	DEFINE_PRIME1v (lime_gamepad_add_mappings);
 	DEFINE_PRIME2v (lime_gamepad_event_manager_register);
 	DEFINE_PRIME1 (lime_gamepad_get_device_guid);
@@ -4099,6 +4249,7 @@ namespace lime {
 	DEFINE_PRIME5 (lime_window_create);
 	DEFINE_PRIME2v (lime_window_event_manager_register);
 	DEFINE_PRIME1v (lime_window_focus);
+	DEFINE_PRIME1 (lime_window_get_handle);
 	DEFINE_PRIME1 (lime_window_get_context);
 	DEFINE_PRIME1 (lime_window_get_context_type);
 	DEFINE_PRIME1 (lime_window_get_display);
@@ -4129,12 +4280,15 @@ namespace lime {
 	DEFINE_PRIME2v (lime_window_set_text_input_rect);
 	DEFINE_PRIME2 (lime_window_set_title);
 	DEFINE_PRIME2 (lime_window_set_visible);
+	DEFINE_PRIME2 (lime_window_set_always_on_top);
 	DEFINE_PRIME2 (lime_window_set_vsync);
 	DEFINE_PRIME3v (lime_window_warp_mouse);
 	DEFINE_PRIME1 (lime_window_get_opacity);
 	DEFINE_PRIME2v (lime_window_set_opacity);
 	DEFINE_PRIME2 (lime_zlib_compress);
 	DEFINE_PRIME2 (lime_zlib_decompress);
+	DEFINE_PRIME1 (lime_hint_get);
+	DEFINE_PRIME3 (lime_hint_set);
 
 
 	#define _ENUM "?"
@@ -4160,7 +4314,7 @@ namespace lime {
 
 	#define _TARRAYBUFFER _TBYTES
 	#define _TARRAYBUFFERVIEW _OBJ (_I32 _TARRAYBUFFER _I32 _I32 _I32 _I32)
-	#define _TAUDIOBUFFER _OBJ (_I32 _I32 _TARRAYBUFFERVIEW _I32 _DYN _DYN _DYN _DYN _DYN _TVORBISFILE)
+	#define _TAUDIOBUFFER _OBJ (_I32 _I32 _TARRAYBUFFERVIEW _I32 _I32 _DYN _DYN _DYN _DYN _DYN _TVORBISFILE)
 	#define _TIMAGEBUFFER _OBJ (_I32 _TARRAYBUFFERVIEW _I32 _I32 _BOOL _BOOL _I32 _DYN _DYN _DYN _DYN _DYN _DYN)
 	#define _TIMAGE _OBJ (_TIMAGEBUFFER _BOOL _I32 _I32 _I32 _TRECTANGLE _ENUM _I32 _I32 _F64 _F64)
 
@@ -4208,6 +4362,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_font_get_num_glyphs, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_font_get_underline_position, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_font_get_underline_thickness, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_font_get_strikethrough_position, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_font_get_strikethrough_thickness, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_font_get_units_per_em, _TCFFIPOINTER);
 	// DEFINE_PRIME1 (lime_font_load);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_font_load_bytes, _TBYTES);
@@ -4215,7 +4371,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_DYN, hl_font_outline_decompose, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_TBYTES, hl_font_render_glyph, _TCFFIPOINTER _I32 _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_font_render_glyphs, _TCFFIPOINTER _ARR _TBYTES);
-	DEFINE_HL_PRIM (_VOID, hl_font_set_size, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, hl_font_set_size, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_gamepad_add_mappings, _ARR);
 	DEFINE_HL_PRIM (_VOID, hl_gamepad_event_manager_register, _FUN(_VOID, _NO_ARG) _TGAMEPAD_EVENT);
 	DEFINE_HL_PRIM (_BYTES, hl_gamepad_get_device_guid, _I32);
@@ -4291,6 +4447,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_window_create, _TCFFIPOINTER _I32 _I32 _I32 _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_window_event_manager_register, _FUN (_VOID, _NO_ARG) _TWINDOW_EVENT);
 	DEFINE_HL_PRIM (_VOID, hl_window_focus, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_F64, hl_window_get_handle, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_F64, hl_window_get_context, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BYTES, hl_window_get_context_type, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_window_get_display, _TCFFIPOINTER);
@@ -4321,12 +4478,15 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_set_text_input_rect, _TCFFIPOINTER _TRECTANGLE);
 	DEFINE_HL_PRIM (_STRING, hl_window_set_title, _TCFFIPOINTER _STRING);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_visible, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_BOOL, hl_window_set_always_on_top, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_vsync, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_warp_mouse, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_F64, hl_window_get_opacity, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_opacity, _TCFFIPOINTER _F64);
 	DEFINE_HL_PRIM (_TBYTES, hl_zlib_compress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_zlib_decompress, _TBYTES _TBYTES);
+	DEFINE_HL_PRIM (_BYTES, hl_hint_get, _STRING);
+	DEFINE_HL_PRIM (_BOOL, hl_hint_set, _STRING _STRING _I32);
 
 
 }

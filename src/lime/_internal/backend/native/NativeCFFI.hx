@@ -24,7 +24,10 @@ import lime.media.AudioBuffer;
 import lime.system.DisplayMode;
 import lime.utils.ArrayBufferView;
 #end
-#if (!lime_doc_gen || lime_cffi)
+#if (lime_doc_gen && !lime_cffi)
+typedef CFFI = Dynamic;
+typedef CFFIPointer = Dynamic;
+#else
 import lime.system.CFFI;
 import lime.system.CFFIPointer;
 #end
@@ -32,10 +35,6 @@ import lime.system.CFFIPointer;
 import cpp.Float32;
 #else
 typedef Float32 = Float;
-#end
-#if (lime_doc_gen && !lime_cffi)
-typedef CFFI = Dynamic;
-typedef CFFIPointer = Dynamic;
 #end
 
 // #if hl
@@ -135,6 +134,10 @@ class NativeCFFI
 
 	@:cffi private static function lime_font_get_underline_thickness(handle:Dynamic):Int;
 
+	@:cffi private static function lime_font_get_strikethrough_position(handle:Dynamic):Int;
+
+	@:cffi private static function lime_font_get_strikethrough_thickness(handle:Dynamic):Int;
+
 	@:cffi private static function lime_font_get_units_per_em(handle:Dynamic):Int;
 
 	@:cffi private static function lime_font_load(data:Dynamic):Dynamic;
@@ -149,7 +152,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_font_render_glyphs(handle:Dynamic, indices:Dynamic, data:Dynamic):Dynamic;
 
-	@:cffi private static function lime_font_set_size(handle:Dynamic, size:Int):Void;
+	@:cffi private static function lime_font_set_size(handle:Dynamic, size:Int, dpi:Int):Void;
 
 	@:cffi private static function lime_gamepad_add_mappings(mappings:Dynamic):Void;
 
@@ -295,6 +298,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_focus(handle:Dynamic):Void;
 
+	@:cffi private static function lime_window_get_handle(handle:Dynamic):Float;
+
 	@:cffi private static function lime_window_get_context(handle:Dynamic):Float;
 
 	@:cffi private static function lime_window_get_context_type(handle:Dynamic):Dynamic;
@@ -358,6 +363,8 @@ class NativeCFFI
 	@:cffi private static function lime_window_set_title(handle:Dynamic, title:String):Dynamic;
 
 	@:cffi private static function lime_window_set_visible(handle:Dynamic, visible:Bool):Bool;
+
+	@:cffi private static function lime_window_set_always_on_top(handle:Dynamic, visible:Bool):Bool;
 
 	@:cffi private static function lime_window_set_vsync(handle:Dynamic, vsync:Bool):Bool;
 
@@ -437,6 +444,10 @@ class NativeCFFI
 		"oi", false));
 	private static var lime_font_get_underline_thickness = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_underline_thickness",
 		"oi", false));
+	private static var lime_font_get_strikethrough_position = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_strikethrough_position",
+		"oi", false));
+	private static var lime_font_get_strikethrough_thickness = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_strikethrough_thickness",
+		"oi", false));
 	private static var lime_font_get_units_per_em = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_units_per_em", "oi", false));
 	private static var lime_font_load = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_font_load", "oo", false));
 	private static var lime_font_load_bytes = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_font_load_bytes", "oo", false));
@@ -447,7 +458,7 @@ class NativeCFFI
 		"lime_font_render_glyph", "oioo", false));
 	private static var lime_font_render_glyphs = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
 		"lime_font_render_glyphs", "oooo", false));
-	private static var lime_font_set_size = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_font_set_size", "oiv", false));
+	private static var lime_font_set_size = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_font_set_size", "oiiv", false));
 	private static var lime_gamepad_add_mappings = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gamepad_add_mappings", "ov",
 		false));
 	private static var lime_gamepad_get_device_guid = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gamepad_get_device_guid", "io",
@@ -572,6 +583,7 @@ class NativeCFFI
 	private static var lime_window_create = new cpp.Callable<cpp.Object->Int->Int->Int->String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_create",
 		"oiiiso", false));
 	private static var lime_window_focus = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_focus", "ov", false));
+	private static var lime_window_get_handle = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_window_get_handle", "od", false));
 	private static var lime_window_get_context = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_window_get_context", "od", false));
 	private static var lime_window_get_context_type = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_get_context_type",
 		"oo", false));
@@ -626,6 +638,8 @@ class NativeCFFI
 		false));
 	private static var lime_window_set_visible = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_visible", "obb",
 		false));
+	private static var lime_window_set_always_on_top = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_always_on_top", "obb",
+		false));
 	private static var lime_window_set_vsync = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_vsync", "obb",
 		false));
 	private static var lime_window_warp_mouse = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_warp_mouse",
@@ -679,6 +693,8 @@ class NativeCFFI
 	private static var lime_font_get_num_glyphs = CFFI.load("lime", "lime_font_get_num_glyphs", 1);
 	private static var lime_font_get_underline_position = CFFI.load("lime", "lime_font_get_underline_position", 1);
 	private static var lime_font_get_underline_thickness = CFFI.load("lime", "lime_font_get_underline_thickness", 1);
+	private static var lime_font_get_strikethrough_position = CFFI.load("lime", "lime_font_get_strikethrough_position", 1);
+	private static var lime_font_get_strikethrough_thickness = CFFI.load("lime", "lime_font_get_strikethrough_thickness", 1);
 	private static var lime_font_get_units_per_em = CFFI.load("lime", "lime_font_get_units_per_em", 1);
 	private static var lime_font_load = CFFI.load("lime", "lime_font_load", 1);
 	private static var lime_font_load_bytes = CFFI.load("lime", "lime_font_load_bytes", 1);
@@ -686,7 +702,7 @@ class NativeCFFI
 	private static var lime_font_outline_decompose = CFFI.load("lime", "lime_font_outline_decompose", 2);
 	private static var lime_font_render_glyph = CFFI.load("lime", "lime_font_render_glyph", 3);
 	private static var lime_font_render_glyphs = CFFI.load("lime", "lime_font_render_glyphs", 3);
-	private static var lime_font_set_size = CFFI.load("lime", "lime_font_set_size", 2);
+	private static var lime_font_set_size = CFFI.load("lime", "lime_font_set_size", 3);
 	private static var lime_gamepad_add_mappings = CFFI.load("lime", "lime_gamepad_add_mappings", 1);
 	private static var lime_gamepad_get_device_guid = CFFI.load("lime", "lime_gamepad_get_device_guid", 1);
 	private static var lime_gamepad_get_device_name = CFFI.load("lime", "lime_gamepad_get_device_name", 1);
@@ -757,6 +773,7 @@ class NativeCFFI
 	private static var lime_window_context_unlock = CFFI.load("lime", "lime_window_context_unlock", 1);
 	private static var lime_window_create = CFFI.load("lime", "lime_window_create", 5);
 	private static var lime_window_focus = CFFI.load("lime", "lime_window_focus", 1);
+	private static var lime_window_get_handle = CFFI.load("lime", "lime_window_get_handle", 1);
 	private static var lime_window_get_context = CFFI.load("lime", "lime_window_get_context", 1);
 	private static var lime_window_get_context_type = CFFI.load("lime", "lime_window_get_context_type", 1);
 	private static var lime_window_get_display = CFFI.load("lime", "lime_window_get_display", 1);
@@ -789,6 +806,7 @@ class NativeCFFI
 	private static var lime_window_set_text_input_rect = CFFI.load("lime", "lime_window_set_text_input_rect", 2);
 	private static var lime_window_set_title = CFFI.load("lime", "lime_window_set_title", 2);
 	private static var lime_window_set_visible = CFFI.load("lime", "lime_window_set_visible", 2);
+	private static var lime_window_set_always_on_top = CFFI.load("lime", "lime_window_set_always_on_top", 2);
 	private static var lime_window_set_vsync = CFFI.load("lime", "lime_window_set_vsync", 2);
 	private static var lime_window_warp_mouse = CFFI.load("lime", "lime_window_warp_mouse", 3);
 	private static var lime_window_event_manager_register = CFFI.load("lime", "lime_window_event_manager_register", 2);
@@ -1011,7 +1029,7 @@ class NativeCFFI
 		return null;
 	}
 
-	@:hlNative("lime", "hl_font_set_size") private static function lime_font_set_size(handle:CFFIPointer, size:Int):Void {}
+	@:hlNative("lime", "hl_font_set_size") private static function lime_font_set_size(handle:CFFIPointer, size:Int, dpi:Int):Void {}
 
 	@:hlNative("lime", "hl_gamepad_add_mappings") private static function lime_gamepad_add_mappings(mappings:hl.NativeArray<String>):Void {}
 
@@ -1290,6 +1308,11 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_window_focus") private static function lime_window_focus(handle:CFFIPointer):Void {}
 
+	@:hlNative("lime", "hl_window_get_handle") private static function lime_window_get_handle(handle:CFFIPointer):Float
+	{
+		return 0;
+	}
+
 	@:hlNative("lime", "hl_window_get_context") private static function lime_window_get_context(handle:CFFIPointer):Float
 	{
 		return 0;
@@ -1412,6 +1435,11 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_window_set_vsync") private static function lime_window_set_vsync(handle:CFFIPointer, vsync:Bool):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_window_set_always_on_top") private static function lime_window_set_always_on_top(handle:CFFIPointer, visible:Bool):Bool
 	{
 		return false;
 	}
@@ -1680,6 +1708,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_alc_get_string(device:CFFIPointer, param:Int):Dynamic;
 
+	@:cffi private static function lime_alc_get_device_list(param:Int):Dynamic;
+
 	@:cffi private static function lime_alc_make_context_current(context:CFFIPointer):Bool;
 
 	@:cffi private static function lime_alc_open_device(devicename:String):CFFIPointer;
@@ -1691,6 +1721,16 @@ class NativeCFFI
 	@:cffi private static function lime_alc_resume_device(device:CFFIPointer):Void;
 
 	@:cffi private static function lime_alc_suspend_context(context:CFFIPointer):Void;
+
+	@:cffi private static function lime_alc_capture_open_device(devicename:String, frequency:Int, format:Int, buffersize:Int):CFFIPointer;
+
+	@:cffi private static function lime_alc_capture_close_device(device:CFFIPointer):Bool;
+
+	@:cffi private static function lime_alc_capture_start(device:CFFIPointer):Void;
+
+	@:cffi private static function lime_alc_capture_stop(device:CFFIPointer):Void;
+
+	@:cffi private static function lime_alc_capture_samples(device:CFFIPointer, buffer:Dynamic, samples:Int):Void;
 
 	@:cffi private static function lime_al_gen_filter():CFFIPointer;
 
@@ -1854,6 +1894,7 @@ class NativeCFFI
 	private static var lime_alc_get_integerv = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_alc_get_integerv",
 		"oiio", false));
 	private static var lime_alc_get_string = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_alc_get_string", "oio", false));
+	private static var lime_alc_get_device_list = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_alc_get_device_list", "io", false));
 	private static var lime_alc_make_context_current = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_alc_make_context_current", "ob",
 		false));
 	private static var lime_alc_open_device = new cpp.Callable<String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_alc_open_device", "so", false));
@@ -1863,6 +1904,16 @@ class NativeCFFI
 	private static var lime_alc_resume_device = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_alc_resume_device", "ov", false));
 	private static var lime_alc_suspend_context = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_alc_suspend_context", "ov",
 		false));
+	private static var lime_alc_capture_open_device = new cpp.Callable<String->Int->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_alc_capture_open_device",
+		"siiio", false));
+	private static var lime_alc_capture_close_device = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_alc_capture_close_device", "ob",
+		false));
+	private static var lime_alc_capture_start = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_alc_capture_start", "ov",
+		false));
+	private static var lime_alc_capture_stop = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_alc_capture_stop", "ov",
+		false));
+	private static var lime_alc_capture_samples = new cpp.Callable<cpp.Object->cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_alc_capture_samples",
+		"ooiv", false));
 	private static var lime_al_gen_filter = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_gen_filter", "o", false));
 	private static var lime_al_filteri = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_filteri", "oiov",
 		false));
@@ -1979,12 +2030,18 @@ class NativeCFFI
 	private static var lime_alc_get_error = CFFI.load("lime", "lime_alc_get_error", 1);
 	private static var lime_alc_get_integerv = CFFI.load("lime", "lime_alc_get_integerv", 3);
 	private static var lime_alc_get_string = CFFI.load("lime", "lime_alc_get_string", 2);
+	private static var lime_alc_get_device_list = CFFI.load("lime", "lime_alc_get_device_list", 1);
 	private static var lime_alc_make_context_current = CFFI.load("lime", "lime_alc_make_context_current", 1);
 	private static var lime_alc_open_device = CFFI.load("lime", "lime_alc_open_device", 1);
 	private static var lime_alc_pause_device = CFFI.load("lime", "lime_alc_pause_device", 1);
 	private static var lime_alc_process_context = CFFI.load("lime", "lime_alc_process_context", 1);
 	private static var lime_alc_resume_device = CFFI.load("lime", "lime_alc_resume_device", 1);
 	private static var lime_alc_suspend_context = CFFI.load("lime", "lime_alc_suspend_context", 1);
+	private static var lime_alc_capture_open_device = CFFI.load("lime", "lime_alc_capture_open_device", 4);
+	private static var lime_alc_capture_close_device = CFFI.load("lime", "lime_alc_capture_close_device", 1);
+	private static var lime_alc_capture_start = CFFI.load("lime", "lime_alc_capture_start", 1);
+	private static var lime_alc_capture_stop = CFFI.load("lime", "lime_alc_capture_stop", 1);
+	private static var lime_alc_capture_samples = CFFI.load("lime", "lime_alc_capture_samples", 3);
 	private static var lime_al_gen_filter = CFFI.load("lime", "lime_al_gen_filter", 0);
 	private static var lime_al_filteri = CFFI.load("lime", "lime_al_filteri", 3);
 	private static var lime_al_filterf = CFFI.load("lime", "lime_al_filterf", 3);
@@ -2333,6 +2390,11 @@ class NativeCFFI
 		return null;
 	}
 
+	@:hlNative("lime", "hl_alc_get_device_list") private static function lime_alc_get_device_list(param:Int):hl.NativeArray<hl.Bytes>
+	{
+		return null;
+	}
+
 	@:hlNative("lime", "hl_alc_make_context_current") private static function lime_alc_make_context_current(context:ALContext):Bool
 	{
 		return false;
@@ -2350,6 +2412,22 @@ class NativeCFFI
 	@:hlNative("lime", "hl_alc_resume_device") private static function lime_alc_resume_device(device:ALDevice):Void {}
 
 	@:hlNative("lime", "hl_alc_suspend_context") private static function lime_alc_suspend_context(context:ALContext):Void {}
+
+	@:hlNative("lime", "hl_alc_capture_open_device") private static function lime_alc_capture_open_device(devicename:String, frequency:Int, format:Int, buffersize:Int):CFFIPointer
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_alc_capture_close_device") private static function lime_alc_capture_close_device(device:ALDevice):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_alc_capture_start") private static function lime_alc_capture_start(device:ALDevice):Void {}
+
+	@:hlNative("lime", "hl_alc_capture_stop") private static function lime_alc_capture_stop(device:ALDevice):Void {}
+
+	@:hlNative("lime", "hl_alc_capture_samples") private static function lime_alc_capture_samples(device:ALDevice, buffer:Bytes, samples:Int):Void {}
 
 	@:hlNative("lime", "hl_al_gen_filter") private static function lime_al_gen_filter():CFFIPointer
 	{
@@ -6978,5 +7056,43 @@ class NativeCFFI
 		return 0;
 	}
 	#end
+	#end
+
+	#if (lime_cffi && !macro)
+
+	#if (cpp && !cppia)
+
+	#if (disable_cffi || haxe_ver < "3.4.0")
+	@:cffi private static function lime_hint_get(name:String):Dynamic;
+
+	@:cffi private static function lime_hint_set(name:String, value:String, priority:Int):Bool;
+	#else
+	private static var lime_hint_get = new cpp.Callable<String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hint_get",
+		"so"));
+	private static var lime_hint_set = new cpp.Callable<String->String->Int->Bool>(cpp.Prime._loadPrime("lime", "lime_hint_set",
+		"ssib"));
+	#end
+
+	#end
+
+
+	#if (neko || cppia)
+	private static var lime_hint_get = CFFI.load("lime", "lime_hint_get", 1);
+	private static var lime_hint_set = CFFI.load("lime", "lime_hint_set", 3);
+	#end
+
+
+	#if hl
+	@:hlNative("lime", "hl_hint_get") private static function lime_hint_get(name:String):hl.Bytes
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_hint_set") private static function lime_hint_set(name:String, value:String, priority:Int):Bool
+	{
+		return false;
+	}
+	#end
+
 	#end
 }

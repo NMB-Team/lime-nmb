@@ -3,6 +3,8 @@
         [ "--cwd", "tools", "tools.hxml" ]
     ],
     "editor.insertSpaces": false,
+    "editor.formatOnPaste": false,
+    "editor.formatOnSave": false,
     "editor.trimAutoWhitespace": true,
     "codedox": {
         "commentprefix": "    ",

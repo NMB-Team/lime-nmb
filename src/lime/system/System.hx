@@ -317,6 +317,7 @@ class System
 		return 0;
 		#end
 	}
+
 	public static function getTimerPrecise():Float
 	{
 		#if ((js && !nodejs) || electron)
@@ -332,6 +333,33 @@ class System
 		#end
 	}
 
+	/**
+	 * Bind `SDL_GetHint(name)` from SDL
+	 * Only works on desktop
+	 **/
+	public static function getHint(name:String):Null<String>
+	{
+		#if (lime_cffi && !macro)
+		return CFFI.stringValue(NativeCFFI.lime_hint_get(name));
+		#else
+		return null;
+		#end
+	}
+
+	/**
+	 * Bind `SDL_SetHint(name, value)` and `SDL_SetHintWithPriority(name, value, nativePriorty)` from SDL
+	 * Only works on desktop
+	 **/
+	public static function setHint(name:String, value:String, priority:HintPriority = HINT_NORMAL):Bool
+	{
+		#if (lime_cffi && !macro)
+		return NativeCFFI.lime_hint_set(name, value, priority);
+		#else
+		return false;
+		#end
+	}
+
+
 	#if (!lime_doc_gen || lime_cffi)
 	public static inline function load(library:String, method:String, args:Int = 0, lazy:Bool = false):Dynamic
 	{
@@ -344,7 +372,7 @@ class System
 	#end
 
 	/**
-		Opens a file with the suste, default application.
+		Opens a file with the system default application.
 
 		In a web browser, opens a URL with target `_blank`.
 	**/
