@@ -381,13 +381,13 @@ class HTML5Application
 			stats.end();
 			#end
 
-			if (framePeriod > 0)
+			if (framePeriod < 0)
 			{
-				nextUpdate = currentUpdate - (currentUpdate % framePeriod) + framePeriod;
+				nextUpdate = currentUpdate;
 			}
 			else
 			{
-				nextUpdate = currentUpdate;
+				nextUpdate = currentUpdate - (currentUpdate % framePeriod) + framePeriod;
 			}
 
 			lastUpdate = currentUpdate;

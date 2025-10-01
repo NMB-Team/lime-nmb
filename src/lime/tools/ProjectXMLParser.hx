@@ -678,7 +678,7 @@ class ProjectXMLParser extends HXProject
 
 					var asset = new Asset(path + childPath, targetPath + childTargetPath, childType, childEmbed);
 					asset.library = childLibrary;
-
+					
 					if (childElement.has.id)
 					{
 						asset.id = substitute(childElement.att.id);
@@ -849,7 +849,7 @@ class ProjectXMLParser extends HXProject
 		{
 			switch (attribute)
 			{
-				case "title", "description", "package", "version", "company", "company-id", "build-number", "company-url", "copyright-years":
+				case "title", "description", "package", "version", "company", "company-id", "build-number", "company-url":
 					var value = substitute(element.att.resolve(attribute));
 
 					defines.set("APP_" + StringTools.replace(attribute, "-", "_").toUpperCase(), value);

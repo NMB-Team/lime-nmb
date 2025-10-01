@@ -145,7 +145,7 @@ class Image
 	/**
 		The offset, width and height of this image as a `Rectangle`
 	**/
-	public var rect(get, never):Rectangle;
+	public var rect(get, null):Rectangle;
 
 	/**
 		A higher-level representation of the source `ImageBuffer`. This might be an
@@ -1475,11 +1475,6 @@ class Image
 		__fromBase64(Base64.encode(bytes), type, onload);
 		return true;
 		#elseif (lime_cffi && !macro)
-		if (bytes == null || bytes.length == 0)
-		{
-			return false;
-		}
-
 		var imageBuffer:ImageBuffer = null;
 
 		#if !cs

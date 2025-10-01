@@ -56,12 +56,10 @@ namespace lime {
 			int GetNumGlyphs ();
 			int GetUnderlinePosition ();
 			int GetUnderlineThickness ();
-			int GetStrikethroughPosition ();
-			int GetStrikethroughThickness ();
 			int GetUnitsPerEM ();
 			int RenderGlyph (int index, Bytes *bytes, int offset = 0);
 			int RenderGlyphs (value indices, Bytes *bytes);
-			void SetSize (size_t size, size_t dpi);
+			void SetSize (size_t size);
 
 			void* library;
 			void* face;

@@ -180,11 +180,11 @@ class Timer
 	public static inline function stamp():Float
 	{
 		#if flash
-		return flash.Lib.getTimer() * .001;
+		return flash.Lib.getTimer() / 1000;
 		#elseif (neko || php)
 		return Sys.time();
 		#elseif js
-		return Date.now().getTime() * .001;
+		return Date.now().getTime() / 1000;
 		#elseif cpp
 		return untyped __global__.__time_stamp();
 		#elseif python
@@ -260,17 +260,29 @@ class Timer
 		return r;
 	}
 
-	public dynamic function run() {}
+	dynamic public function run() {}
 
 	public static inline function stamp():Float
 	{
 		var timer = System.getTimer();
-		return (timer > 0 ? timer * .001 : 0);
+		return (timer > 0 ? timer / 1000 : 0);
 	}
 
 	public function stop():Void
 	{
-		mRunning = false;
+		if (mRunning)
+		{
+			mRunning = false;
+
+			for (i in 0...sRunningTimers.length)
+			{
+				if (sRunningTimers[i] == this)
+				{
+					sRunningTimers[i] = null;
+					break;
+				}
+			}
+		}
 	}
 
 	@:noCompletion private function __check(inTime:Float)

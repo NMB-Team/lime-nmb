@@ -609,8 +609,6 @@ class NativeOpenGLRenderContext
 	public var DYNAMIC_COPY = 0x88EA;
 	public var DEPTH_COMPONENT32F = 0x8CAC;
 	public var DEPTH32F_STENCIL8 = 0x8CAD;
-	public var BLEND_ADVANCED_COHERENT_KHR = 0x9285;
-	public var BLEND_ADVANCED_COHERENT_NV = 0x9285;
 	public var INVALID_INDEX = 0xFFFFFFFF;
 	public var TIMEOUT_IGNORED = -1;
 	public var MAX_CLIENT_WAIT_TIMEOUT_WEBGL = 0x9247;
@@ -1817,10 +1815,8 @@ class NativeOpenGLRenderContext
 				getFloatv(pname, params);
 				return params;
 
-			/*
 			case GL.ACTIVE_TEXTURE, GL.ALPHA_BITS, GL.BLEND_DST_ALPHA, GL.BLEND_DST_RGB, GL.BLEND_EQUATION, GL.BLEND_EQUATION_ALPHA,
-				// GL.BLEND_EQUATION_RGB,
-				GL.BLEND_SRC_ALPHA, GL.BLEND_SRC_RGB, GL.BLUE_BITS, GL.CULL_FACE_MODE, GL.DEPTH_BITS, GL.DEPTH_FUNC, GL.FRONT_FACE,
+				/*GL.BLEND_EQUATION_RGB,*/ GL.BLEND_SRC_ALPHA, GL.BLEND_SRC_RGB, GL.BLUE_BITS, GL.CULL_FACE_MODE, GL.DEPTH_BITS, GL.DEPTH_FUNC, GL.FRONT_FACE,
 				GL.GENERATE_MIPMAP_HINT, GL.GREEN_BITS, GL.IMPLEMENTATION_COLOR_READ_FORMAT, GL.IMPLEMENTATION_COLOR_READ_TYPE,
 				GL.MAX_COMBINED_TEXTURE_IMAGE_UNITS, GL.MAX_CUBE_MAP_TEXTURE_SIZE, GL.MAX_FRAGMENT_UNIFORM_VECTORS, GL.MAX_RENDERBUFFER_SIZE,
 				GL.MAX_TEXTURE_IMAGE_UNITS, GL.MAX_TEXTURE_SIZE, GL.MAX_VARYING_VECTORS, GL.MAX_VERTEX_ATTRIBS, GL.MAX_VERTEX_TEXTURE_IMAGE_UNITS,
@@ -1829,7 +1825,6 @@ class NativeOpenGLRenderContext
 				GL.STENCIL_BITS, GL.STENCIL_CLEAR_VALUE, GL.STENCIL_FAIL, GL.STENCIL_FUNC, GL.STENCIL_PASS_DEPTH_FAIL, GL.STENCIL_PASS_DEPTH_PASS,
 				GL.STENCIL_REF, GL.STENCIL_VALUE_MASK, GL.STENCIL_WRITEMASK, GL.SUBPIXEL_BITS, GL.UNPACK_ALIGNMENT, GL.UNPACK_COLORSPACE_CONVERSION_WEBGL:
 				return getInteger(pname);
-			*/
 
 			case GL.COMPRESSED_TEXTURE_FORMATS:
 				var params = new UInt32Array(getInteger(GL.NUM_COMPRESSED_TEXTURE_FORMATS));
@@ -3292,12 +3287,12 @@ class NativeOpenGLRenderContext
 	}
 
 	#if (!js || !html5 || doc_gen)
-	private inline function __createObject(id:Int):GLObject
+	private function __createObject(id:Int):GLObject
 	{
 		return new GLObject(id);
 	}
 
-	private inline function __getObjectID(object:GLObject):Int
+	private function __getObjectID(object:GLObject):Int
 	{
 		return (object == null) ? 0 : object.id;
 	}
@@ -3363,10 +3358,8 @@ class NativeOpenGLRenderContext
 			__extensionObjectConstructors["IMG_read_format"] = IMG_read_format.new;
 			__extensionObjectConstructors["IMG_shader_binary"] = IMG_shader_binary.new;
 			__extensionObjectConstructors["IMG_texture_compression_pvrtc"] = IMG_texture_compression_pvrtc.new;
-			__extensionObjectConstructors["KHR_blend_equation_advanced"] = KHR_blend_equation_advanced.new;
 			__extensionObjectConstructors["KHR_debug"] = KHR_debug.new;
 			__extensionObjectConstructors["KHR_texture_compression_astc_ldr"] = KHR_texture_compression_astc_ldr.new;
-			__extensionObjectConstructors["NV_blend_equation_advanced"] = NV_blend_equation_advanced.new;
 			__extensionObjectConstructors["NV_coverage_sample"] = NV_coverage_sample.new;
 			__extensionObjectConstructors["NV_depth_nonlinear"] = NV_depth_nonlinear.new;
 			__extensionObjectConstructors["NV_draw_buffers"] = NV_draw_buffers.new;

@@ -567,8 +567,6 @@ extern class HTML5WebGL2RenderContext extends WebGLRenderingContext
 	public var DYNAMIC_COPY:Int;
 	public var DEPTH_COMPONENT32F:Int;
 	public var DEPTH32F_STENCIL8:Int;
-	public var BLEND_ADVANCED_COHERENT_KHR:Int;
-	public var BLEND_ADVANCED_COHERENT_NV:Int;
 	public var INVALID_INDEX:Int;
 	public var TIMEOUT_IGNORED:Int;
 	public var MAX_CLIENT_WAIT_TIMEOUT_WEBGL:Int;

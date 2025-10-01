@@ -509,8 +509,6 @@ class WindowsPlatform extends PlatformTarget
 
 					if (noOutput) return;
 
-					IconHelper.createWindowsIcon(icons, Path.combine(targetDirectory + "/obj", "ApplicationMain.ico"));
-
 					CPPHelper.compile(project, targetDirectory + "/obj", flags);
 
 					System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath);
@@ -521,12 +519,18 @@ class WindowsPlatform extends PlatformTarget
 
 					if (noOutput) return;
 
-					IconHelper.createWindowsIcon(icons, Path.combine(targetDirectory + "/obj", "ApplicationMain.ico"));
-
 					CPPHelper.compile(project, targetDirectory + "/obj", flags.concat(["-Dstatic_link"]));
 					CPPHelper.compile(project, targetDirectory + "/obj", flags, "BuildMain.xml");
 
 					System.copyFile(targetDirectory + "/obj/Main" + (project.debug ? "-debug" : "") + ".exe", executablePath);
+				}
+
+				var iconPath = Path.combine(applicationDirectory, "icon.ico");
+
+				if (IconHelper.createWindowsIcon(icons, iconPath) && System.hostPlatform == WINDOWS)
+				{
+					var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)) + "/templates"].concat(project.templatePaths);
+					System.runCommand("", System.findTemplate(templates, "bin/ReplaceVistaIcon.exe"), [executablePath, iconPath, "1"], true, true);
 				}
 			}
 		}
@@ -590,29 +594,6 @@ class WindowsPlatform extends PlatformTarget
 		}
 		else
 		{
-			if (targetType == "cpp")
-			{
-				if (context.APP_DESCRIPTION == null || context.APP_DESCRIPTION == "")
-				{
-					context.APP_DESCRIPTION = project.meta.title;
-				}
-
-				if (context.APP_COPYRIGHT_YEARS == null || context.APP_COPYRIGHT_YEARS == "")
-				{
-					context.APP_COPYRIGHT_YEARS = Std.string(Date.now().getFullYear());
-				}
-
-				var versionParts = project.meta.version.split(".");
-
-				if (versionParts.length == 3)
-				{
-					versionParts.push("0");
-				}
-
-				context.FILE_VERSION = versionParts.join(".");
-				context.VERSION_NUMBER = versionParts.join(",");
-			}
-
 			context.NEKO_FILE = targetDirectory + "/obj/ApplicationMain.n";
 			context.NODE_FILE = targetDirectory + "/bin/ApplicationMain.js";
 			context.HL_FILE = targetDirectory + "/obj/ApplicationMain.hl";
@@ -910,14 +891,9 @@ class WindowsPlatform extends PlatformTarget
 			ProjectHelper.recursiveSmartCopyTemplate(project, "winrt/temp", targetDirectory + "/haxe/temp", context, false, true);
 			ProjectHelper.recursiveSmartCopyTemplate(project, "winrt/scripts", targetDirectory + "/scripts", context, true, true);
 		}
-		else if (targetType == "cpp")
+		else if (targetType == "cpp" && project.targetFlags.exists("static"))
 		{
-			ProjectHelper.recursiveSmartCopyTemplate(project, "windows/resource", targetDirectory + "/obj", context);
-
-			if (project.targetFlags.exists("static"))
-			{
-				ProjectHelper.recursiveSmartCopyTemplate(project, "cpp/static", targetDirectory + "/obj", context);
-			}
+			ProjectHelper.recursiveSmartCopyTemplate(project, "cpp/static", targetDirectory + "/obj", context);
 		}
 
 		/*if (IconHelper.createIcon (project.icons, 32, 32, Path.combine (applicationDirectory, "icon.png"))) {

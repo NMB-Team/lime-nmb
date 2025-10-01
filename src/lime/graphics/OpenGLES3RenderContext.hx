@@ -610,8 +610,6 @@ public var DYNAMIC_READ(get, never):Int;
 public var DYNAMIC_COPY(get, never):Int;
 public var DEPTH_COMPONENT32F(get, never):Int;
 public var DEPTH32F_STENCIL8(get, never):Int;
-public var BLEND_ADVANCED_COHERENT_KHR(get, never):Int;
-public var BLEND_ADVANCED_COHERENT_NV(get, never):Int;
 public var INVALID_INDEX(get, never):Int;
 public var TIMEOUT_IGNORED(get, never):Int;
 public var MAX_CLIENT_WAIT_TIMEOUT_WEBGL(get, never):Int;
@@ -3414,16 +3412,6 @@ public var version(get, never):Float;
 @:noCompletion private inline function get_DEPTH32F_STENCIL8():Int
 {
 	return this.DEPTH32F_STENCIL8;
-}
-
-@:noCompletion private inline function get_BLEND_ADVANCED_COHERENT_KHR():Int
-{
-	return this.BLEND_ADVANCED_COHERENT_KHR;
-}
-
-@:noCompletion private inline function get_BLEND_ADVANCED_COHERENT_NV():Int
-{
-	return this.BLEND_ADVANCED_COHERENT_NV;
 }
 
 @:noCompletion private inline function get_INVALID_INDEX():Int

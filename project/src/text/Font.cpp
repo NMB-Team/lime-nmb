@@ -813,10 +813,6 @@ namespace lime {
 			while (*characters != 0) {
 
 				character = readNextChar (characters);
-
-				if (character == -1)
-					break;
-
 				index = FT_Get_Char_Index ((FT_Face)face, character);
 				val_array_push (indices, alloc_int (index));
 
@@ -830,30 +826,21 @@ namespace lime {
 			int index;
 			int count = 0;
 
-			const char* characters_start = characters;
+			// TODO: Determine array size first
 
 			while (*characters != 0) {
 
 				character = readNextChar (characters);
-
-				if (character == -1)
-					break;
-
 				count++;
 
 			}
 
 			hl_varray* indices = (hl_varray*)hl_alloc_array (&hlt_i32, count);
 			int* indicesData = hl_aptr (indices, int);
-			characters = characters_start;
 
 			while (*characters != 0) {
 
 				character = readNextChar (characters);
-
-				if (character == -1)
-					break;
-
 				*indicesData++ = FT_Get_Char_Index ((FT_Face)face, character);
 
 			}
@@ -950,37 +937,6 @@ namespace lime {
 	}
 
 
-	int Font::GetStrikethroughPosition () {
-
-		TT_OS2* os2 = (TT_OS2*)FT_Get_Sfnt_Table(((FT_Face)face), ft_sfnt_os2);
-
-		if (os2 && os2->version != 0xFFFFU)
-		{
-
-			return os2->yStrikeoutPosition;
-
-		}
-
-		return 0;
-	}
-
-
-	int Font::GetStrikethroughThickness () {
-
-		TT_OS2* os2 = (TT_OS2*)FT_Get_Sfnt_Table(((FT_Face)face), ft_sfnt_os2);
-
-
-		if (os2 && os2->version != 0xFFFFU)
-		{
-
-			return os2->yStrikeoutSize;
-
-		}
-
-		return 0;
-	}
-
-
 	int Font::GetUnitsPerEM () {
 
 		return ((FT_Face)face)->units_per_EM;
@@ -988,33 +944,29 @@ namespace lime {
 	}
 
 
-	int Font::RenderGlyph(int index, Bytes *bytes, int offset)
-	{
-		if (FT_Load_Glyph((FT_Face)face, index, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0)
-		{
-			if (FT_Render_Glyph(((FT_Face)face)->glyph, FT_RENDER_MODE_LCD) == 0)
-			{
+	int Font::RenderGlyph (int index, Bytes *bytes, int offset) {
+
+		if (FT_Load_Glyph ((FT_Face)face, index, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
+
+			if (FT_Render_Glyph (((FT_Face)face)->glyph, FT_RENDER_MODE_NORMAL) == 0) {
+
 				FT_Bitmap bitmap = ((FT_Face)face)->glyph->bitmap;
 
 				int height = bitmap.rows;
-				int width = bitmap.width / 3; //Due to each pixel now has 3 components (R, G, B)
+				int width = bitmap.width;
 				int pitch = bitmap.pitch;
 
-				if (width == 0 || height == 0)
-					return 0;
+				if (width == 0 || height == 0) return 0;
 
-				//We calculate the size needed for the glyph image, including metadata and 24-bit RGB color data
-				uint32_t size = sizeof(GlyphImage) + (width * height * 4);
+				uint32_t size = (4 * 5) + (width * height);
 
-				if (bytes->length < size + offset)
-				{
-					bytes->Resize(size + offset);
+				if (bytes->length < size + offset) {
+
+					bytes->Resize (size + offset);
+
 				}
 
-				GlyphImage *data = (GlyphImage *)(bytes->b + offset);
-
-				//We should initialize the GlyphImage struct here with zero to avoid uninitialized values
-				memset(data, 0, sizeof(GlyphImage));
+				GlyphImage *data = (GlyphImage*)(bytes->b + offset);
 
 				data->index = index;
 				data->width = width;
@@ -1022,28 +974,12 @@ namespace lime {
 				data->x = ((FT_Face)face)->glyph->bitmap_left;
 				data->y = ((FT_Face)face)->glyph->bitmap_top;
 
-				unsigned char *position = &data->data;
+				unsigned char* position = &data->data;
 
-				//Copy the bitmap data row by row, copying each RGB triplet and adding padding for 32-bit alignment
-				for (int i = 0; i < height; i++)
-				{
-					for (int j = 0; j < width; j++)
-					{
-						unsigned char r = bitmap.buffer[i * pitch + j * 3 + 0];
-						unsigned char g = bitmap.buffer[i * pitch + j * 3 + 1];
-						unsigned char b = bitmap.buffer[i * pitch + j * 3 + 2];
+				for (int i = 0; i < height; i++) {
 
-						unsigned char a = (r + g + b) / 3;
+					memcpy (position + (i * width), bitmap.buffer + (i * pitch), width);
 
-						//Red
-						position[(i * width + j) * 4 + 0] = r;
-						//Green
-						position[(i * width + j) * 4 + 1] = g;
-						//Blue
-						position[(i * width + j) * 4 + 2] = b;
-						//Alpha
-						position[(i * width + j) * 4 + 3] = a;
-					}
 				}
 
 				return size;
@@ -1089,21 +1025,12 @@ namespace lime {
 	}
 
 
-	void Font::SetSize(size_t size, size_t dpi)
-	{
-		//We changed the function signature to include a dpi argument which changes this from
-		//the default value of 72 for dpi. Any public api that uses this should probably be changed
-		//to allow setting the dpi in an appropriate future release.
-		size_t hdpi = dpi;
-		size_t vdpi = dpi;
+	void Font::SetSize (size_t size) {
 
-		FT_Set_Char_Size(
-			(FT_Face)face,						//Handle to the target face object
-			0,									//Char width in 1/64th of points (0 means same as height)
-			static_cast<int>(size * 64), 		//Char height in 1/64th of points
-			hdpi,								//Horizontal DPI
-			vdpi								//Vertical DPI
-		);
+		size_t hdpi = 72;
+		size_t vdpi = 72;
+
+		FT_Set_Char_Size ((FT_Face)face, (int)(size*64), (int)(size*64), hdpi, vdpi);
 		mSize = size;
 
 	}

@@ -135,7 +135,6 @@ class NativeWindow
 				var gl = new NativeOpenGLRenderContext();
 
 				useHardware = true;
-				contextAttributes.hardware = true;
 
 				#if lime_opengl
 				context.gl = gl;
@@ -159,7 +158,6 @@ class NativeWindow
 
 			default:
 				useHardware = false;
-				contextAttributes.hardware = false;
 
 				#if lime_cairo
 				context.cairo = cairo;
@@ -258,18 +256,6 @@ class NativeWindow
 			{
 				return System.getDisplay(index);
 			}
-			#end
-		}
-
-		return null;
-	}
-
-	public function getNativeHandle():Dynamic
-	{
-		if (handle != null)
-		{
-			#if (!macro && lime_cffi)
-			return NativeCFFI.lime_window_get_handle(handle);
 			#end
 		}
 
@@ -731,18 +717,6 @@ class NativeWindow
 		{
 			#if (!macro && lime_cffi)
 			return NativeCFFI.lime_window_set_vsync(handle, value);
-			#end
-		}
-
-		return value;
-	}
-
-	public function setAlwaysOnTop(value:Bool):Bool
-	{
-		if (handle != null)
-		{
-			#if (!macro && lime_cffi)
-			NativeCFFI.lime_window_set_always_on_top(handle, value);
 			#end
 		}
 
