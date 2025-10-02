@@ -44,6 +44,7 @@ class AudioBuffer
 	public var bitsPerSample:Int;
 	public var channels:Int;
 	public var data:UInt8Array;
+	public var dataFormat:AudioBufferDataFormat;
 	public var sampleRate:Int;
 	public var src(get, set):Dynamic;
 
@@ -90,7 +91,13 @@ class AudioBuffer
 		}
 
 		var audioBuffer = new AudioBuffer();
-		audioBuffer.src = new Howl({src: [base64String], html5: true, preload: false});
+
+		#if force_html5_audio
+		audioBuffer.src = new Howl({src: [base64String], html5: true, preload: true});
+		#else
+		audioBuffer.src = new Howl({src: [base64String], preload: true});
+		#end
+
 		return audioBuffer;
 		#elseif (lime_cffi && !macro)
 		#if !cs
@@ -115,6 +122,7 @@ class AudioBuffer
 			audioBuffer.bitsPerSample = data.bitsPerSample;
 			audioBuffer.channels = data.channels;
 			audioBuffer.data = new UInt8Array(@:privateAccess new Bytes(data.data.length, data.data.b));
+			audioBuffer.dataFormat = data.dataFormat;
 			audioBuffer.sampleRate = data.sampleRate;
 			return audioBuffer;
 		}
@@ -130,7 +138,12 @@ class AudioBuffer
 
 		#if (js && html5 && lime_howlerjs)
 		var audioBuffer = new AudioBuffer();
-		audioBuffer.src = new Howl({src: ["data:" + __getCodec(bytes) + ";base64," + Base64.encode(bytes)], html5: true, preload: false});
+
+		#if force_html5_audio
+		audioBuffer.src = new Howl({src: ["data:" + __getCodec(bytes) + ";base64," + Base64.encode(bytes)], html5: true, preload: true});
+		#else
+		audioBuffer.src = new Howl({src: ["data:" + __getCodec(bytes) + ";base64," + Base64.encode(bytes)], preload: true});
+		#end
 
 		return audioBuffer;
 		#elseif (lime_cffi && !macro)
@@ -148,6 +161,7 @@ class AudioBuffer
 			audioBuffer.bitsPerSample = data.bitsPerSample;
 			audioBuffer.channels = data.channels;
 			audioBuffer.data = new UInt8Array(@:privateAccess new Bytes(data.data.length, data.data.b));
+			audioBuffer.dataFormat = data.dataFormat;
 			audioBuffer.sampleRate = data.sampleRate;
 			return audioBuffer;
 		}
@@ -197,6 +211,7 @@ class AudioBuffer
 			audioBuffer.bitsPerSample = data.bitsPerSample;
 			audioBuffer.channels = data.channels;
 			audioBuffer.data = new UInt8Array(@:privateAccess new Bytes(data.data.length, data.data.b));
+			audioBuffer.dataFormat = data.dataFormat;
 			audioBuffer.sampleRate = data.sampleRate;
 			return audioBuffer;
 		}
@@ -244,6 +259,7 @@ class AudioBuffer
 		audioBuffer.channels = info.channels;
 		audioBuffer.sampleRate = info.rate;
 		audioBuffer.bitsPerSample = 16;
+		audioBuffer.dataFormat = PCM;
 		audioBuffer.__srcVorbisFile = vorbisFile;
 
 		return audioBuffer;
