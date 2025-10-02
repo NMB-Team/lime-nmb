@@ -204,6 +204,15 @@ class CFFI
 		#end
 	}
 
+	@:dox(hide) #if !hl inline #end public static function stringValue(#if hl value:hl.Bytes #else value:String #end):String
+	{
+		#if hl
+		return value != null ? @:privateAccess String.fromUTF8(value) : null;
+		#else
+		return value;
+		#end
+	}
+
 	private static function __findHaxelib(library:String):String
 	{
 		#if (sys && !macro && !html5)
@@ -290,9 +299,7 @@ class CFFI
 			{
 				init = load("lime", "neko_init", 5);
 			}
-			catch (e:Dynamic)
-			{
-			}
+			catch (e:Dynamic) {}
 
 			if (init != null)
 			{
@@ -311,7 +318,10 @@ class CFFI
 				var ndllFolder = __findHaxelib("lime") + "/ndll/" + __sysName();
 				throw "Could not find lime.ndll. This file is provided with Lime's Haxelib releases, but not via Git. "
 					+ "Please copy it from Lime's latest Haxelib release into either "
-					+ ndllFolder + " or " + ndllFolder + "64, as appropriate for your system. "
+					+ ndllFolder
+					+ " or "
+					+ ndllFolder
+					+ "64, as appropriate for your system. "
 					+ "Advanced users may run `lime rebuild cpp` instead.";
 			}
 		}

@@ -41,6 +41,7 @@ class PlatformTarget
 			if (haxeflag == "--no-output")
 			{
 				noOutput = true;
+				break;
 			}
 		}
 	}
@@ -53,10 +54,9 @@ class PlatformTarget
 		var metaFields = Meta.getFields(Type.getClass(this));
 
 		// known issue: this may not log in `-eval` mode on Linux
-		inline function logCommand(command:String):Void
+		function logCommand(command:String):Void
 		{
-			if (!Reflect.hasField(metaFields, command)
-				|| !Reflect.hasField(Reflect.field(metaFields, command), "ignore"))
+			if (!Reflect.hasField(metaFields, command) || !Reflect.hasField(Reflect.field(metaFields, command), "ignore"))
 			{
 				Log.info("", "\n" + Log.accentColor + "Running command: " + command.toUpperCase() + Log.resetColor);
 			}
@@ -133,8 +133,7 @@ class PlatformTarget
 			run();
 		}
 
-		if ((command == "test" || command == "trace" || command == "run" || command == "rerun")
-			&& (traceEnabled || command == "trace"))
+		if ((command == "test" || command == "trace" || command == "run" || command == "rerun") && (traceEnabled || command == "trace"))
 		{
 			logCommand("trace");
 			this.trace();

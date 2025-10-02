@@ -480,7 +480,8 @@ class HTML5Window
 	private function handleCutOrCopyEvent(event:ClipboardEvent):Void
 	{
 		var text = Clipboard.text;
-		if (text == null) {
+		if (text == null)
+		{
 			text = "";
 		}
 		event.clipboardData.setData("text/plain", text);
@@ -1042,19 +1043,15 @@ class HTML5Window
 
 	public function setFrameRate(value:Float):Float
 	{
-		if (parent.application != null)
+		if (parent.application != null && parent == parent.application.window)
 		{
-			if (value >= 60)
+			if (value > 0)
 			{
-				if (parent == parent.application.window) parent.application.__backend.framePeriod = -1;
-			}
-			else if (value > 0)
-			{
-				if (parent == parent.application.window) parent.application.__backend.framePeriod = 1000 / value;
+				parent.application.__backend.framePeriod = 1000 / value;
 			}
 			else
 			{
-				if (parent == parent.application.window) parent.application.__backend.framePeriod = 1000;
+				parent.application.__backend.framePeriod = -1;
 			}
 		}
 
@@ -1239,7 +1236,6 @@ class HTML5Window
 				textInput.removeEventListener('paste', handlePasteEvent, true);
 				textInput.removeEventListener('compositionstart', handleCompositionstartEvent, true);
 				textInput.removeEventListener('compositionend', handleCompositionendEvent, true);
-
 			}
 		}
 
