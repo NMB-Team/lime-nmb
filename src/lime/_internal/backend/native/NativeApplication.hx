@@ -275,25 +275,25 @@ class NativeApplication
 			}
 
 			#if (windows || linux)
-			// if (keyCode == RETURN)
-			// {
-			// 	if (type == KEY_DOWN)
-			// 	{
-			// 		if (toggleFullscreen && modifier.altKey && (!modifier.ctrlKey && !modifier.shiftKey && !modifier.metaKey))
-			// 		{
-			// 			toggleFullscreen = false;
+			if (keyCode == F11)
+			{
+				if (type == KEY_DOWN)
+				{
+					if (toggleFullscreen && (!modifier.altKey && !modifier.ctrlKey && !modifier.shiftKey && !modifier.metaKey))
+					{
+						toggleFullscreen = false;
 
-			// 			if (!window.onKeyDown.canceled)
-			// 			{
-			// 				window.fullscreen = !window.fullscreen;
-			// 			}
-			// 		}
-			// 	}
-			// 	else
-			// 	{
-			// 		toggleFullscreen = true;
-			// 	}
-			// }
+						if (!window.onKeyDown.canceled)
+						{
+							window.fullscreen = !window.fullscreen;
+						}
+					}
+				}
+				else
+				{
+					toggleFullscreen = true;
+				}
+			}
 
 			#if rpi
 			if (keyCode == ESCAPE && modifier == KeyModifier.NONE && type == KEY_UP && !window.onKeyUp.canceled)
