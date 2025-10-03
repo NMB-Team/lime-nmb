@@ -56,6 +56,8 @@
 
 	<files id="lime">
 
+		<!-- setting HXCPP_CPP11 doesn't seem to apply to .mm files -->
+        <compilerflag value="-std=c++11" unless="isMsvc" />
 		<compilerflag value="-Iinclude" />
 
 		<file name="src/ExternalInterface.cpp" />
@@ -343,7 +345,7 @@
 	<include name="lib/mojoal/files.xml" />
 	<include name="lib/neko/files.xml" />
 	<include name="lib/ogg/files.xml" />
-	<include name="lib/openal/files.xml" />
+	<include name="lib/openal-files.xml" />
 	<include name="lib/pixman/files.xml" />
 	<include name="lib/png/files.xml" />
 	<include name="lib/sdl-files.xml" />
