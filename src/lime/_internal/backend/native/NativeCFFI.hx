@@ -295,6 +295,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_focus(handle:Dynamic):Void;
 
+	@:cffi private static function lime_window_get_handle(handle:Dynamic):Float;
+
 	@:cffi private static function lime_window_get_context(handle:Dynamic):Float;
 
 	@:cffi private static function lime_window_get_context_type(handle:Dynamic):Dynamic;
@@ -360,6 +362,8 @@ class NativeCFFI
 	@:cffi private static function lime_window_set_visible(handle:Dynamic, visible:Bool):Bool;
 
 	@:cffi private static function lime_window_set_vsync(handle:Dynamic, vsync:Bool):Bool;
+
+	@:cffi private static function lime_window_set_always_on_top(handle:Dynamic, visible:Bool):Bool;
 
 	@:cffi private static function lime_window_warp_mouse(handle:Dynamic, x:Int, y:Int):Void;
 
@@ -572,6 +576,7 @@ class NativeCFFI
 	private static var lime_window_create = new cpp.Callable<cpp.Object->Int->Int->Int->String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_create",
 		"oiiiso", false));
 	private static var lime_window_focus = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_focus", "ov", false));
+	private static var lime_window_get_handle = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_window_get_handle", "od", false));
 	private static var lime_window_get_context = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_window_get_context", "od", false));
 	private static var lime_window_get_context_type = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_get_context_type",
 		"oo", false));
@@ -625,6 +630,8 @@ class NativeCFFI
 	private static var lime_window_set_title = new cpp.Callable<cpp.Object->String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_set_title", "oso",
 		false));
 	private static var lime_window_set_visible = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_visible", "obb",
+		false));
+	private static var lime_window_set_always_on_top = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_always_on_top", "obb",
 		false));
 	private static var lime_window_set_vsync = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_vsync", "obb",
 		false));
@@ -757,6 +764,7 @@ class NativeCFFI
 	private static var lime_window_context_unlock = CFFI.load("lime", "lime_window_context_unlock", 1);
 	private static var lime_window_create = CFFI.load("lime", "lime_window_create", 5);
 	private static var lime_window_focus = CFFI.load("lime", "lime_window_focus", 1);
+	private static var lime_window_get_handle = CFFI.load("lime", "lime_window_get_handle", 1);
 	private static var lime_window_get_context = CFFI.load("lime", "lime_window_get_context", 1);
 	private static var lime_window_get_context_type = CFFI.load("lime", "lime_window_get_context_type", 1);
 	private static var lime_window_get_display = CFFI.load("lime", "lime_window_get_display", 1);
@@ -789,6 +797,7 @@ class NativeCFFI
 	private static var lime_window_set_text_input_rect = CFFI.load("lime", "lime_window_set_text_input_rect", 2);
 	private static var lime_window_set_title = CFFI.load("lime", "lime_window_set_title", 2);
 	private static var lime_window_set_visible = CFFI.load("lime", "lime_window_set_visible", 2);
+	private static var lime_window_set_always_on_top = CFFI.load("lime", "lime_window_set_always_on_top", 2);
 	private static var lime_window_set_vsync = CFFI.load("lime", "lime_window_set_vsync", 2);
 	private static var lime_window_warp_mouse = CFFI.load("lime", "lime_window_warp_mouse", 3);
 	private static var lime_window_event_manager_register = CFFI.load("lime", "lime_window_event_manager_register", 2);
@@ -1290,6 +1299,11 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_window_focus") private static function lime_window_focus(handle:CFFIPointer):Void {}
 
+	@:hlNative("lime", "hl_window_get_handle") private static function lime_window_get_handle(handle:CFFIPointer):Float
+	{
+		return 0;
+	}
+
 	@:hlNative("lime", "hl_window_get_context") private static function lime_window_get_context(handle:CFFIPointer):Float
 	{
 		return 0;
@@ -1412,6 +1426,11 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_window_set_vsync") private static function lime_window_set_vsync(handle:CFFIPointer, vsync:Bool):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_window_set_always_on_top") private static function lime_window_set_always_on_top(handle:CFFIPointer, visible:Bool):Bool
 	{
 		return false;
 	}

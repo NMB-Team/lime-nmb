@@ -37,6 +37,7 @@ class Window
 	#if (!lime_doc_gen || (js && html5))
 	public var element(default, null):#if (js && html5) Element #else Dynamic #end;
 	#end
+	public var nativeHandle(get, null):Dynamic;
 
 	/**
 	 * The current frame rate (measured in frames-per-second) of the window.
@@ -98,6 +99,7 @@ class Window
 	public var textInputEnabled(get, set):Bool;
 	public var title(get, set):String;
 	public var visible(get, set):Bool;
+	public var alwaysOnTop(get, set):Bool;
 	public var vsync(get, set):Bool;
 	public var width(get, set):Int;
 	public var x(get, set):Int;
@@ -120,6 +122,7 @@ class Window
 	@:noCompletion private var __scale:Float;
 	@:noCompletion private var __title:String;
 	@:noCompletion private var __visible:Bool;
+	@:noCompletion private var __alwaysOnTop:Bool;
 	@:noCompletion private var __vsync:Bool;
 	@:noCompletion private var __width:Int;
 	@:noCompletion private var __x:Int;
@@ -154,6 +157,7 @@ class Window
 				"textInputEnabled": {get: p.get_textInputEnabled, set: p.set_textInputEnabled},
 				"title": {get: p.get_title, set: p.set_title},
 				"visible": {get: p.get_visible, set: p.set_visible},
+				"alwaysOnTop": {get: p.get_alwaysOnTop, set: p.set_alwaysOnTop},
 				"width": {get: p.get_width, set: p.set_width},
 				"x": {get: p.get_x, set: p.set_y},
 				"y": {get: p.get_x, set: p.set_y}
@@ -176,6 +180,12 @@ class Window
 		__x = 0;
 		__y = 0;
 		__title = Reflect.hasField(__attributes, "title") ? __attributes.title : "";
+		__visible = true;
+		__borderless = Reflect.hasField(__attributes, "borderless") ? __attributes.borderless : false;
+		__resizable = Reflect.hasField(__attributes, "resizable") ? __attributes.resizable : false;
+		__maximized = Reflect.hasField(__attributes, "maximized") ? __attributes.maximized : false;
+		__minimized = Reflect.hasField(__attributes, "minimized") ? __attributes.minimized : false;
+
 		id = -1;
 
 		__backend = new WindowBackend(this);
@@ -244,6 +254,7 @@ class Window
 			"4c050000000000006802000000000000,PS3 Controller,a:b14,b:b13,back:b0,dpdown:b6,dpleft:b7,dpright:b5,dpup:b4,guide:b16,leftshoulder:b10,leftstick:b1,lefttrigger:b8,leftx:a0,lefty:a1,rightshoulder:b11,rightstick:b2,righttrigger:b9,rightx:a2,righty:a3,start:b3,x:b15,y:b12,platform:Mac OS X",
 			"4c05000000000000c405000000000000,Sony DualShock 4,a:b1,b:b2,y:b3,x:b0,start:b9,guide:b12,back:b13,leftstick:b10,rightstick:b11,leftshoulder:b4,rightshoulder:b5,dpup:h0.1,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,leftx:a0,lefty:a1,rightx:a2,righty:a5,lefttrigger:a3,righttrigger:a4,platform:Mac OS X",
 			"4c05000000000000cc09000000000000,Sony DualShock 4 V2,a:b1,b:b2,y:b3,x:b0,start:b9,guide:b12,back:b13,leftstick:b10,rightstick:b11,leftshoulder:b4,rightshoulder:b5,dpup:h0.1,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,leftx:a0,lefty:a1,rightx:a2,righty:a5,lefttrigger:a3,righttrigger:a4,platform:Mac OS X",
+			"030000004c050000e60c000000010000,DualSense Wireless Controller,a:b1,b:b2,y:b3,x:b0,start:b9,guide:b12,back:b13,leftstick:b10,rightstick:b11,leftshoulder:b4,rightshoulder:b5,dpup:h0.1,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,leftx:a0,lefty:a1,rightx:a2,righty:a5,lefttrigger:a3,righttrigger:a4,platform:Mac OS X",
 			"5e040000000000008e02000000000000,X360 Controller,a:b0,b:b1,back:b9,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,guide:b10,leftshoulder:b4,leftstick:b6,lefttrigger:a2,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b7,righttrigger:a5,rightx:a3,righty:a4,start:b8,x:b2,y:b3,platform:Mac OS X",
 			"891600000000000000fd000000000000,Razer Onza Tournament,a:b0,b:b1,y:b3,x:b2,start:b8,guide:b10,back:b9,leftstick:b6,rightstick:b7,leftshoulder:b4,rightshoulder:b5,dpup:b11,dpleft:b13,dpdown:b12,dpright:b14,leftx:a0,lefty:a1,rightx:a3,righty:a4,lefttrigger:a2,righttrigger:a5,platform:Mac OS X",
 			"4f0400000000000000b3000000000000,Thrustmaster Firestorm Dual Power,a:b0,b:b2,y:b3,x:b1,start:b10,guide:b8,back:b9,leftstick:b11,rightstick:,leftshoulder:b4,rightshoulder:b6,dpup:h0.1,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,leftx:a0,lefty:a1,rightx:a2,righty:a3,lefttrigger:b5,righttrigger:b7,platform:Mac OS X",
@@ -259,6 +270,8 @@ class Window
 			"5e04000000000000dd02000000000000,Xbox One Wired Controller,platform:Mac OS X,x:b2,a:b0,b:b1,y:b3,back:b9,guide:b10,start:b8,dpleft:b13,dpdown:b12,dpright:b14,dpup:b11,leftshoulder:b4,lefttrigger:a2,rightshoulder:b5,righttrigger:a5,leftstick:b6,rightstick:b7,leftx:a0,lefty:a1,rightx:a3,righty:a4",
 			"5e04000000000000ea02000000000000,Xbox Wireless Controller,platform:Mac OS X,x:b2,a:b0,b:b1,y:b3,back:b9,guide:b10,start:b8,dpleft:b13,dpdown:b12,dpright:b14,dpup:b11,leftshoulder:b4,lefttrigger:a2,rightshoulder:b5,righttrigger:a5,leftstick:b6,rightstick:b7,leftx:a0,lefty:a1,rightx:a3,righty:a4",
 			"5e04000000000000e002000000000000,Xbox Wireless Controller,platform:Mac OS X,x:b2,a:b0,b:b1,y:b3,back:b6,guide:b10,start:b7,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,dpup:h0.1,leftshoulder:b4,lefttrigger:a2,rightshoulder:b5,righttrigger:a5,leftstick:b8,rightstick:b9,leftx:a0,lefty:a1,rightx:a3,righty:a4",
+			"030000005e040000120b000009050000,Xbox Series X Wired Controller,platform:Mac OS X,x:b3,a:b0,b:b1,y:b4,back:b10,guide:b12,start:b11,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,dpup:h0.1,leftshoulder:b6,lefttrigger:a5,rightshoulder:b7,righttrigger:a4,leftstick:b13,rightstick:b14,leftx:a0,lefty:a1,rightx:a2,righty:a3",
+			"030000005e040000130b000009050000,Xbox Series X Wireless Controller,platform:Mac OS X,x:b3,a:b0,b:b1,y:b4,back:b10,guide:b12,start:b11,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,dpup:h0.1,leftshoulder:b6,lefttrigger:a5,rightshoulder:b7,righttrigger:a4,leftstick:b13,rightstick:b14,leftx:a0,lefty:a1,rightx:a2,righty:a3",
 			"050000005769696d6f74652028313800,Wii U Pro Controller,a:b16,b:b15,x:b18,y:b17,back:b7,guide:b8,start:b6,leftstick:b23,rightstick:b24,leftshoulder:b19,rightshoulder:b20,dpup:b11,dpdown:b12,dpleft:b13,dpright:b14,leftx:a0,lefty:a1,rightx:a2,righty:a3,lefttrigger:b21,righttrigger:b22,platform:Mac OS X",
 			"79000000000000000018000000000000,Mayflash WiiU Pro Game Controller Adapter (DInput),a:b4,b:b8,x:b0,y:b12,back:b32,start:b36,leftstick:b40,rightstick:b44,leftshoulder:b16,rightshoulder:b20,dpup:h0.1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,leftx:a0,lefty:a4,rightx:a8,righty:a12,lefttrigger:b24,righttrigger:b28,platform:Mac OS X",
 			"2509000000000000e803000000000000,Mayflash Wii Classic Controller,a:b1,b:b0,x:b3,y:b2,back:b8,guide:b10,start:b9,leftshoulder:b4,rightshoulder:b5,dpup:h0.1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:b11,dpdown:b13,dpleft:b12,dpright:b14,leftx:a0,lefty:a1,rightx:a2,righty:a3,lefttrigger:b6,righttrigger:b7,platform:Mac OS X",
@@ -506,6 +519,11 @@ class Window
 		return __backend.setDisplayMode(value);
 	}
 
+	@:noCompletion private function get_nativeHandle():Dynamic
+	{
+		return __backend.getNativeHandle();
+	}
+
 	@:noCompletion private inline function get_borderless():Bool
 	{
 		return __borderless;
@@ -700,6 +718,16 @@ class Window
 	@:noCompletion private function set_vsync(value:Bool):Bool
 	{
 		return __vsync = __backend.setVSync(value);
+	}
+
+	@:noCompletion private inline function get_alwaysOnTop():Bool
+	{
+		return __alwaysOnTop;
+	}
+
+	@:noCompletion private function set_alwaysOnTop(value:Bool):Bool
+	{
+		return __alwaysOnTop = __backend.setAlwaysOnTop(value);
 	}
 
 	@:noCompletion private inline function get_width():Int

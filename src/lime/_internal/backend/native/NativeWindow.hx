@@ -264,6 +264,18 @@ class NativeWindow
 		return null;
 	}
 
+	public function getNativeHandle():Dynamic
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null)
+		{
+			return NativeCFFI.lime_window_get_handle(handle);
+		}
+		#end
+
+		return null;
+	}
+
 	public function getDisplayMode():DisplayMode
 	{
 		if (handle != null)
@@ -719,6 +731,18 @@ class NativeWindow
 		{
 			#if (!macro && lime_cffi)
 			return NativeCFFI.lime_window_set_vsync(handle, value);
+			#end
+		}
+
+		return value;
+	}
+
+	public function setAlwaysOnTop(value:Bool):Bool
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_always_on_top(handle, value);
 			#end
 		}
 
