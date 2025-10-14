@@ -419,6 +419,11 @@ class OpenALAudioContext
 		}
 	}
 
+	public function getStringList(device:ALDevice, param:Int):Array<String>
+	{
+		return ALC.getStringList(device, param);
+	}
+
 	public function getDeviceList(param:Int, device:ALDevice = null):Array<String>
 	{
 		return ALC.getDeviceList(param);

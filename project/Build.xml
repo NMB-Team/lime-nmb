@@ -21,12 +21,9 @@
 	<set name="LIME_MBEDTLS" value="1" unless="emscripten || winrt" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
-	<set name="LIME_OPENALSOFT" value="1" if="windows || linux || mac || android" unless="static_link" />
-	<set name="LIME_OPENAL" value="1" if="iphone || webassembly || tvos" />
-	<set name="LIME_MOJOAL" value="1" if="switch || static_link || winrt || mojoal" unless="LIME_OPENAL" />
-	<unset name="LIME_OPENALSOFT" if="LIME_MOJOAL" />
-	<set name="LIME_OPENAL" value="1" if="LIME_OPENALSOFT" />
-	<set name="LIME_OPENAL" value="1" if="LIME_MOJOAL" />
+	<set name="LIME_OPENALSOFT" value="1" if="lime-openalsoft" />
+	<set name="LIME_OPENAL" value="1" if="lime-openal" />
+	<set name="LIME_MOJOAL" value="1" if="lime-mojoal" />
 	<set name="LIME_OPENGL" value="1" />
 	<set name="LIME_PIXMAN" value="1" />
 	<set name="LIME_PNG" value="1" />
@@ -56,6 +53,8 @@
 
 	<files id="lime">
 
+		<!-- setting HXCPP_CPP11 doesn't seem to apply to .mm files -->
+        <compilerflag value="-std=c++11" unless="isMsvc" />
 		<compilerflag value="-Iinclude" />
 
 		<file name="src/ExternalInterface.cpp" />
@@ -245,6 +244,7 @@
 			<compilerflag value="-D__IPHONEOS__" if="ios || tvos" />
 			<compilerflag value="-D__APPLETVOS__" if="tvos" />
 			<compilerflag value="-DAPPLETV" if="tvos" />
+			<compilerflag value="-DHAVE_STDIO_H" unless="windows" />
 
 			<file name="src/backend/sdl/SDLApplication.cpp" />
 			<file name="src/backend/sdl/SDLGamepad.cpp" />
@@ -339,15 +339,15 @@
 	<include name="lib/jpeg/files.xml" />
 	<include name="lib/lzma/files.xml" />
 	<include name="lib/mbedtls-files.xml" />
-	<include name="lib/mojoal/files.xml" />
+	<include name="lib/mojoal-files.xml" />
 	<include name="lib/neko/files.xml" />
-	<include name="lib/ogg/files.xml" />
-	<include name="lib/openal/files.xml" />
+	<include name="lib/ogg-files.xml" />
+	<include name="lib/openal-files.xml" />
 	<include name="lib/pixman/files.xml" />
 	<include name="lib/png/files.xml" />
-	<include name="lib/sdl/files.xml" />
+	<include name="lib/sdl-files.xml" />
 	<include name="lib/tinyfiledialogs-files.xml" />
-	<include name="lib/vorbis/files.xml" />
+	<include name="lib/vorbis-files.xml" />
 	<include name="lib/vpx/files.xml" />
 	<include name="lib/webm/files.xml" />
 	<include name="lib/zlib/files.xml" />

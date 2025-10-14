@@ -2393,28 +2393,28 @@ namespace lime {
 	}
 
 
-	float lime_key_code_from_scan_code (float scanCode) {
+	int lime_key_code_from_scan_code (int scanCode) {
 
 		return KeyCode::FromScanCode (scanCode);
 
 	}
 
 
-	HL_PRIM float HL_NAME(hl_key_code_from_scan_code) (float scanCode) {
+	HL_PRIM int HL_NAME(hl_key_code_from_scan_code) (int scanCode) {
 
 		return KeyCode::FromScanCode (scanCode);
 
 	}
 
 
-	float lime_key_code_to_scan_code (float keyCode) {
+	int lime_key_code_to_scan_code (int keyCode) {
 
 		return KeyCode::ToScanCode (keyCode);
 
 	}
 
 
-	HL_PRIM float HL_NAME(hl_key_code_to_scan_code) (float keyCode) {
+	HL_PRIM int HL_NAME(hl_key_code_to_scan_code) (int keyCode) {
 
 		return KeyCode::ToScanCode (keyCode);
 
@@ -3312,6 +3312,22 @@ namespace lime {
 	}
 
 
+	double lime_window_get_handle (value window) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		return (uintptr_t)targetWindow->GetHandle ();
+
+	}
+
+
+	HL_PRIM double HL_NAME(hl_window_get_handle) (HL_CFFIPointer* window) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return (uintptr_t)targetWindow->GetHandle ();
+
+	}
+
+
 	double lime_window_get_context (value window) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -3903,6 +3919,22 @@ namespace lime {
 	}
 
 
+	bool lime_window_set_always_on_top (value window, bool enabled) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->SetAlwaysOnTop(enabled);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_set_always_on_top) (HL_CFFIPointer* window, bool enabled) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->SetAlwaysOnTop (enabled);
+
+	}
+
+
 	void lime_window_warp_mouse (value window, int x, int y) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -4099,6 +4131,7 @@ namespace lime {
 	DEFINE_PRIME5 (lime_window_create);
 	DEFINE_PRIME2v (lime_window_event_manager_register);
 	DEFINE_PRIME1v (lime_window_focus);
+	DEFINE_PRIME1 (lime_window_get_handle);
 	DEFINE_PRIME1 (lime_window_get_context);
 	DEFINE_PRIME1 (lime_window_get_context_type);
 	DEFINE_PRIME1 (lime_window_get_display);
@@ -4130,6 +4163,7 @@ namespace lime {
 	DEFINE_PRIME2 (lime_window_set_title);
 	DEFINE_PRIME2 (lime_window_set_visible);
 	DEFINE_PRIME2 (lime_window_set_vsync);
+	DEFINE_PRIME2 (lime_window_set_always_on_top);
 	DEFINE_PRIME3v (lime_window_warp_mouse);
 	DEFINE_PRIME1 (lime_window_get_opacity);
 	DEFINE_PRIME2v (lime_window_set_opacity);
@@ -4160,7 +4194,7 @@ namespace lime {
 
 	#define _TARRAYBUFFER _TBYTES
 	#define _TARRAYBUFFERVIEW _OBJ (_I32 _TARRAYBUFFER _I32 _I32 _I32 _I32)
-	#define _TAUDIOBUFFER _OBJ (_I32 _I32 _TARRAYBUFFERVIEW _I32 _I32 _DYN _DYN _DYN _DYN _DYN _TVORBISFILE)
+	#define _TAUDIOBUFFER _OBJ (_I32 _I32 _TARRAYBUFFERVIEW _I32 _DYN _DYN _DYN _DYN _DYN _TVORBISFILE)
 	#define _TIMAGEBUFFER _OBJ (_I32 _TARRAYBUFFERVIEW _I32 _I32 _BOOL _BOOL _I32 _DYN _DYN _DYN _DYN _DYN _DYN)
 	#define _TIMAGE _OBJ (_TIMAGEBUFFER _BOOL _I32 _I32 _I32 _TRECTANGLE _ENUM _I32 _I32 _F64 _F64)
 
@@ -4250,8 +4284,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_joystick_get_num_trackballs, _I32);
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, hl_jpeg_decode_bytes, _TBYTES _BOOL _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, hl_jpeg_decode_file, _STRING _BOOL _TIMAGEBUFFER);
-	DEFINE_HL_PRIM (_F32, hl_key_code_from_scan_code, _F32);
-	DEFINE_HL_PRIM (_F32, hl_key_code_to_scan_code, _F32);
+	DEFINE_HL_PRIM (_I32, hl_key_code_from_scan_code, _I32);
+	DEFINE_HL_PRIM (_I32, hl_key_code_to_scan_code, _I32);
 	DEFINE_HL_PRIM (_VOID, hl_key_event_manager_register, _FUN (_VOID, _NO_ARG) _TKEY_EVENT);
 	DEFINE_HL_PRIM (_BYTES, hl_locale_get_system_locale, _NO_ARG);
 	DEFINE_HL_PRIM (_TBYTES, hl_lzma_compress, _TBYTES _TBYTES);
@@ -4291,6 +4325,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_window_create, _TCFFIPOINTER _I32 _I32 _I32 _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_window_event_manager_register, _FUN (_VOID, _NO_ARG) _TWINDOW_EVENT);
 	DEFINE_HL_PRIM (_VOID, hl_window_focus, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_F64, hl_window_get_handle, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_F64, hl_window_get_context, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BYTES, hl_window_get_context_type, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_window_get_display, _TCFFIPOINTER);
@@ -4321,6 +4356,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_set_text_input_rect, _TCFFIPOINTER _TRECTANGLE);
 	DEFINE_HL_PRIM (_STRING, hl_window_set_title, _TCFFIPOINTER _STRING);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_visible, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_BOOL, hl_window_set_always_on_top, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_vsync, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_warp_mouse, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_F64, hl_window_get_opacity, _TCFFIPOINTER);

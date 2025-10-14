@@ -36,7 +36,7 @@ namespace lime {
 	#endif
 
 	SDLApplication::SDLApplication () {
-		Uint32 initFlags = SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER | SDL_INIT_JOYSTICK;
+		initFlags = SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER | SDL_INIT_JOYSTICK;
 		#if defined(LIME_MOJOAL) || defined(LIME_OPENALSOFT)
 		initFlags |= SDL_INIT_AUDIO;
 		#endif
@@ -184,9 +184,9 @@ namespace lime {
 
 		while ((dt = getTime() - start) < threshold)
 			SDL_Delay(1);
-		
+
 		double end = getTime();
-		
+
 		double remainder = (end - start) - dt;
 		if (remainder > 0)
 			busyWait(remainder);
@@ -208,7 +208,7 @@ namespace lime {
 				if (!inBackground) {
 					applicationEvent.type = UPDATE;
 					applicationEvent.deltaTime = currentUpdate - lastUpdate;
-					
+
 					double start = getTime();
 
 					ApplicationEvent::Dispatch (&applicationEvent);
@@ -277,7 +277,7 @@ namespace lime {
 
 				ProcessSensorEvent (event);
 				break;
-			
+
 			#endif
 
 			case SDL_JOYAXISMOTION:
@@ -404,7 +404,7 @@ namespace lime {
 
 	void SDLApplication::Init () {
 		active = true;
-		
+
 		double ticks = (double)SDL_GetPerformanceCounter();
 		lastUpdate = ticks;
 	}
@@ -891,6 +891,8 @@ namespace lime {
 		applicationEvent.type = EXIT;
 		ApplicationEvent::Dispatch (&applicationEvent);
 
+		SDL_QuitSubSystem (initFlags);
+
 		SDL_Quit ();
 		return 0;
 
@@ -945,7 +947,7 @@ namespace lime {
 		double dtLimit = framePeriod * 4;
 		if (dt > dtLimit)
 			dt = dtLimit;
-		
+
 		nextUpdate += dt;
 
 		if(nextUpdate >= framePeriod) {
