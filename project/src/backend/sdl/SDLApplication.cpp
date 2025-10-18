@@ -14,6 +14,22 @@
 #endif
 
 
+#include <thread>
+#if defined(_MSC_VER)
+  #include <immintrin.h> // _mm_pause
+#elif defined(__GNUC__) || defined(__clang__)
+  #include <x86intrin.h> // _mm_pause
+#endif
+
+inline void cpu_relax() noexcept {
+#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
+    _mm_pause(); // x86 PAUSE instruction
+#else
+    std::this_thread::yield(); // fallback
+#endif
+}
+
+
 namespace lime {
 
 
@@ -53,7 +69,7 @@ namespace lime {
 
 		currentApplication = this;
 
-		framePeriod = 1.0;
+		framePeriod = 0.0;
 
 		currentUpdate = 0;
 		lastUpdate = 0;
@@ -165,15 +181,17 @@ namespace lime {
 
 	}
 
+
 	double getTime() {
 		const double counter = (double)SDL_GetPerformanceCounter() - performanceCounter;
 		return (counter / performanceFrequency) * 1000.0;
-
 	}
+
+
 	void busyWait(double ms) {
 		const double start = getTime();
 		while (getTime() - start < ms) {
-			std::this_thread::yield();
+			cpu_relax();
 		}
 	}
 
@@ -187,10 +205,11 @@ namespace lime {
 
 		double end = getTime();
 
-		double remainder = (end - start) - dt;
+		double remainder = (start - end) - dt;
 		if (remainder > 0)
 			busyWait(remainder);
 	}
+
 
 	void SDLApplication::HandleEvent (SDL_Event* event) {
 
@@ -207,7 +226,7 @@ namespace lime {
 
 				if (!inBackground) {
 					applicationEvent.type = UPDATE;
-					applicationEvent.deltaTime = currentUpdate - lastUpdate;
+					applicationEvent.deltaTime = (currentUpdate - lastUpdate) * 1000.0;
 
 					double start = getTime();
 

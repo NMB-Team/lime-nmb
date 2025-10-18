@@ -81,7 +81,7 @@ class ThreadPool
 				Thread.create(__doWork);
 			}
 
-			if (!Application.current.onUpdate.has(__update))
+			if (Application.current != null && !Application.current.onUpdate.has(__update))
 			{
 				Application.current.onUpdate.add(__update);
 			}

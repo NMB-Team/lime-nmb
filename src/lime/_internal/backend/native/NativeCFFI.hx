@@ -323,6 +323,10 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_get_y(handle:Dynamic):Int;
 
+	@:cffi private static function lime_window_get_mouse_pos_x():Int;
+
+	@:cffi private static function lime_window_get_mouse_pos_y():Int;
+
 	@:cffi private static function lime_window_move(handle:Dynamic, x:Int, y:Int):Void;
 
 	@:cffi private static function lime_window_read_pixels(handle:Dynamic, rect:Dynamic, imageBuffer:Dynamic):Dynamic;
@@ -594,6 +598,8 @@ class NativeCFFI
 	private static var lime_window_get_width = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_width", "oi", false));
 	private static var lime_window_get_x = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_x", "oi", false));
 	private static var lime_window_get_y = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_y", "oi", false));
+	private static var lime_window_get_mouse_pos_x = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_mouse_pos_x", "i", false));
+	private static var lime_window_get_mouse_pos_y = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_mouse_pos_y", "i", false));
 	private static var lime_window_move = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_move", "oiiv", false));
 	private static var lime_window_read_pixels = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
 		"lime_window_read_pixels", "oooo", false));
@@ -778,6 +784,8 @@ class NativeCFFI
 	private static var lime_window_get_width = CFFI.load("lime", "lime_window_get_width", 1);
 	private static var lime_window_get_x = CFFI.load("lime", "lime_window_get_x", 1);
 	private static var lime_window_get_y = CFFI.load("lime", "lime_window_get_y", 1);
+	private static var lime_window_get_mouse_pos_x = CFFI.load("lime", "lime_window_get_mouse_pos_x", 0);
+	private static var lime_window_get_mouse_pos_y = CFFI.load("lime", "lime_window_get_mouse_pos_y", 0);
 	private static var lime_window_move = CFFI.load("lime", "lime_window_move", 3);
 	private static var lime_window_read_pixels = CFFI.load("lime", "lime_window_read_pixels", 3);
 	private static var lime_window_resize = CFFI.load("lime", "lime_window_resize", 3);
@@ -1357,6 +1365,16 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_window_get_y") private static function lime_window_get_y(handle:CFFIPointer):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_window_get_mouse_pos_x") private static function lime_window_get_mouse_pos_x():Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_window_get_mouse_pos_y") private static function lime_window_get_mouse_pos_y():Int
 	{
 		return 0;
 	}

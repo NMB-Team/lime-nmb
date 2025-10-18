@@ -209,21 +209,9 @@ namespace lime {
 
 			sdlRendererFlags |= SDL_RENDERER_ACCELERATED;
 
-			// if (window->flags & WINDOW_FLAG_VSYNC) {
-
 			#ifdef EMSCRIPTEN
 			sdlRendererFlags |= SDL_RENDERER_PRESENTVSYNC;
 			#endif
-
-			// }
-
-			// sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlRendererFlags);
-
-			// if (sdlRenderer) {
-
-			// 	context = SDL_GL_GetCurrentContext ();
-
-			// }
 
 			context = SDL_GL_CreateContext (sdlWindow);
 
@@ -245,6 +233,10 @@ namespace lime {
 
 				int version = 0;
 				glGetIntegerv (GL_MAJOR_VERSION, &version);
+
+				int versionm = 0;
+				glGetIntegerv (GL_MINOR_VERSION, &versionm);
+				printf("GL Version %i.%i\n", version, versionm);
 
 				if (version == 0) {
 
