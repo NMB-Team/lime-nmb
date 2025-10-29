@@ -177,8 +177,8 @@ class HTML5Window
 
 		if (canvas != null)
 		{
-			canvas.width = Math.round(parent.__width * scale);
-			canvas.height = Math.round(parent.__height * scale);
+			canvas.width = Math.floor(parent.__width * scale);
+			canvas.height = Math.floor(parent.__height * scale);
 
 			canvas.style.width = parent.__width + "px";
 			canvas.style.height = parent.__height + "px";
@@ -1017,8 +1017,8 @@ class HTML5Window
 			if (rect.width > 0 && rect.height > 0)
 			{
 				var canvas2:CanvasElement = cast Browser.document.createElement("canvas");
-				canvas2.width = Std.int(rect.width);
-				canvas2.height = Std.int(rect.height);
+				canvas2.width = Math.floor(rect.width);
+				canvas2.height = Math.floor(rect.height);
 
 				var context = canvas2.getContext("2d");
 				context.drawImage(canvas, -rect.x, -rect.y);
@@ -1354,7 +1354,8 @@ class HTML5Window
 	{
 		if (!parent.__resizable) return;
 
-		var elementWidth, elementHeight;
+		var elementWidth:Float;
+		var elementHeight:Float;
 
 		if (parent.element != null)
 		{
@@ -1387,8 +1388,8 @@ class HTML5Window
 						{
 							if (parent.element != cast canvas)
 							{
-								canvas.width = Math.round(elementWidth * scale);
-								canvas.height = Math.round(elementHeight * scale);
+								canvas.width = Math.floor(elementWidth * scale);
+								canvas.height = Math.floor(elementHeight * scale);
 
 								canvas.style.width = elementWidth + "px";
 								canvas.style.height = elementHeight + "px";
@@ -1415,13 +1416,13 @@ class HTML5Window
 
 					if (scaleX < scaleY)
 					{
-						targetHeight = Math.floor(setHeight * scaleX);
-						marginTop = Math.floor((elementHeight - targetHeight) / 2);
+						targetHeight = Math.ceil(setHeight * scaleX);
+						marginTop = Math.ceil((elementHeight - targetHeight) * .5);
 					}
 					else
 					{
-						targetWidth = Math.floor(setWidth * scaleY);
-						marginLeft = Math.floor((elementWidth - targetWidth) / 2);
+						targetWidth = Math.ceil(setWidth * scaleY);
+						marginLeft = Math.ceil((elementWidth - targetWidth) * .5);
 					}
 
 					if (canvas != null)
