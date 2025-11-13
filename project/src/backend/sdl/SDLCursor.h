@@ -3,6 +3,7 @@
 
 
 #include <SDL.h>
+#include <graphics/ImageBuffer.h>
 
 
 namespace lime {
@@ -23,6 +24,8 @@ namespace lime {
 			static SDL_Cursor* textCursor;
 			static SDL_Cursor* waitCursor;
 			static SDL_Cursor* waitArrowCursor;
+
+			static SDL_Cursor* CreateImageCursor(ImageBuffer *imageBuffer, int hot_x, int hot_y);
 
 	};
 

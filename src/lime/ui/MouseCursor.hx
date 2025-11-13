@@ -14,5 +14,5 @@ enum MouseCursor
 	TEXT;
 	WAIT;
 	WAIT_ARROW;
-	CUSTOM;
+	CUSTOM(data:MouseCursorData);
 }

@@ -247,6 +247,7 @@
 			<compilerflag value="-DHAVE_STDIO_H" unless="windows" />
 
 			<file name="src/backend/sdl/SDLApplication.cpp" />
+			<file name="src/backend/sdl/SDLCursor.cpp" />
 			<file name="src/backend/sdl/SDLGamepad.cpp" />
 			<file name="src/backend/sdl/SDLJoystick.cpp" />
 			<file name="src/backend/sdl/SDLKeyCode.cpp" />

@@ -46,6 +46,7 @@ namespace lime {
 			virtual int GetWidth () = 0;
 			virtual int GetX () = 0;
 			virtual int GetY () = 0;
+			virtual void GetMousePosition (int* x, int* y) = 0;
 			virtual void Move (int x, int y) = 0;
 			virtual void ReadPixels (ImageBuffer *buffer, Rectangle *rect) = 0;
 			virtual void Resize (int width, int height) = 0;
@@ -53,6 +54,7 @@ namespace lime {
 			virtual void SetMaximumSize (int width, int height) = 0;
 			virtual bool SetBorderless (bool borderless) = 0;
 			virtual void SetCursor (Cursor cursor) = 0;
+			virtual void SetCursorDirectly (void *cursor) = 0;
 			virtual void SetDisplayMode (DisplayMode* displayMode) = 0;
 			virtual bool SetFullscreen (bool fullscreen) = 0;
 			virtual void SetIcon (ImageBuffer *imageBuffer) = 0;

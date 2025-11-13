@@ -16,7 +16,7 @@ import lime.utils.Log;
 #end
 
 #if !lime_webgl
-@:from private static function fromInt(id:Int):GLProgram
+@:from private static inline function fromInt(id:Int):GLProgram
 {
 	return GLObject.fromInt(PROGRAM, id);
 }

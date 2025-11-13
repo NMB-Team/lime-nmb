@@ -3292,7 +3292,7 @@ class NativeOpenGLRenderContext
 		return new GLObject(id);
 	}
 
-	private function __getObjectID(object:GLObject):Int
+	private inline function __getObjectID(object:Null<GLObject>):Int
 	{
 		return (object == null) ? 0 : object.id;
 	}

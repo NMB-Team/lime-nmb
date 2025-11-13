@@ -7,7 +7,7 @@ import lime.graphics.opengl.GL;
 @:forward(id)
 abstract GLTexture(GLObject) from GLObject to GLObject
 {
-	@:from private static function fromInt(id:Int):GLTexture
+	@:from private static inline function fromInt(id:Int):GLTexture
 	{
 		return GLObject.fromInt(TEXTURE, id);
 	}

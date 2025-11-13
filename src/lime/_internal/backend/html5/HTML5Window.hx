@@ -38,11 +38,12 @@ import lime.ui.Window;
 @:access(lime._internal.backend.html5.HTML5Application)
 @:access(lime._internal.backend.html5.HTML5WebGL2RenderContext)
 @:access(lime.app.Application)
-@:access(lime.graphics.opengl.GL)
 @:access(lime.graphics.OpenGLRenderContext)
 @:access(lime.graphics.RenderContext)
+@:access(lime.graphics.opengl.GL)
 @:access(lime.ui.Gamepad)
 @:access(lime.ui.Joystick)
+@:access(lime.ui.MouseCursorData)
 @:access(lime.ui.Window)
 class HTML5Window
 {
@@ -70,6 +71,7 @@ class HTML5Window
 	private var requestedFullscreen:Bool;
 	private var resizeElement:Bool;
 	private var scale = 1.0;
+	private var checkScale:Bool = false; // to cache the AllowHighDPI and DOM render check result
 	private var setHeight:Int;
 	private var setWidth:Int;
 	private var textInputEnabled:Bool;
@@ -108,6 +110,7 @@ class HTML5Window
 		if (Reflect.hasField(attributes, "allowHighDPI") && attributes.allowHighDPI && renderType != DOM)
 		{
 			scale = Browser.window.devicePixelRatio;
+			checkScale = true;
 		}
 
 		parent.__scale = scale;
@@ -140,6 +143,7 @@ class HTML5Window
 			var style = canvas.style;
 			style.setProperty("-webkit-transform", "translateZ(0)", null);
 			style.setProperty("transform", "translateZ(0)", null);
+			style.setProperty("outline", "none", null);
 		}
 		else if (div != null)
 		{
@@ -154,6 +158,7 @@ class HTML5Window
 			style.setProperty("-moz-user-select", "none", null);
 			style.setProperty("-ms-user-select", "none", null);
 			style.setProperty("-o-user-select", "none", null);
+			style.setProperty("outline", "none", null);
 		}
 
 		if (parent.__width == 0 && parent.__height == 0)
@@ -1070,29 +1075,26 @@ class HTML5Window
 
 	public function setCursor(value:MouseCursor):MouseCursor
 	{
-		if (cursor != value)
+		if (!Type.enumEq(cursor, value))
 		{
-			if (value == null)
+			parent.element.style.cursor = switch (value)
 			{
-				parent.element.style.cursor = "none";
-			}
-			else
-			{
-				parent.element.style.cursor = switch (value)
-				{
-					case ARROW: "default";
-					case CROSSHAIR: "crosshair";
-					case MOVE: "move";
-					case POINTER: "pointer";
-					case RESIZE_NESW: "nesw-resize";
-					case RESIZE_NS: "ns-resize";
-					case RESIZE_NWSE: "nwse-resize";
-					case RESIZE_WE: "ew-resize";
-					case TEXT: "text";
-					case WAIT: "wait";
-					case WAIT_ARROW: "wait";
-					default: "auto";
-				}
+				case null: "none";
+				case CUSTOM(data):
+					data.__update();
+					data.__handle;
+				case ARROW: "default";
+				case CROSSHAIR: "crosshair";
+				case MOVE: "move";
+				case POINTER: "pointer";
+				case RESIZE_NESW: "nesw-resize";
+				case RESIZE_NS: "ns-resize";
+				case RESIZE_NWSE: "nwse-resize";
+				case RESIZE_WE: "ew-resize";
+				case TEXT: "text";
+				case WAIT: "wait";
+				case WAIT_ARROW: "wait";
+				default: "auto";
 			}
 
 			cursor = value;
@@ -1353,6 +1355,11 @@ class HTML5Window
 	private function updateSize():Void
 	{
 		if (!parent.__resizable) return;
+
+		if (checkScale) {
+			scale =  Browser.window.devicePixelRatio;
+			parent.__scale = scale;
+		}
 
 		var elementWidth:Float;
 		var elementHeight:Float;

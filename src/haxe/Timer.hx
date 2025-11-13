@@ -247,7 +247,7 @@ class Timer
 		return t;
 	}
 
-	private static function getMS():Float
+	private static inline function getMS():Float
 	{
 		return System.getTimer();
 	}

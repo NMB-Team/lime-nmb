@@ -732,6 +732,20 @@ namespace lime {
 	}
 
 
+	void SDLWindow::GetMousePosition(int* x, int* y)
+	{
+		SDL_GetGlobalMouseState(x, y);
+
+		int winX, winY;
+
+		SDL_GetWindowPosition (sdlWindow, &winX, &winY);
+
+		*x -= winX;
+		*y -= winY;
+	}
+
+
+
 	void SDLWindow::Move (int x, int y) {
 
 		SDL_SetWindowPosition (sdlWindow, x, y);
@@ -950,6 +964,29 @@ namespace lime {
 
 			currentCursor = cursor;
 
+		}
+
+	}
+
+
+	void SDLWindow::SetCursorDirectly (void* cursor) {
+
+		SDL_Cursor* sdlCursor = (SDL_Cursor*)cursor;
+		if (sdlCursor)
+		{
+			if (currentCursor != CUSTOM) {
+
+				if (currentCursor == HIDDEN) {
+
+					SDL_ShowCursor (SDL_ENABLE);
+
+				}
+
+				currentCursor = CUSTOM;
+
+			}
+
+			SDL_SetCursor(sdlCursor);
 		}
 
 	}

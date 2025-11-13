@@ -2603,6 +2603,7 @@ class GL
 #if hl
 @:keep
 #end
+@:structInit
 @:dox(hide) @:noCompletion class GLObject
 {
 	@:noCompletion private var id:Int;

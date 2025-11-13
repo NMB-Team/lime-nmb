@@ -327,6 +327,10 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_get_mouse_pos_y():Int;
 
+	@:cffi private static function lime_window_get_mouse_position_x(handle:Dynamic):Int;
+
+	@:cffi private static function lime_window_get_mouse_position_y(handle:Dynamic):Int;
+
 	@:cffi private static function lime_window_move(handle:Dynamic, x:Int, y:Int):Void;
 
 	@:cffi private static function lime_window_read_pixels(handle:Dynamic, rect:Dynamic, imageBuffer:Dynamic):Dynamic;
@@ -340,6 +344,10 @@ class NativeCFFI
 	@:cffi private static function lime_window_set_borderless(handle:Dynamic, borderless:Bool):Bool;
 
 	@:cffi private static function lime_window_set_cursor(handle:Dynamic, cursor:Int):Void;
+
+	@:cffi private static function lime_window_set_cursor_directly(handle:Dynamic, cursor:Dynamic):Void;
+
+	@:cffi private static function lime_create_cursor_image(buffer:Dynamic, hotX:Int, hotY:Int):Void;
 
 	@:cffi private static function lime_window_set_display_mode(handle:Dynamic, displayMode:Dynamic):Dynamic;
 
@@ -598,6 +606,8 @@ class NativeCFFI
 	private static var lime_window_get_width = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_width", "oi", false));
 	private static var lime_window_get_x = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_x", "oi", false));
 	private static var lime_window_get_y = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_y", "oi", false));
+	private static var lime_window_get_mouse_position_x = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_mouse_position_x", "oi", false));
+	private static var lime_window_get_mouse_position_y = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_mouse_position_y", "oi", false));
 	private static var lime_window_get_mouse_pos_x = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_mouse_pos_x", "i", false));
 	private static var lime_window_get_mouse_pos_y = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_mouse_pos_y", "i", false));
 	private static var lime_window_move = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_move", "oiiv", false));
@@ -612,6 +622,10 @@ class NativeCFFI
 	private static var lime_window_set_borderless = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_borderless", "obb",
 		false));
 	private static var lime_window_set_cursor = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_set_cursor", "oiv",
+		false));
+	private static var lime_window_set_cursor_directly = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_set_cursor_directly", "oov",
+		false));
+	private static var lime_create_cursor_image = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_create_cursor_image", "oiio",
 		false));
 	private static var lime_window_set_display_mode = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
 		"lime_window_set_display_mode", "ooo", false));
@@ -784,6 +798,8 @@ class NativeCFFI
 	private static var lime_window_get_width = CFFI.load("lime", "lime_window_get_width", 1);
 	private static var lime_window_get_x = CFFI.load("lime", "lime_window_get_x", 1);
 	private static var lime_window_get_y = CFFI.load("lime", "lime_window_get_y", 1);
+	private static var lime_window_get_mouse_position_x = CFFI.load("lime", "lime_window_get_mouse_position_x", 1);
+	private static var lime_window_get_mouse_position_y = CFFI.load("lime", "lime_window_get_mouse_position_y", 1);
 	private static var lime_window_get_mouse_pos_x = CFFI.load("lime", "lime_window_get_mouse_pos_x", 0);
 	private static var lime_window_get_mouse_pos_y = CFFI.load("lime", "lime_window_get_mouse_pos_y", 0);
 	private static var lime_window_move = CFFI.load("lime", "lime_window_move", 3);
@@ -793,6 +809,8 @@ class NativeCFFI
 	private static var lime_window_set_maximum_size = CFFI.load("lime", "lime_window_set_maximum_size", 3);
 	private static var lime_window_set_borderless = CFFI.load("lime", "lime_window_set_borderless", 2);
 	private static var lime_window_set_cursor = CFFI.load("lime", "lime_window_set_cursor", 2);
+	private static var lime_window_set_cursor_directly = CFFI.load("lime", "lime_window_set_cursor_directly", 2);
+	private static var lime_create_cursor_image = CFFI.load("lime", "lime_create_cursor_image", 3);
 	private static var lime_window_set_display_mode = CFFI.load("lime", "lime_window_set_display_mode", 2);
 	private static var lime_window_set_fullscreen = CFFI.load("lime", "lime_window_set_fullscreen", 2);
 	private static var lime_window_set_icon = CFFI.load("lime", "lime_window_set_icon", 2);
@@ -1379,6 +1397,16 @@ class NativeCFFI
 		return 0;
 	}
 
+	@:hlNative("lime", "hl_window_get_mouse_position_x") private static function lime_window_get_mouse_position_x(handle:CFFIPointer):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_window_get_mouse_position_y") private static function lime_window_get_mouse_position_y(handle:CFFIPointer):Int
+	{
+		return 0;
+	}
+
 	@:hlNative("lime", "hl_window_move") private static function lime_window_move(handle:CFFIPointer, x:Int, y:Int):Void {}
 
 	@:hlNative("lime", "hl_window_read_pixels") private static function lime_window_read_pixels(handle:CFFIPointer, rect:Rectangle,
@@ -1399,6 +1427,11 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_window_set_cursor") private static function lime_window_set_cursor(handle:CFFIPointer, cursor:Int):Void {}
+
+	@:hlNative("lime", "hl_window_set_cursor_directly") private static function lime_window_set_cursor_directly(handle:CFFIPointer, cursor:CFFIPointer):Void {}
+	@:hlNative("lime", "hl_create_cursor_image") private static function lime_create_cursor_image(buffer:ImageBuffer, hotX:Int, hotY:Int):CFFIPointer {
+		return null;
+	}
 
 	@:hlNative("lime", "hl_window_set_display_mode") private static function lime_window_set_display_mode(handle:CFFIPointer, displayMode:DisplayMode,
 		result:DisplayMode):Void {}

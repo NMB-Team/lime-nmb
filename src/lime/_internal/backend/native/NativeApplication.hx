@@ -176,6 +176,20 @@ class NativeApplication
 		switch (applicationEventInfo.type)
 		{
 			case UPDATE:
+				#if lime_outside_mouse_tracking
+				for (window in parent.windows)
+				{
+					var prevPos = window.__backend.prevMousePosition;
+					var newPos = window.__backend.getMousePosition();
+					if (!prevPos.equals(newPos))
+					{
+						window.onMouseMove.dispatch(newPos.x, newPos.y);
+						window.onMouseMoveRelative.dispatch(newPos.x - prevPos.x, newPos.y - prevPos.y);
+						window.__backend.prevMousePosition = newPos;
+					}
+				}
+				#end
+
 				updateTimer();
 
 				parent.onUpdate.dispatch(applicationEventInfo.deltaTime);
@@ -351,9 +365,11 @@ class NativeApplication
 					window.onMouseUp.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
 					window.clickCount = 0;
 
+				#if !lime_outside_mouse_tracking
 				case MOUSE_MOVE:
 					window.onMouseMove.dispatch(mouseEventInfo.x, mouseEventInfo.y);
 					window.onMouseMoveRelative.dispatch(mouseEventInfo.movementX, mouseEventInfo.movementY);
+				#end
 
 				case MOUSE_WHEEL:
 					window.onMouseWheel.dispatch(mouseEventInfo.x, mouseEventInfo.y, UNKNOWN);

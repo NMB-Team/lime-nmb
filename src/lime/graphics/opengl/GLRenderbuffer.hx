@@ -7,7 +7,7 @@ import lime.graphics.opengl.GL;
 @:forward(id)
 abstract GLRenderbuffer(GLObject) from GLObject to GLObject
 {
-	@:from private static function fromInt(id:Int):GLRenderbuffer
+	@:from private static inline function fromInt(id:Int):GLRenderbuffer
 	{
 		return GLObject.fromInt(RENDERBUFFER, id);
 	}

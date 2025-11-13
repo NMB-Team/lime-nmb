@@ -35,6 +35,7 @@ import lime.utils.UInt8Array;
 @:access(lime.graphics.OpenGLRenderContext)
 @:access(lime.graphics.RenderContext)
 @:access(lime.system.DisplayMode)
+:access(lime.ui.MouseCursorData)
 @:access(lime.ui.Window)
 class NativeWindow
 {
@@ -47,6 +48,7 @@ class NativeWindow
 	private var mouseLock:Bool;
 	private var parent:Window;
 	private var useHardware:Bool;
+	private var prevMousePosition:Vector2 = new Vector2(Math.NaN, Math.NaN);
 	#if lime_cairo
 	private var cacheLock:Dynamic;
 	private var cairo:Cairo;
@@ -509,36 +511,38 @@ class NativeWindow
 
 	public function setCursor(value:MouseCursor):MouseCursor
 	{
-		if (cursor != value)
+		if (handle != null && !Type.enumEq(cursor, value))
 		{
-			if (value == null)
+			#if (!macro && lime_cffi)
+			switch (value)
 			{
-				#if (!macro && lime_cffi)
-				NativeCFFI.lime_window_set_cursor(handle, 0);
-				#end
-			}
-			else
-			{
-				var type:MouseCursorType = switch (value)
-				{
-					case ARROW: ARROW;
-					case CROSSHAIR: CROSSHAIR;
-					case MOVE: MOVE;
-					case POINTER: POINTER;
-					case RESIZE_NESW: RESIZE_NESW;
-					case RESIZE_NS: RESIZE_NS;
-					case RESIZE_NWSE: RESIZE_NWSE;
-					case RESIZE_WE: RESIZE_WE;
-					case TEXT: TEXT;
-					case WAIT: WAIT;
-					case WAIT_ARROW: WAIT_ARROW;
-					default: DEFAULT;
-				}
+				case CUSTOM(data):
+					data.__update();
+					NativeCFFI.lime_window_set_cursor_directly(handle, data.__handle);
 
-				#if (!macro && lime_cffi)
-				NativeCFFI.lime_window_set_cursor(handle, type);
-				#end
+				case null:
+					NativeCFFI.lime_window_set_cursor(handle, 0);
+
+				default:
+					var type:MouseCursorType = switch (value)
+					{
+						case ARROW: ARROW;
+						case CROSSHAIR: CROSSHAIR;
+						case MOVE: MOVE;
+						case POINTER: POINTER;
+						case RESIZE_NESW: RESIZE_NESW;
+						case RESIZE_NS: RESIZE_NS;
+						case RESIZE_NWSE: RESIZE_NWSE;
+						case RESIZE_WE: RESIZE_WE;
+						case TEXT: TEXT;
+						case WAIT: WAIT;
+						case WAIT_ARROW: WAIT_ARROW;
+						default: DEFAULT;
+					}
+
+					NativeCFFI.lime_window_set_cursor(handle, type);
 			}
+			#end
 
 			cursor = value;
 		}
@@ -616,6 +620,21 @@ class NativeWindow
 		}
 
 		return frameRate = value;
+	}
+
+	public function getMousePosition():Vector2
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null)
+		{
+			return new Vector2(
+				NativeCFFI.lime_window_get_mouse_position_x(handle),
+				NativeCFFI.lime_window_get_mouse_position_y(handle)
+			);
+		}
+		#end
+
+		return null;
 	}
 
 	public function setFullscreen(value:Bool):Bool

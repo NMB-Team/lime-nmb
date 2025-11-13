@@ -10,6 +10,7 @@
 
 #include <app/Application.h>
 #include <app/ApplicationEvent.h>
+#include "backend/sdl/SDLCursor.h"
 #include <graphics/format/JPEG.h>
 #include <graphics/format/PNG.h>
 #include <graphics/utils/ImageDataUtil.h>
@@ -47,6 +48,7 @@
 #include <utils/compress/LZMA.h>
 #include <utils/compress/Zlib.h>
 #include <vm/NekoVM.h>
+#include <SDL_mouse.h>
 
 #include <SDL.h>
 #include "SDL_mouse.h"
@@ -133,6 +135,22 @@ namespace lime {
 
 		Window* window = (Window*)handle->ptr;
 		delete window;
+
+	}
+
+
+	void gc_cursor (value handle) {
+
+		SDL_Cursor* cursor = (SDL_Cursor*)val_data (handle);
+		SDL_FreeCursor(cursor);
+
+	}
+
+
+	void hl_gc_cursor (HL_CFFIPointer* handle) {
+
+		SDL_Cursor* cursor = (SDL_Cursor*)handle->ptr;
+		SDL_FreeCursor(cursor);
 
 	}
 
@@ -3590,6 +3608,46 @@ namespace lime {
 	}
 
 
+	int lime_window_get_mouse_position_x (value window) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		int posX, posY;
+		targetWindow->GetMousePosition (&posX, &posY);
+
+		return posX;
+	}
+
+
+	HL_PRIM int HL_NAME(hl_window_get_mouse_position_x) (HL_CFFIPointer* window) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		int posX, posY;
+		targetWindow->GetMousePosition (&posX, &posY);
+
+		return posX;
+	}
+
+
+	int lime_window_get_mouse_position_y (value window) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		int posX, posY;
+		targetWindow->GetMousePosition (&posX, &posY);
+
+		return posY;
+	}
+
+
+	HL_PRIM int HL_NAME(hl_window_get_mouse_position_y) (HL_CFFIPointer* window) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		int posX, posY;
+		targetWindow->GetMousePosition (&posX, &posY);
+
+		return posY;
+	}
+
+
 	void lime_window_move (value window, int x, int y) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -3722,6 +3780,39 @@ namespace lime {
 
 		Window* targetWindow = (Window*)window->ptr;
 		targetWindow->SetCursor ((Cursor)cursor);
+
+	}
+
+
+	void lime_window_set_cursor_directly (value window, value cursor) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		targetWindow->SetCursorDirectly (val_data (cursor));
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_window_set_cursor_directly) (HL_CFFIPointer* window, HL_CFFIPointer* cursor) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->SetCursorDirectly (cursor->ptr);
+
+	}
+
+
+	value lime_create_cursor_image (value imageBuffer, int hotX, int hotY) {
+
+		ImageBuffer buffer (imageBuffer);
+		SDL_Cursor* cursor = SDLCursor::CreateImageCursor(&buffer, hotX, hotY);
+		return CFFIPointer(cursor, gc_cursor);
+
+	}
+
+
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_create_cursor_image) (ImageBuffer *imageBuffer, int hotX, int hotY) {
+
+		SDL_Cursor* cursor = SDLCursor::CreateImageCursor(imageBuffer, hotX, hotY);
+		return HLCFFIPointer(cursor, (hl_finalizer)hl_gc_cursor);
 
 	}
 
@@ -4193,6 +4284,8 @@ namespace lime {
 	DEFINE_PRIME1 (lime_window_get_width);
 	DEFINE_PRIME1 (lime_window_get_x);
 	DEFINE_PRIME1 (lime_window_get_y);
+	DEFINE_PRIME1 (lime_window_get_mouse_position_x);
+	DEFINE_PRIME1 (lime_window_get_mouse_position_y);
 	DEFINE_PRIME0 (lime_window_get_mouse_pos_x);
 	DEFINE_PRIME0 (lime_window_get_mouse_pos_y);
 	DEFINE_PRIME3v (lime_window_move);
@@ -4202,6 +4295,8 @@ namespace lime {
 	DEFINE_PRIME3v (lime_window_set_maximum_size);
 	DEFINE_PRIME2 (lime_window_set_borderless);
 	DEFINE_PRIME2v (lime_window_set_cursor);
+	DEFINE_PRIME2v (lime_window_set_cursor_directly);
+	DEFINE_PRIME3 (lime_create_cursor_image);
 	DEFINE_PRIME2 (lime_window_set_display_mode);
 	DEFINE_PRIME2 (lime_window_set_fullscreen);
 	DEFINE_PRIME2v (lime_window_set_icon);
@@ -4389,6 +4484,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_window_get_width, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_window_get_x, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_window_get_y, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_window_get_mouse_position_x, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_window_get_mouse_position_y, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_window_get_mouse_pos_x, _NO_ARG);
 	DEFINE_HL_PRIM (_I32, hl_window_get_mouse_pos_y, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, hl_window_move, _TCFFIPOINTER _I32 _I32);
@@ -4398,6 +4495,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_set_maximum_size, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_borderless, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_cursor, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, hl_window_set_cursor_directly, _TCFFIPOINTER _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_create_cursor_image, _TIMAGEBUFFER _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_display_mode, _TCFFIPOINTER _TDISPLAYMODE _TDISPLAYMODE);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_fullscreen, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_icon, _TCFFIPOINTER _TIMAGEBUFFER);

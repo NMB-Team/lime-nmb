@@ -7,7 +7,7 @@ import lime.graphics.opengl.GL;
 @:forward(id)
 abstract GLQuery(GLObject) from GLObject to GLObject
 {
-	@:from private static function fromInt(id:Int):GLQuery
+	@:from private static inline function fromInt(id:Int):GLQuery
 	{
 		return GLObject.fromInt(QUERY, id);
 	}
