@@ -105,6 +105,12 @@ class Window
 	public var x(get, set):Int;
 	public var y(get, set):Int;
 
+	/**
+		Whether the Application should handle the F11 key for toggling the full screen state of the primary window.
+		Defaults to true.
+	**/
+	public var enableFullscreenKey(get, set):Bool;
+
 	@:allow(openfl.display.Stage)
 	@:allow(lime.app.Application)
 	@:allow(lime._internal.backend.html5.HTML5Window)
@@ -122,6 +128,7 @@ class Window
 	@:noCompletion private var __scale:Float;
 	@:noCompletion private var __title:String;
 	@:noCompletion private var __alwaysOnTop:Bool;
+	@:noCompletion private var __enableFullscreenKey:Bool;
 	@:noCompletion private var __vsync:Bool;
 	@:noCompletion private var __width:Int;
 	@:noCompletion private var __x:Int;
@@ -174,6 +181,7 @@ class Window
 		__width = 0;
 		__height = 0;
 		__fullscreen = false;
+		__enableFullscreenKey = true;
 		__scale = 1;
 		__vsync = ((__attributes.context != null && Reflect.hasField(__attributes.context, "vsync")) ? __attributes.context.vsync : false);
 		__x = 0;
@@ -722,6 +730,16 @@ class Window
 	@:noCompletion private inline function get_alwaysOnTop():Bool
 	{
 		return __alwaysOnTop;
+	}
+
+	@:noCompletion private inline function get_enableFullscreenKey():Bool
+	{
+		return __enableFullscreenKey;
+	}
+
+	@:noCompletion private function set_enableFullscreenKey(value:Bool):Bool
+	{
+		return __enableFullscreenKey = value;
 	}
 
 	@:noCompletion private function set_alwaysOnTop(value:Bool):Bool

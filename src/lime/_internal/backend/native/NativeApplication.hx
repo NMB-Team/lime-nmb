@@ -269,7 +269,7 @@ class NativeApplication
 
 	private function handleKeyEvent():Void
 	{
-		var window = parent.__windowByID.get(keyEventInfo.windowID);
+		final window = parent.__windowByID.get(keyEventInfo.windowID);
 
 		if (window != null)
 		{
@@ -289,7 +289,7 @@ class NativeApplication
 			}
 
 			#if (windows || linux)
-			if (keyCode == F11)
+			if (keyCode == F11 && window.enableFullscreenKey)
 			{
 				if (type == KEY_DOWN)
 				{
@@ -316,7 +316,7 @@ class NativeApplication
 			}
 			#end
 			#elseif mac
-			if (keyCode == F)
+			if (keyCode == F && window.application.enableFullscreenKey)
 			{
 				if (type == KEY_DOWN)
 				{
