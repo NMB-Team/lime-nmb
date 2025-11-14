@@ -35,7 +35,7 @@ import lime.utils.UInt8Array;
 @:access(lime.graphics.OpenGLRenderContext)
 @:access(lime.graphics.RenderContext)
 @:access(lime.system.DisplayMode)
-:access(lime.ui.MouseCursorData)
+@:access(lime.ui.MouseCursorData)
 @:access(lime.ui.Window)
 class NativeWindow
 {
