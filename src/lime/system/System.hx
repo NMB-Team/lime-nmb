@@ -355,7 +355,10 @@ class System
 			#if (sys && windows)
 			Sys.command("start", ["", path]);
 			#elseif mac
-			Sys.command("/usr/bin/open", [path]);
+			// generally `xdg-open` should work in every distro
+			var cmd = Sys.command("xdg-open", [path, "&"]);
+			// run old command JUST IN CASE it fails, which it shouldn't
+			if (cmd != 0) cmd = Sys.command("/usr/bin/xdg-open", [path, "&"]);
 			#elseif linux
 			Sys.command("/usr/bin/xdg-open", [path]);
 			#elseif (js && html5)
@@ -876,7 +879,7 @@ class System
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract SystemDirectory(Int) from Int to Int from UInt to UInt
+#if (haxe_ver >= 4.0) enum #else @:enum #end abstract SystemDirectory(Int) from Int to Int from UInt to UInt
 {
 	var APPLICATION = 0;
 	var APPLICATION_STORAGE = 1;

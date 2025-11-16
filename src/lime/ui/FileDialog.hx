@@ -62,6 +62,12 @@ class FileDialog
 	public var onOpen = new Event<Resource->Void>();
 
 	/**
+		Triggers when `open()` is successful. The `lime.utils.Resource` contains the file's data, and can
+		be implicitly cast to `haxe.io.Bytes`, the String is the path to the file.
+	**/
+	public var onOpenFile = new Event<(Resource, String)->Void>(); // Added by @NeeEoo
+
+	/**
 		Triggers when `save()` is successful. The `String` is the path to the saved file.
 	**/
 	public var onSave = new Event<String->Void>();
@@ -278,6 +284,8 @@ class FileDialog
 				{
 					var data = File.getBytes(path);
 					onOpen.dispatch(data);
+					onOpenFile.dispatch(data, path);
+
 					return;
 				}
 				catch (e:Dynamic) {}
