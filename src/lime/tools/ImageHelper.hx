@@ -1,30 +1,30 @@
 package lime.tools;
 
 import hxp.*;
+
 #if (lime && lime_cffi && !macro)
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.utils.UInt8Array;
 #end
 import lime.tools.Platform;
+
 import sys.io.File;
 import sys.io.FileSeek;
 import sys.FileSystem;
 
-class ImageHelper
-{
-	public static function rasterizeSVG(path:String, width:Int, height:Int,
-			backgroundColor:Int = null):#if (lime && lime_cffi && !macro) Image #else Dynamic #end
+class ImageHelper {
+	public static function rasterizeSVG(path:String, width:Int, height:Int, backgroundColor:Int = null):#if (lime && lime_cffi && !macro) Image #else Dynamic #end
 	{
 		// public static function rasterizeSVG (svg:Dynamic /*SVG*/, width:Int, height:Int, backgroundColor:Int = null):Image {
 
 		#if (lime && lime_cffi && !macro)
-		if (path == null) return null;
+		if (path == null)
+			return null;
 
 		var temp = System.getTemporaryFile(".png");
 
-		try
-		{
+		try {
 			System.runCommand("", "neko", [
 				Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), "svg.n"),
 				"process",
@@ -34,23 +34,18 @@ class ImageHelper
 				temp
 			], true, true);
 
-			if (FileSystem.exists(temp))
-			{
+			if (FileSystem.exists(temp)) {
 				var image = Image.fromFile(temp);
 
-				try
-				{
+				try {
 					FileSystem.deleteFile(temp);
-				}
-				catch (e:Dynamic) {}
+				} catch (e:Dynamic) {}
 
-				if (image.buffer != null)
-				{
+				if (image.buffer != null) {
 					return image;
 				}
 			}
-		}
-		catch (e:Dynamic) {}
+		} catch (e:Dynamic) {}
 
 		var rasterizer = Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/batik/batik-rasterizer.jar";
 		var args = [
@@ -65,8 +60,7 @@ class ImageHelper
 			Std.string(height)
 		];
 
-		if (backgroundColor != null)
-		{
+		if (backgroundColor != null) {
 			var a:Int = ((backgroundColor >> 24) & 0xFF);
 			var r:Int = ((backgroundColor >> 16) & 0xFF);
 			var g:Int = ((backgroundColor >> 8) & 0xFF);
@@ -78,53 +72,41 @@ class ImageHelper
 
 		args.push(path);
 
-		if (System.hostPlatform == MAC)
-		{
-			try
-			{
+		if (System.hostPlatform == MAC) {
+			try {
 				var found = false;
 
-				if (FileSystem.exists("/System/Library/Java/JavaVirtualMachines"))
-				{
+				if (FileSystem.exists("/System/Library/Java/JavaVirtualMachines")) {
 					found = (FileSystem.readDirectory("/System/Library/Java/JavaVirtualMachines").length > 0);
 				}
 
-				if (!found && FileSystem.exists("/Library/Java/JavaVirtualMachines"))
-				{
+				if (!found && FileSystem.exists("/Library/Java/JavaVirtualMachines")) {
 					found = (FileSystem.readDirectory("/Library/Java/JavaVirtualMachines").length > 0);
 				}
 
-				if (!found)
-				{
-					if (Log.verbose) Log.warn("Skipping SVG to PNG rasterization step, no Java runtime detected");
+				if (!found) {
+					if (Log.verbose)
+						Log.warn("Skipping SVG to PNG rasterization step, no Java runtime detected");
 
 					return null;
 				}
-			}
-			catch (e:Dynamic) {}
+			} catch (e:Dynamic) {}
 		}
 
-		if (Log.verbose)
-		{
+		if (Log.verbose) {
 			System.runCommand("", "java", args, true, true);
-		}
-		else
-		{
+		} else {
 			System.runProcess("", "java", args, true, true, true);
 		}
 
-		if (FileSystem.exists(temp))
-		{
+		if (FileSystem.exists(temp)) {
 			var image = Image.fromFile(temp);
 
-			try
-			{
+			try {
 				FileSystem.deleteFile(temp);
-			}
-			catch (e:Dynamic) {}
+			} catch (e:Dynamic) {}
 
-			if (image.buffer != null)
-			{
+			if (image.buffer != null) {
 				return image;
 			}
 		}
@@ -133,24 +115,21 @@ class ImageHelper
 		return null;
 	}
 
-	public static function readPNGImageSize(path:String)
-	{
+	public static function readPNGImageSize(path:String) {
 		var toReturn = {width: 0, height: 0};
 		var fileInput = File.read(path);
 		var header = (fileInput.readByte() << 8) | fileInput.readByte();
 
-		if (header == 0x8950)
-		{
+		if (header == 0x8950) {
 			fileInput.seek(8 + 4 + 4, FileSeek.SeekBegin);
 
 			var width = (fileInput.readByte() << 24) | (fileInput.readByte() << 16) | (fileInput.readByte() << 8) | fileInput.readByte();
 			var height = (fileInput.readByte() << 24) | (fileInput.readByte() << 16) | (fileInput.readByte() << 8) | fileInput.readByte();
 
-			toReturn =
-				{
-					width: width,
-					height: height
-				};
+			toReturn = {
+				width: width,
+				height: height
+			};
 		}
 
 		fileInput.close();
@@ -158,14 +137,13 @@ class ImageHelper
 		return toReturn;
 	}
 
-	public static function resizeImage(image:#if (lime && lime_cffi && !macro) Image #else Dynamic #end, width:Int,
-			height:Int):#if (lime && lime_cffi && !macro) Image #else Dynamic #end
+	public static function resizeImage(image:#if (lime && lime_cffi && !macro) Image #else Dynamic #end, width:Int, height:Int):#if (lime && lime_cffi && !macro) Image #else Dynamic #end
 	{
 		#if (lime && lime_cffi && !macro)
-		if (image == null) return null;
+		if (image == null)
+			return null;
 
-		if (image.width == width && image.height == height)
-		{
+		if (image.width == width && image.height == height) {
 			return image;
 		}
 

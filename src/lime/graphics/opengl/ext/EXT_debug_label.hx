@@ -1,8 +1,7 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class EXT_debug_label
-{
+@:noCompletion class EXT_debug_label {
 	public var PROGRAM_PIPELINE_OBJECT_EXT = 0x8A4F;
 	public var PROGRAM_OBJECT_EXT = 0x8B40;
 	public var SHADER_OBJECT_EXT = 0x8B48;

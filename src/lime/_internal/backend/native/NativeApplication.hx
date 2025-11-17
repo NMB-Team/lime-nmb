@@ -1,6 +1,7 @@
 package lime._internal.backend.native;
 
 import haxe.Timer;
+
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Application;
 import lime.graphics.opengl.GL;
@@ -40,8 +41,7 @@ import lime.ui.Window;
 @:access(lime.ui.Gamepad)
 @:access(lime.ui.Joystick)
 @:access(lime.ui.Window)
-class NativeApplication
-{
+class NativeApplication {
 	private var applicationEventInfo = new ApplicationEventInfo(UPDATE);
 	private var clipboardEventInfo = new ClipboardEventInfo();
 	private var currentTouches = new Map<Int, Touch>();
@@ -63,15 +63,13 @@ class NativeApplication
 	private var parent:Application;
 	private var toggleFullscreen:Bool;
 
-	private static function __init__()
-	{
+	private static function __init__() {
 		#if (lime_cffi && !macro)
 		var init = NativeCFFI;
 		#end
 	}
 
-	public function new(parent:Application):Void
-	{
+	public function new(parent:Application):Void {
 		this.parent = parent;
 		pauseTimer = -1;
 		toggleFullscreen = true;
@@ -93,23 +91,20 @@ class NativeApplication
 		#end
 	}
 
-	private function advanceTimer():Void
-	{
+	private function advanceTimer():Void {
 		#if lime_cffi
-		if (pauseTimer > -1)
-		{
+		if (pauseTimer > -1) {
 			var offset = System.getTimer() - pauseTimer;
-			for (timer in Timer.sRunningTimers)
-			{
-				if (timer.mRunning) timer.mFireAt += offset;
+			for (timer in Timer.sRunningTimers) {
+				if (timer.mRunning)
+					timer.mFireAt += offset;
 			}
 			pauseTimer = -1;
 		}
 		#end
 	}
 
-	public function exec():Int
-	{
+	public function exec():Int {
 		#if !macro
 		#if lime_cffi
 		NativeCFFI.lime_application_event_manager_register(handleApplicationEvent, applicationEventInfo);
@@ -131,17 +126,13 @@ class NativeApplication
 		#if (nodejs && lime_cffi)
 		NativeCFFI.lime_application_init(handle);
 
-		var eventLoop = function()
-		{
+		var eventLoop = function() {
 			var active = NativeCFFI.lime_application_update(handle);
 
-			if (!active)
-			{
+			if (!active) {
 				untyped process.exitCode = NativeCFFI.lime_application_quit(handle);
 				parent.onExit.dispatch(untyped process.exitCode);
-			}
-			else
-			{
+			} else {
 				untyped setImmediate(eventLoop);
 			}
 		}
@@ -162,8 +153,7 @@ class NativeApplication
 		return 0;
 	}
 
-	public function exit():Void
-	{
+	public function exit():Void {
 		AudioManager.shutdown();
 
 		#if (!macro && lime_cffi)
@@ -171,18 +161,14 @@ class NativeApplication
 		#end
 	}
 
-	private function handleApplicationEvent():Void
-	{
-		switch (applicationEventInfo.type)
-		{
+	private function handleApplicationEvent():Void {
+		switch (applicationEventInfo.type) {
 			case UPDATE:
 				#if lime_outside_mouse_tracking
-				for (window in parent.windows)
-				{
+				for (window in parent.windows) {
 					var prevPos = window.__backend.prevMousePosition;
 					var newPos = window.__backend.getMousePosition();
-					if (!prevPos.equals(newPos))
-					{
+					if (!prevPos.equals(newPos)) {
 						window.onMouseMove.dispatch(newPos.x, newPos.y);
 						window.onMouseMoveRelative.dispatch(newPos.x - prevPos.x, newPos.y - prevPos.y);
 						window.__backend.prevMousePosition = newPos;
@@ -198,34 +184,32 @@ class NativeApplication
 		}
 	}
 
-	private function handleClipboardEvent():Void
-	{
+	private function handleClipboardEvent():Void {
 		Clipboard.__update();
 	}
 
-	private function handleDropEvent():Void
-	{
-		for (window in parent.windows)
-		{
+	private function handleDropEvent():Void {
+		for (window in parent.windows) {
 			window.onDropFile.dispatch(#if hl @:privateAccess String.fromUTF8(dropEventInfo.file) #else dropEventInfo.file #end);
 		}
 	}
 
-	private function handleGamepadEvent():Void
-	{
-		switch (gamepadEventInfo.type)
-		{
+	private function handleGamepadEvent():Void {
+		switch (gamepadEventInfo.type) {
 			case AXIS_MOVE:
 				var gamepad = Gamepad.devices.get(gamepadEventInfo.id);
-				if (gamepad != null) gamepad.onAxisMove.dispatch(gamepadEventInfo.axis, gamepadEventInfo.axisValue);
+				if (gamepad != null)
+					gamepad.onAxisMove.dispatch(gamepadEventInfo.axis, gamepadEventInfo.axisValue);
 
 			case BUTTON_DOWN:
 				var gamepad = Gamepad.devices.get(gamepadEventInfo.id);
-				if (gamepad != null) gamepad.onButtonDown.dispatch(gamepadEventInfo.button);
+				if (gamepad != null)
+					gamepad.onButtonDown.dispatch(gamepadEventInfo.button);
 
 			case BUTTON_UP:
 				var gamepad = Gamepad.devices.get(gamepadEventInfo.id);
-				if (gamepad != null) gamepad.onButtonUp.dispatch(gamepadEventInfo.button);
+				if (gamepad != null)
+					gamepad.onButtonUp.dispatch(gamepadEventInfo.button);
 
 			case CONNECT:
 				Gamepad.__connect(gamepadEventInfo.id);
@@ -235,29 +219,32 @@ class NativeApplication
 		}
 	}
 
-	private function handleJoystickEvent():Void
-	{
-		switch (joystickEventInfo.type)
-		{
+	private function handleJoystickEvent():Void {
+		switch (joystickEventInfo.type) {
 			case AXIS_MOVE:
 				var joystick = Joystick.devices.get(joystickEventInfo.id);
-				if (joystick != null) joystick.onAxisMove.dispatch(joystickEventInfo.index, joystickEventInfo.x);
+				if (joystick != null)
+					joystick.onAxisMove.dispatch(joystickEventInfo.index, joystickEventInfo.x);
 
 			case HAT_MOVE:
 				var joystick = Joystick.devices.get(joystickEventInfo.id);
-				if (joystick != null) joystick.onHatMove.dispatch(joystickEventInfo.index, joystickEventInfo.eventValue);
+				if (joystick != null)
+					joystick.onHatMove.dispatch(joystickEventInfo.index, joystickEventInfo.eventValue);
 
 			case TRACKBALL_MOVE:
 				var joystick = Joystick.devices.get(joystickEventInfo.id);
-				if (joystick != null) joystick.onTrackballMove.dispatch(joystickEventInfo.index, joystickEventInfo.x, joystickEventInfo.y);
+				if (joystick != null)
+					joystick.onTrackballMove.dispatch(joystickEventInfo.index, joystickEventInfo.x, joystickEventInfo.y);
 
 			case BUTTON_DOWN:
 				var joystick = Joystick.devices.get(joystickEventInfo.id);
-				if (joystick != null) joystick.onButtonDown.dispatch(joystickEventInfo.index);
+				if (joystick != null)
+					joystick.onButtonDown.dispatch(joystickEventInfo.index);
 
 			case BUTTON_UP:
 				var joystick = Joystick.devices.get(joystickEventInfo.id);
-				if (joystick != null) joystick.onButtonUp.dispatch(joystickEventInfo.index);
+				if (joystick != null)
+					joystick.onButtonUp.dispatch(joystickEventInfo.index);
 
 			case CONNECT:
 				Joystick.__connect(joystickEventInfo.id);
@@ -267,77 +254,60 @@ class NativeApplication
 		}
 	}
 
-	private function handleKeyEvent():Void
-	{
+	private function handleKeyEvent():Void {
 		final window = parent.__windowByID.get(keyEventInfo.windowID);
 
-		if (window != null)
-		{
+		if (window != null) {
 			var type:KeyEventType = keyEventInfo.type;
 			var int32:Float = keyEventInfo.keyCode;
 			var keyCode:KeyCode = Std.int(int32);
 			var modifier:KeyModifier = keyEventInfo.modifier;
 
-			switch (type)
-			{
+			switch (type) {
 				case KEY_DOWN:
 					window.onKeyDown.dispatch(keyCode, modifier);
-					window.onKeyDownPrecise.dispatch(keyCode,modifier,System.getTimerPrecise());
+					window.onKeyDownPrecise.dispatch(keyCode, modifier, System.getTimerPrecise());
 				case KEY_UP:
 					window.onKeyUp.dispatch(keyCode, modifier);
-					window.onKeyUpPrecise.dispatch(keyCode,modifier,System.getTimerPrecise());
+					window.onKeyUpPrecise.dispatch(keyCode, modifier, System.getTimerPrecise());
 			}
 
 			#if (windows || linux)
-			if (keyCode == F11 && window.enableFullscreenKey)
-			{
-				if (type == KEY_DOWN)
-				{
-					if (toggleFullscreen && (!modifier.altKey && !modifier.ctrlKey && !modifier.shiftKey && !modifier.metaKey))
-					{
+			if (keyCode == F11 && window.enableFullscreenKey) {
+				if (type == KEY_DOWN) {
+					if (toggleFullscreen && (!modifier.altKey && !modifier.ctrlKey && !modifier.shiftKey && !modifier.metaKey)) {
 						toggleFullscreen = false;
 
-						if (!window.onKeyDown.canceled)
-						{
+						if (!window.onKeyDown.canceled) {
 							window.fullscreen = !window.fullscreen;
 						}
 					}
-				}
-				else
-				{
+				} else {
 					toggleFullscreen = true;
 				}
 			}
 
 			#if rpi
-			if (keyCode == ESCAPE && modifier == KeyModifier.NONE && type == KEY_UP && !window.onKeyUp.canceled)
-			{
+			if (keyCode == ESCAPE && modifier == KeyModifier.NONE && type == KEY_UP && !window.onKeyUp.canceled) {
 				System.exit(0);
 			}
 			#end
 			#elseif mac
-			if (keyCode == F && window.application.enableFullscreenKey)
-			{
-				if (type == KEY_DOWN)
-				{
-					if (toggleFullscreen && (modifier.ctrlKey && modifier.metaKey) && (!modifier.altKey && !modifier.shiftKey))
-					{
+			if (keyCode == F && window.application.enableFullscreenKey) {
+				if (type == KEY_DOWN) {
+					if (toggleFullscreen && (modifier.ctrlKey && modifier.metaKey) && (!modifier.altKey && !modifier.shiftKey)) {
 						toggleFullscreen = false;
 
-						if (!window.onKeyDown.canceled)
-						{
+						if (!window.onKeyDown.canceled) {
 							window.fullscreen = !window.fullscreen;
 						}
 					}
-				}
-				else
-				{
+				} else {
 					toggleFullscreen = true;
 				}
 			}
 			#elseif android
-			if (keyCode == APP_CONTROL_BACK && modifier == KeyModifier.NONE && type == KEY_UP && !window.onKeyUp.canceled)
-			{
+			if (keyCode == APP_CONTROL_BACK && modifier == KeyModifier.NONE && type == KEY_UP && !window.onKeyUp.canceled) {
 				var mainActivity = JNI.createStaticField("org/haxe/extension/Extension", "mainActivity", "Landroid/app/Activity;");
 				var moveTaskToBack = JNI.createMemberMethod("android/app/Activity", "moveTaskToBack", "(Z)Z");
 
@@ -347,14 +317,11 @@ class NativeApplication
 		}
 	}
 
-	private function handleMouseEvent():Void
-	{
+	private function handleMouseEvent():Void {
 		var window = parent.__windowByID.get(mouseEventInfo.windowID);
 
-		if (window != null)
-		{
-			switch (mouseEventInfo.type)
-			{
+		if (window != null) {
+			switch (mouseEventInfo.type) {
 				case MOUSE_DOWN:
 					window.clickCount = mouseEventInfo.clickCount;
 					window.onMouseDown.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
@@ -379,40 +346,35 @@ class NativeApplication
 		}
 	}
 
-	private function handleRenderEvent():Void
-	{
+	private function handleRenderEvent():Void {
 		// TODO: Allow windows to render independently
 
-		for (window in parent.__windows)
-		{
-			if (window == null) continue;
+		for (window in parent.__windows) {
+			if (window == null)
+				continue;
 
 			// parent.renderer = renderer;
 
-			switch (renderEventInfo.type)
-			{
+			switch (renderEventInfo.type) {
 				case RENDER:
-					if (window.context != null)
-					{
+					if (window.context != null) {
 						window.__backend.render();
 						window.onRender.dispatch(window.context);
 
-						if (!window.onRender.canceled)
-						{
+						if (!window.onRender.canceled) {
 							window.__backend.contextFlip();
 						}
 					}
 
 				case RENDER_CONTEXT_LOST:
-					if (window.__backend.useHardware && window.context != null)
-					{
-						switch (window.context.type)
-						{
+					if (window.__backend.useHardware && window.context != null) {
+						switch (window.context.type) {
 							case OPENGL, OPENGLES, WEBGL:
 								#if (lime_cffi && (lime_opengl || lime_opengles) && !display)
 								var gl = window.context.gl;
 								(gl : NativeOpenGLRenderContext).__contextLost();
-								if (GL.context == gl) GL.context = null;
+								if (GL.context == gl)
+									GL.context = null;
 								#end
 
 							default:
@@ -423,8 +385,7 @@ class NativeApplication
 					}
 
 				case RENDER_CONTEXT_RESTORED:
-					if (window.__backend.useHardware)
-					{
+					if (window.__backend.useHardware) {
 						// GL.context = new OpenGLRenderContext ();
 						// window.context.gl = GL.context;
 
@@ -434,50 +395,38 @@ class NativeApplication
 		}
 	}
 
-	private function handleSensorEvent():Void
-	{
+	private function handleSensorEvent():Void {
 		var sensor = Sensor.sensorByID.get(sensorEventInfo.id);
 
-		if (sensor != null)
-		{
+		if (sensor != null) {
 			sensor.onUpdate.dispatch(sensorEventInfo.x, sensorEventInfo.y, sensorEventInfo.z);
 		}
 	}
 
-	private function handleTextEvent():Void
-	{
+	private function handleTextEvent():Void {
 		var window = parent.__windowByID.get(textEventInfo.windowID);
 
-		if (window != null)
-		{
-			switch (textEventInfo.type)
-			{
+		if (window != null) {
+			switch (textEventInfo.type) {
 				case TEXT_INPUT:
 					window.onTextInput.dispatch(#if hl @:privateAccess String.fromUTF8(textEventInfo.text) #else textEventInfo.text #end);
 
 				case TEXT_EDIT:
-					window.onTextEdit.dispatch(#if hl @:privateAccess String.fromUTF8(textEventInfo.text) #else textEventInfo.text #end, textEventInfo.start,
-						textEventInfo.length);
+					window.onTextEdit.dispatch(#if hl @:privateAccess String.fromUTF8(textEventInfo.text) #else textEventInfo.text #end, textEventInfo.start, textEventInfo.length);
 
 				default:
 			}
 		}
 	}
 
-	private function handleTouchEvent():Void
-	{
-		switch (touchEventInfo.type)
-		{
+	private function handleTouchEvent():Void {
+		switch (touchEventInfo.type) {
 			case TOUCH_START:
 				var touch = unusedTouchesPool.pop();
 
-				if (touch == null)
-				{
-					touch = new Touch(touchEventInfo.x, touchEventInfo.y, touchEventInfo.id, touchEventInfo.dx, touchEventInfo.dy, touchEventInfo.pressure,
-						touchEventInfo.device);
-				}
-				else
-				{
+				if (touch == null) {
+					touch = new Touch(touchEventInfo.x, touchEventInfo.y, touchEventInfo.id, touchEventInfo.dx, touchEventInfo.dy, touchEventInfo.pressure, touchEventInfo.device);
+				} else {
 					touch.x = touchEventInfo.x;
 					touch.y = touchEventInfo.y;
 					touch.id = touchEventInfo.id;
@@ -494,8 +443,7 @@ class NativeApplication
 			case TOUCH_END:
 				var touch = currentTouches.get(touchEventInfo.id);
 
-				if (touch != null)
-				{
+				if (touch != null) {
 					touch.x = touchEventInfo.x;
 					touch.y = touchEventInfo.y;
 					touch.dx = touchEventInfo.dx;
@@ -511,8 +459,7 @@ class NativeApplication
 			case TOUCH_MOVE:
 				var touch = currentTouches.get(touchEventInfo.id);
 
-				if (touch != null)
-				{
+				if (touch != null) {
 					touch.x = touchEventInfo.x;
 					touch.y = touchEventInfo.y;
 					touch.dx = touchEventInfo.dx;
@@ -526,14 +473,11 @@ class NativeApplication
 		}
 	}
 
-	private function handleWindowEvent():Void
-	{
+	private function handleWindowEvent():Void {
 		var window = parent.__windowByID.get(windowEventInfo.windowID);
 
-		if (window != null)
-		{
-			switch (windowEventInfo.type)
-			{
+		if (window != null) {
+			switch (windowEventInfo.type) {
 				case WINDOW_ACTIVATE:
 					advanceTimer();
 					window.onActivate.dispatch();
@@ -598,34 +542,25 @@ class NativeApplication
 		}
 	}
 
-	private function updateTimer():Void
-	{
+	private function updateTimer():Void {
 		#if lime_cffi
-		if (Timer.sRunningTimers.length > 0)
-		{
+		if (Timer.sRunningTimers.length > 0) {
 			var currentTime = System.getTimer();
 			var foundStopped = false;
 
-			for (timer in Timer.sRunningTimers)
-			{
-				if (timer.mRunning)
-				{
-					if (currentTime >= timer.mFireAt)
-					{
+			for (timer in Timer.sRunningTimers) {
+				if (timer.mRunning) {
+					if (currentTime >= timer.mFireAt) {
 						timer.mFireAt += timer.mTime;
 						timer.run();
 					}
-				}
-				else
-				{
+				} else {
 					foundStopped = true;
 				}
 			}
 
-			if (foundStopped)
-			{
-				Timer.sRunningTimers = Timer.sRunningTimers.filter(function(val)
-				{
+			if (foundStopped) {
+				Timer.sRunningTimers = Timer.sRunningTimers.filter(function(val) {
 					return val.mRunning;
 				});
 			}
@@ -646,81 +581,67 @@ class NativeApplication
 	}
 }
 
-@:keep /*private*/ class ApplicationEventInfo
-{
+@:keep /*private*/ class ApplicationEventInfo {
 	public var deltaTime:Float;
 	public var type:ApplicationEventType;
 
-	public function new(type:ApplicationEventType = null, deltaTime:Float = 0)
-	{
+	public function new(type:ApplicationEventType = null, deltaTime:Float = 0) {
 		this.type = type;
 		this.deltaTime = deltaTime;
 	}
 
-	public function clone():ApplicationEventInfo
-	{
+	public function clone():ApplicationEventInfo {
 		return new ApplicationEventInfo(type, deltaTime);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract ApplicationEventType(Int)
-{
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract ApplicationEventType(Int) {
 	var UPDATE = 0;
 	var EXIT = 1;
 }
 
-@:keep /*private*/ class ClipboardEventInfo
-{
+@:keep /*private*/ class ClipboardEventInfo {
 	public var type:ClipboardEventType;
 
-	public function new(type:ClipboardEventType = null)
-	{
+	public function new(type:ClipboardEventType = null) {
 		this.type = type;
 	}
 
-	public function clone():ClipboardEventInfo
-	{
+	public function clone():ClipboardEventInfo {
 		return new ClipboardEventInfo(type);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract ClipboardEventType(Int)
-{
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract ClipboardEventType(Int) {
 	var UPDATE = 0;
 }
 
-@:keep /*private*/ class DropEventInfo
-{
+@:keep /*private*/ class DropEventInfo {
 	public var file:#if hl hl.Bytes #else String #end;
 	public var type:DropEventType;
 
-	public function new(type:DropEventType = null, file = null)
-	{
+	public function new(type:DropEventType = null, file = null) {
 		this.type = type;
 		this.file = file;
 	}
 
-	public function clone():DropEventInfo
-	{
+	public function clone():DropEventInfo {
 		return new DropEventInfo(type, file);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract DropEventType(Int)
-{
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract DropEventType(Int) {
 	var DROP_FILE = 0;
 }
 
-@:keep /*private*/ class GamepadEventInfo
-{
+@:keep /*private*/ class GamepadEventInfo {
 	public var axis:Int;
 	public var button:Int;
 	public var id:Int;
 	public var type:GamepadEventType;
 	public var axisValue:Float;
 
-	public function new(type:GamepadEventType = null, id:Int = 0, button:Int = 0, axis:Int = 0, value:Float = 0)
-	{
+	public function new(type:GamepadEventType = null, id:Int = 0, button:Int = 0, axis:Int = 0, value:Float = 0) {
 		this.type = type;
 		this.id = id;
 		this.button = button;
@@ -728,14 +649,12 @@ class NativeApplication
 		this.axisValue = value;
 	}
 
-	public function clone():GamepadEventInfo
-	{
+	public function clone():GamepadEventInfo {
 		return new GamepadEventInfo(type, id, button, axis, axisValue);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract GamepadEventType(Int)
-{
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract GamepadEventType(Int) {
 	var AXIS_MOVE = 0;
 	var BUTTON_DOWN = 1;
 	var BUTTON_UP = 2;
@@ -743,8 +662,7 @@ class NativeApplication
 	var DISCONNECT = 4;
 }
 
-@:keep /*private*/ class JoystickEventInfo
-{
+@:keep /*private*/ class JoystickEventInfo {
 	public var id:Int;
 	public var index:Int;
 	public var type:JoystickEventType;
@@ -752,8 +670,7 @@ class NativeApplication
 	public var x:Float;
 	public var y:Float;
 
-	public function new(type:JoystickEventType = null, id:Int = 0, index:Int = 0, value:Int = 0, x:Float = 0, y:Float = 0)
-	{
+	public function new(type:JoystickEventType = null, id:Int = 0, index:Int = 0, value:Int = 0, x:Float = 0, y:Float = 0) {
 		this.type = type;
 		this.id = id;
 		this.index = index;
@@ -762,14 +679,12 @@ class NativeApplication
 		this.y = y;
 	}
 
-	public function clone():JoystickEventInfo
-	{
+	public function clone():JoystickEventInfo {
 		return new JoystickEventInfo(type, id, index, eventValue, x, y);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract JoystickEventType(Int)
-{
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract JoystickEventType(Int) {
 	var AXIS_MOVE = 0;
 	var HAT_MOVE = 1;
 	var TRACKBALL_MOVE = 2;
@@ -779,35 +694,30 @@ class NativeApplication
 	var DISCONNECT = 6;
 }
 
-@:keep /*private*/ class KeyEventInfo
-{
-	public var keyCode: Float;
+@:keep /*private*/ class KeyEventInfo {
+	public var keyCode:Float;
 	public var modifier:Int;
 	public var type:KeyEventType;
 	public var windowID:Int;
 
-	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode: Float = 0, modifier:Int = 0)
-	{
+	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode:Float = 0, modifier:Int = 0) {
 		this.type = type;
 		this.windowID = windowID;
 		this.keyCode = keyCode;
 		this.modifier = modifier;
 	}
 
-	public function clone():KeyEventInfo
-	{
+	public function clone():KeyEventInfo {
 		return new KeyEventInfo(type, windowID, keyCode, modifier);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract KeyEventType(Int)
-{
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract KeyEventType(Int) {
 	var KEY_DOWN = 0;
 	var KEY_UP = 1;
 }
 
-@:keep /*private*/ class MouseEventInfo
-{
+@:keep /*private*/ class MouseEventInfo {
 	public var button:Int;
 	public var movementX:Float;
 	public var movementY:Float;
@@ -817,8 +727,7 @@ class NativeApplication
 	public var y:Float;
 	public var clickCount:Int;
 
-	public function new(type:MouseEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0, clickCount:Int = 0)
-	{
+	public function new(type:MouseEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0, clickCount:Int = 0) {
 		this.type = type;
 		this.windowID = 0;
 		this.x = x;
@@ -829,52 +738,44 @@ class NativeApplication
 		this.clickCount = clickCount;
 	}
 
-	public function clone():MouseEventInfo
-	{
+	public function clone():MouseEventInfo {
 		return new MouseEventInfo(type, windowID, x, y, button, movementX, movementY, clickCount);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract MouseEventType(Int)
-{
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract MouseEventType(Int) {
 	var MOUSE_DOWN = 0;
 	var MOUSE_UP = 1;
 	var MOUSE_MOVE = 2;
 	var MOUSE_WHEEL = 3;
 }
 
-@:keep /*private*/ class RenderEventInfo
-{
+@:keep /*private*/ class RenderEventInfo {
 	public var type:RenderEventType;
 
-	public function new(type:RenderEventType = null)
-	{
+	public function new(type:RenderEventType = null) {
 		this.type = type;
 	}
 
-	public function clone():RenderEventInfo
-	{
+	public function clone():RenderEventInfo {
 		return new RenderEventInfo(type);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract RenderEventType(Int)
-{
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract RenderEventType(Int) {
 	var RENDER = 0;
 	var RENDER_CONTEXT_LOST = 1;
 	var RENDER_CONTEXT_RESTORED = 2;
 }
 
-@:keep /*private*/ class SensorEventInfo
-{
+@:keep /*private*/ class SensorEventInfo {
 	public var id:Int;
 	public var x:Float;
 	public var y:Float;
 	public var z:Float;
 	public var type:SensorEventType;
 
-	public function new(type:SensorEventType = null, id:Int = 0, x:Float = 0, y:Float = 0, z:Float = 0)
-	{
+	public function new(type:SensorEventType = null, id:Int = 0, x:Float = 0, y:Float = 0, z:Float = 0) {
 		this.type = type;
 		this.id = id;
 		this.x = x;
@@ -882,19 +783,16 @@ class NativeApplication
 		this.z = z;
 	}
 
-	public function clone():SensorEventInfo
-	{
+	public function clone():SensorEventInfo {
 		return new SensorEventInfo(type, id, x, y, z);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract SensorEventType(Int)
-{
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract SensorEventType(Int) {
 	var ACCELEROMETER = 0;
 }
 
-@:keep /*private*/ class TextEventInfo
-{
+@:keep /*private*/ class TextEventInfo {
 	public var id:Int;
 	public var length:Int;
 	public var start:Int;
@@ -902,8 +800,7 @@ class NativeApplication
 	public var type:TextEventType;
 	public var windowID:Int;
 
-	public function new(type:TextEventType = null, windowID:Int = 0, text = null, start:Int = 0, length:Int = 0)
-	{
+	public function new(type:TextEventType = null, windowID:Int = 0, text = null, start:Int = 0, length:Int = 0) {
 		this.type = type;
 		this.windowID = windowID;
 		this.text = text;
@@ -911,20 +808,17 @@ class NativeApplication
 		this.length = length;
 	}
 
-	public function clone():TextEventInfo
-	{
+	public function clone():TextEventInfo {
 		return new TextEventInfo(type, windowID, text, start, length);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract TextEventType(Int)
-{
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract TextEventType(Int) {
 	var TEXT_INPUT = 0;
 	var TEXT_EDIT = 1;
 }
 
-@:keep /*private*/ class TouchEventInfo
-{
+@:keep /*private*/ class TouchEventInfo {
 	public var device:Int;
 	public var dx:Float;
 	public var dy:Float;
@@ -934,8 +828,7 @@ class NativeApplication
 	public var x:Float;
 	public var y:Float;
 
-	public function new(type:TouchEventType = null, x:Float = 0, y:Float = 0, id:Int = 0, dx:Float = 0, dy:Float = 0, pressure:Float = 0, device:Int = 0)
-	{
+	public function new(type:TouchEventType = null, x:Float = 0, y:Float = 0, id:Int = 0, dx:Float = 0, dy:Float = 0, pressure:Float = 0, device:Int = 0) {
 		this.type = type;
 		this.x = x;
 		this.y = y;
@@ -946,21 +839,18 @@ class NativeApplication
 		this.device = device;
 	}
 
-	public function clone():TouchEventInfo
-	{
+	public function clone():TouchEventInfo {
 		return new TouchEventInfo(type, x, y, id, dx, dy, pressure, device);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract TouchEventType(Int)
-{
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract TouchEventType(Int) {
 	var TOUCH_START = 0;
 	var TOUCH_END = 1;
 	var TOUCH_MOVE = 2;
 }
 
-@:keep /*private*/ class WindowEventInfo
-{
+@:keep /*private*/ class WindowEventInfo {
 	public var height:Int;
 	public var type:WindowEventType;
 	public var width:Int;
@@ -968,8 +858,7 @@ class NativeApplication
 	public var x:Int;
 	public var y:Int;
 
-	public function new(type:WindowEventType = null, windowID:Int = 0, width:Int = 0, height:Int = 0, x:Int = 0, y:Int = 0)
-	{
+	public function new(type:WindowEventType = null, windowID:Int = 0, width:Int = 0, height:Int = 0, x:Int = 0, y:Int = 0) {
 		this.type = type;
 		this.windowID = windowID;
 		this.width = width;
@@ -978,14 +867,12 @@ class NativeApplication
 		this.y = y;
 	}
 
-	public function clone():WindowEventInfo
-	{
+	public function clone():WindowEventInfo {
 		return new WindowEventInfo(type, windowID, width, height, x, y);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract WindowEventType(Int)
-{
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract WindowEventType(Int) {
 	var WINDOW_ACTIVATE = 0;
 	var WINDOW_CLOSE = 1;
 	var WINDOW_DEACTIVATE = 2;

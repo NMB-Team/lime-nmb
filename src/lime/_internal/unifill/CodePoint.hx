@@ -1,12 +1,9 @@
 package lime._internal.unifill;
 
-abstract CodePoint(Int)
-{
+abstract CodePoint(Int) {
 	@:from
-	public static inline function fromInt(code:Int):CodePoint
-	{
-		if (!Unicode.isScalar(code))
-		{
+	public static inline function fromInt(code:Int):CodePoint {
+		if (!Unicode.isScalar(code)) {
 			throw new Exception.InvalidCodePoint(code);
 		}
 		return new CodePoint(code);
@@ -44,8 +41,7 @@ abstract CodePoint(Int)
 
 	@:op(A >= B) public static function gte(a:CodePoint, b:CodePoint):Bool;
 
-	inline function new(code:Int):Void
-	{
+	inline function new(code:Int):Void {
 		this = code;
 	}
 

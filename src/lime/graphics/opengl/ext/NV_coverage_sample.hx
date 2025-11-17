@@ -1,8 +1,7 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class NV_coverage_sample
-{
+@:noCompletion class NV_coverage_sample {
 	public var COVERAGE_COMPONENT_NV = 0x8ED0;
 	public var COVERAGE_COMPONENT4_NV = 0x8ED1;
 	public var COVERAGE_ATTACHMENT_NV = 0x8ED2;

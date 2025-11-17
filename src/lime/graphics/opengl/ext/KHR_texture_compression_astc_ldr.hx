@@ -1,8 +1,7 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class KHR_texture_compression_astc_ldr
-{
+@:noCompletion class KHR_texture_compression_astc_ldr {
 	public var COMPRESSED_RGBA_ASTC_4x4_KHR = 0x93B0;
 	public var COMPRESSED_RGBA_ASTC_5x4_KHR = 0x93B1;
 	public var COMPRESSED_RGBA_ASTC_5x5_KHR = 0x93B2;

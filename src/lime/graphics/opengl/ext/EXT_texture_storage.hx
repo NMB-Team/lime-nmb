@@ -1,8 +1,7 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class EXT_texture_storage
-{
+@:noCompletion class EXT_texture_storage {
 	public var TEXTURE_IMMUTABLE_FORMAT_EXT = 0x912F;
 	public var ALPHA8_EXT = 0x803C;
 	public var LUMINANCE8_EXT = 0x8040;

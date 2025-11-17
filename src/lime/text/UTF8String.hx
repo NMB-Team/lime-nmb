@@ -2,12 +2,12 @@ package lime.text;
 
 #if !haxe4
 import haxe.Utf8;
+
 import lime._internal.unifill.Unifill;
 import lime._internal.unifill.CodePoint;
 import lime.system.Locale;
 
-abstract UTF8String(String) from String to String
-{
+abstract UTF8String(String) from String to String {
 	#if sys
 	private static var lowercaseMap:Map<Int, Int>;
 	private static var uppercaseMap:Map<Int, Int>;
@@ -21,8 +21,7 @@ abstract UTF8String(String) from String to String
 	/**
 		Creates a copy from a given String.
 	**/
-	public function new(str:String)
-	{
+	public function new(str:String) {
 		this = new String(str);
 	}
 
@@ -32,8 +31,7 @@ abstract UTF8String(String) from String to String
 		If `index` is negative or exceeds `this.length`, the empty String `""`
 		is returned.
 	**/
-	public function charAt(index:Int):String
-	{
+	public function charAt(index:Int):String {
 		return Unifill.uCharAt(this, index);
 	}
 
@@ -46,9 +44,9 @@ abstract UTF8String(String) from String to String
 		used instead to inline the character code at compile time. Note that
 		this only works on String literals of length 1.
 	**/
-	public function charCodeAt(index:Int):Null<Int>
-	{
-		if (index < 0 || index >= Unifill.uLength(this)) return null;
+	public function charCodeAt(index:Int):Null<Int> {
+		if (index < 0 || index >= Unifill.uLength(this))
+			return null;
 		return Unifill.uCharCodeAt(this, index);
 	}
 
@@ -58,8 +56,7 @@ abstract UTF8String(String) from String to String
 		If `code` is negative or has another invalid value, the result is
 		unspecified.
 	**/
-	public static function fromCharCode(code:Int):String
-	{
+	public static function fromCharCode(code:Int):String {
 		return CodePoint.fromInt(code);
 	}
 
@@ -69,12 +66,10 @@ abstract UTF8String(String) from String to String
 		If #unifill is defined, these codes will be treated as UTF-8 code points,
 		otherwise it will default to using String.fromCharCode() for each character
 	**/
-	public static function fromCharCodes(codes:Array<Int>):String
-	{
+	public static function fromCharCodes(codes:Array<Int>):String {
 		var s = "";
 
-		for (code in codes)
-		{
+		for (code in codes) {
 			s += CodePoint.fromInt(code);
 		}
 
@@ -92,8 +87,7 @@ abstract UTF8String(String) from String to String
 
 		If `str` cannot be found, -1 is returned.
 	**/
-	public function indexOf(str:String, startIndex:Int = 0):Int
-	{
+	public function indexOf(str:String, startIndex:Int = 0):Int {
 		return Unifill.uIndexOf(this, str, startIndex);
 	}
 
@@ -108,8 +102,7 @@ abstract UTF8String(String) from String to String
 
 		If `str` cannot be found, -1 is returned.
 	**/
-	public function lastIndexOf(str:String, ?startIndex:Int):Int
-	{
+	public function lastIndexOf(str:String, ?startIndex:Int):Int {
 		return Unifill.uLastIndexOf(this, str, startIndex);
 	}
 
@@ -133,8 +126,7 @@ abstract UTF8String(String) from String to String
 		result `Array` contains a leading (or trailing) empty String `""` element.
 		Two subsequent delimiters also result in an empty String `""` element.
 	**/
-	public function split(delimiter:String):Array<String>
-	{
+	public function split(delimiter:String):Array<String> {
 		return Unifill.uSplit(this, delimiter);
 	}
 
@@ -153,10 +145,8 @@ abstract UTF8String(String) from String to String
 
 		If `len` is negative, the result is unspecified.
 	**/
-	public function substr(pos:Int, ?len:Int):String
-	{
-		if (len == null)
-		{
+	public function substr(pos:Int, ?len:Int):String {
+		if (len == null) {
 			len = (this : UTF8String).length - pos;
 		}
 
@@ -176,8 +166,7 @@ abstract UTF8String(String) from String to String
 		If the (possibly swapped) `startIndex` exceeds `this.length`, the empty
 		String `""` is returned.
 	**/
-	public function substring(startIndex:Int, ?endIndex:Int):String
-	{
+	public function substring(startIndex:Int, ?endIndex:Int):String {
 		return Unifill.uSubstring(this, startIndex, endIndex);
 	}
 
@@ -188,24 +177,19 @@ abstract UTF8String(String) from String to String
 
 		If `language` is specified, language-specific casing rules will be followed.
 	**/
-	public function toLowerCase(locale:Locale = null):String
-	{
+	public function toLowerCase(locale:Locale = null):String {
 		#if sys
-		if (lowercaseMap == null)
-		{
+		if (lowercaseMap == null) {
 			lowercaseMap = new Map<Int, Int>();
 			Utf8Ext.fillUpperToLowerMap(lowercaseMap);
 		}
 
 		var r = new Utf8();
 
-		Utf8.iter(this, function(v)
-		{
-			if (locale != null)
-			{
+		Utf8.iter(this, function(v) {
+			if (locale != null) {
 				var v2 = toLowerCaseLocaleFixes(v, locale);
-				if (v2 != v)
-				{
+				if (v2 != v) {
 					r.addChar(v2);
 					return;
 				}
@@ -219,13 +203,10 @@ abstract UTF8String(String) from String to String
 		#end
 	}
 
-	private static function toLowerCaseLocaleFixes(v:Int, locale:Locale):Int
-	{
-		return switch (locale.language)
-		{
+	private static function toLowerCaseLocaleFixes(v:Int, locale:Locale):Int {
+		return switch (locale.language) {
 			case "tr":
-				switch (v)
-				{
+				switch (v) {
 					case 0xC4B0: 0x69; // İ-->i (large dotted İ to small i) //probably redundant and can be removed, presented here for logical symmtery for when genuine cases are needed
 					default: v;
 				}
@@ -236,8 +217,7 @@ abstract UTF8String(String) from String to String
 	/**
 		Returns the String itself.
 	**/
-	public function toString():String
-	{
+	public function toString():String {
 		return this;
 	}
 
@@ -248,24 +228,19 @@ abstract UTF8String(String) from String to String
 
 		If `language` is specified, language-specific casing rules will be followed.
 	**/
-	public function toUpperCase(locale:Locale = null):String
-	{
+	public function toUpperCase(locale:Locale = null):String {
 		#if sys
-		if (uppercaseMap == null)
-		{
+		if (uppercaseMap == null) {
 			uppercaseMap = new Map<Int, Int>();
 			Utf8Ext.fillLowerToUpperMap(uppercaseMap);
 		}
 
 		var r = new Utf8();
 
-		Utf8.iter(this, function(v)
-		{
-			if (locale != null)
-			{
+		Utf8.iter(this, function(v) {
+			if (locale != null) {
 				var v2 = toUpperCaseLocaleFixes(v, locale);
-				if (v2 != v)
-				{
+				if (v2 != v) {
 					r.addChar(v2);
 					return;
 				}
@@ -279,13 +254,10 @@ abstract UTF8String(String) from String to String
 		#end
 	}
 
-	private static function toUpperCaseLocaleFixes(v:Int, locale:Locale):Int
-	{
-		return switch (locale.language)
-		{
+	private static function toUpperCaseLocaleFixes(v:Int, locale:Locale):Int {
+		return switch (locale.language) {
 			case "tr":
-				switch (v)
-				{
+				switch (v) {
 					case 0x69: 0xC4B0; // i-->İ (small i to large dotted İ)
 					default: v;
 				}
@@ -293,45 +265,51 @@ abstract UTF8String(String) from String to String
 		}
 	}
 
-	@:op(A == B) private static function equals(a:UTF8String, b:UTF8String):Bool
-	{
-		if (a == null || b == null) return (a : String) == (b : String);
+	@:op(A == B) private static function equals(a:UTF8String, b:UTF8String):Bool {
+		if (a == null || b == null)
+			return (a : String) == (b : String);
 		return Unifill.uCompare(a, b) == 0;
 	}
 
-	@:op(A < B) private static function lt(a:UTF8String, b:UTF8String):Bool
-	{
-		if (b == null) return false;
-		if (a == null) return true;
+	@:op(A < B) private static function lt(a:UTF8String, b:UTF8String):Bool {
+		if (b == null)
+			return false;
+		if (a == null)
+			return true;
 		return Unifill.uCompare(a, b) == -1;
 	}
 
-	@:op(A > B) private static function gt(a:UTF8String, b:UTF8String):Bool
-	{
-		if (a == null) return false;
-		if (b == null) return true;
+	@:op(A > B) private static function gt(a:UTF8String, b:UTF8String):Bool {
+		if (a == null)
+			return false;
+		if (b == null)
+			return true;
 		return Unifill.uCompare(a, b) == 1;
 	}
 
-	@:op(A <= B) private static function lteq(a:UTF8String, b:UTF8String):Bool
-	{
-		if (b == null) return (a == null);
-		if (a == null) return true;
+	@:op(A <= B) private static function lteq(a:UTF8String, b:UTF8String):Bool {
+		if (b == null)
+			return (a == null);
+		if (a == null)
+			return true;
 		return Unifill.uCompare(a, b) != 1;
 	}
 
-	@:op(A >= B) private static function gteq(a:UTF8String, b:UTF8String):Bool
-	{
-		if (a == null) return (b == null);
-		if (b == null) return true;
+	@:op(A >= B) private static function gteq(a:UTF8String, b:UTF8String):Bool {
+		if (a == null)
+			return (b == null);
+		if (b == null)
+			return true;
 		return Unifill.uCompare(a, b) != -1;
 	}
 
-	@:op(A + B) private static function plus(a:UTF8String, b:UTF8String):UTF8String
-	{
-		if (a == null && b == null) return null;
-		if (a == null) return b;
-		if (b == null) return a;
+	@:op(A + B) private static function plus(a:UTF8String, b:UTF8String):UTF8String {
+		if (a == null && b == null)
+			return null;
+		if (a == null)
+			return b;
+		if (b == null)
+			return a;
 
 		var sb = new StringBuf();
 		sb.add(Std.string(a));
@@ -339,23 +317,19 @@ abstract UTF8String(String) from String to String
 		return sb.toString();
 	}
 
-	@:from static function fromDynamic(value:Dynamic):UTF8String
-	{
+	@:from static function fromDynamic(value:Dynamic):UTF8String {
 		return Std.string(value);
 	}
 
 	// Get & Set Methods
-	@:noCompletion private function get_length():Int
-	{
+	@:noCompletion private function get_length():Int {
 		return this == null ? 0 : Unifill.uLength(this);
 	}
 }
 
 // generated from org.zamedev.lib.tools.CaseMapsGenerator
-private class Utf8Ext
-{
-	public static function fillUpperToLowerMap(map:Map<Int, Int>):Void
-	{
+private class Utf8Ext {
+	public static function fillUpperToLowerMap(map:Map<Int, Int>):Void {
 		var i = 0;
 		for (i in 0...26)
 			map[0x41 + i] = 0x61 + i;
@@ -363,41 +337,35 @@ private class Utf8Ext
 			map[0xC0 + i] = 0xE0 + i;
 		for (i in 0...7)
 			map[0xD8 + i] = 0xF8 + i;
-		while (i < 48)
-		{
+		while (i < 48) {
 			map[0x100 + i] = 0x101 + i;
 			i += 2;
 		}
 		i = 0;
 		map[0x130] = 0x69;
-		while (i < 6)
-		{
+		while (i < 6) {
 			map[0x132 + i] = 0x133 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 16)
-		{
+		while (i < 16) {
 			map[0x139 + i] = 0x13A + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 46)
-		{
+		while (i < 46) {
 			map[0x14A + i] = 0x14B + i;
 			i += 2;
 		}
 		i = 0;
 		map[0x178] = 0xFF;
-		while (i < 6)
-		{
+		while (i < 6) {
 			map[0x179 + i] = 0x17A + i;
 			i += 2;
 		}
 		i = 0;
 		map[0x181] = 0x253;
-		while (i < 4)
-		{
+		while (i < 4) {
 			map[0x182 + i] = 0x183 + i;
 			i += 2;
 		}
@@ -419,8 +387,7 @@ private class Utf8Ext
 		map[0x19C] = 0x26F;
 		map[0x19D] = 0x272;
 		map[0x19F] = 0x275;
-		while (i < 6)
-		{
+		while (i < 6) {
 			map[0x1A0 + i] = 0x1A1 + i;
 			i += 2;
 		}
@@ -433,8 +400,7 @@ private class Utf8Ext
 		map[0x1AF] = 0x1B0;
 		for (i in 0...2)
 			map[0x1B1 + i] = 0x28A + i;
-		while (i < 4)
-		{
+		while (i < 4) {
 			map[0x1B3 + i] = 0x1B4 + i;
 			i += 2;
 		}
@@ -445,14 +411,12 @@ private class Utf8Ext
 		map[0x1C4] = 0x1C6;
 		map[0x1C7] = 0x1C9;
 		map[0x1CA] = 0x1CC;
-		while (i < 16)
-		{
+		while (i < 16) {
 			map[0x1CD + i] = 0x1CE + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 18)
-		{
+		while (i < 18) {
 			map[0x1DE + i] = 0x1DF + i;
 			i += 2;
 		}
@@ -461,15 +425,13 @@ private class Utf8Ext
 		map[0x1F4] = 0x1F5;
 		map[0x1F6] = 0x195;
 		map[0x1F7] = 0x1BF;
-		while (i < 40)
-		{
+		while (i < 40) {
 			map[0x1F8 + i] = 0x1F9 + i;
 			i += 2;
 		}
 		i = 0;
 		map[0x220] = 0x19E;
-		while (i < 18)
-		{
+		while (i < 18) {
 			map[0x222 + i] = 0x223 + i;
 			i += 2;
 		}
@@ -482,14 +444,12 @@ private class Utf8Ext
 		map[0x243] = 0x180;
 		map[0x244] = 0x289;
 		map[0x245] = 0x28C;
-		while (i < 10)
-		{
+		while (i < 10) {
 			map[0x246 + i] = 0x247 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 4)
-		{
+		while (i < 4) {
 			map[0x370 + i] = 0x371 + i;
 			i += 2;
 		}
@@ -507,8 +467,7 @@ private class Utf8Ext
 		for (i in 0...9)
 			map[0x3A3 + i] = 0x3C3 + i;
 		map[0x3CF] = 0x3D7;
-		while (i < 24)
-		{
+		while (i < 24) {
 			map[0x3D8 + i] = 0x3D9 + i;
 			i += 2;
 		}
@@ -523,27 +482,23 @@ private class Utf8Ext
 			map[0x400 + i] = 0x450 + i;
 		for (i in 0...32)
 			map[0x410 + i] = 0x430 + i;
-		while (i < 34)
-		{
+		while (i < 34) {
 			map[0x460 + i] = 0x461 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 54)
-		{
+		while (i < 54) {
 			map[0x48A + i] = 0x48B + i;
 			i += 2;
 		}
 		i = 0;
 		map[0x4C0] = 0x4CF;
-		while (i < 14)
-		{
+		while (i < 14) {
 			map[0x4C1 + i] = 0x4C2 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 96)
-		{
+		while (i < 96) {
 			map[0x4D0 + i] = 0x4D1 + i;
 			i += 2;
 		}
@@ -558,15 +513,13 @@ private class Utf8Ext
 			map[0x13A0 + i] = 0xAB70 + i;
 		for (i in 0...6)
 			map[0x13F0 + i] = 0x13F8 + i;
-		while (i < 150)
-		{
+		while (i < 150) {
 			map[0x1E00 + i] = 0x1E01 + i;
 			i += 2;
 		}
 		i = 0;
 		map[0x1E9E] = 0xDF;
-		while (i < 96)
-		{
+		while (i < 96) {
 			map[0x1EA0 + i] = 0x1EA1 + i;
 			i += 2;
 		}
@@ -581,8 +534,7 @@ private class Utf8Ext
 			map[0x1F38 + i] = 0x1F30 + i;
 		for (i in 0...6)
 			map[0x1F48 + i] = 0x1F40 + i;
-		while (i < 8)
-		{
+		while (i < 8) {
 			map[0x1F59 + i] = 0x1F51 + i;
 			i += 2;
 		}
@@ -619,8 +571,7 @@ private class Utf8Ext
 		map[0x2C62] = 0x26B;
 		map[0x2C63] = 0x1D7D;
 		map[0x2C64] = 0x27D;
-		while (i < 6)
-		{
+		while (i < 6) {
 			map[0x2C67 + i] = 0x2C68 + i;
 			i += 2;
 		}
@@ -633,66 +584,56 @@ private class Utf8Ext
 		map[0x2C75] = 0x2C76;
 		for (i in 0...2)
 			map[0x2C7E + i] = 0x23F + i;
-		while (i < 100)
-		{
+		while (i < 100) {
 			map[0x2C80 + i] = 0x2C81 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 4)
-		{
+		while (i < 4) {
 			map[0x2CEB + i] = 0x2CEC + i;
 			i += 2;
 		}
 		i = 0;
 		map[0x2CF2] = 0x2CF3;
-		while (i < 46)
-		{
+		while (i < 46) {
 			map[0xA640 + i] = 0xA641 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 28)
-		{
+		while (i < 28) {
 			map[0xA680 + i] = 0xA681 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 14)
-		{
+		while (i < 14) {
 			map[0xA722 + i] = 0xA723 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 62)
-		{
+		while (i < 62) {
 			map[0xA732 + i] = 0xA733 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 4)
-		{
+		while (i < 4) {
 			map[0xA779 + i] = 0xA77A + i;
 			i += 2;
 		}
 		i = 0;
 		map[0xA77D] = 0x1D79;
-		while (i < 10)
-		{
+		while (i < 10) {
 			map[0xA77E + i] = 0xA77F + i;
 			i += 2;
 		}
 		i = 0;
 		map[0xA78B] = 0xA78C;
 		map[0xA78D] = 0x265;
-		while (i < 4)
-		{
+		while (i < 4) {
 			map[0xA790 + i] = 0xA791 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 20)
-		{
+		while (i < 20) {
 			map[0xA796 + i] = 0xA797 + i;
 			i += 2;
 		}
@@ -706,8 +647,7 @@ private class Utf8Ext
 		map[0xA7B1] = 0x287;
 		map[0xA7B2] = 0x29D;
 		map[0xA7B3] = 0xAB53;
-		while (i < 4)
-		{
+		while (i < 4) {
 			map[0xA7B4 + i] = 0xA7B5 + i;
 			i += 2;
 		}
@@ -726,8 +666,7 @@ private class Utf8Ext
 			map[0x1E900 + i] = 0x1E922 + i;
 	}
 
-	public static function fillLowerToUpperMap(map:Map<Int, Int>):Void
-	{
+	public static function fillLowerToUpperMap(map:Map<Int, Int>):Void {
 		var i = 0;
 		for (i in 0...26)
 			map[0x61 + i] = 0x41 + i;
@@ -737,41 +676,35 @@ private class Utf8Ext
 		for (i in 0...7)
 			map[0xF8 + i] = 0xD8 + i;
 		map[0xFF] = 0x178;
-		while (i < 48)
-		{
+		while (i < 48) {
 			map[0x101 + i] = 0x100 + i;
 			i += 2;
 		}
 		i = 0;
 		map[0x131] = 0x49;
-		while (i < 6)
-		{
+		while (i < 6) {
 			map[0x133 + i] = 0x132 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 16)
-		{
+		while (i < 16) {
 			map[0x13A + i] = 0x139 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 46)
-		{
+		while (i < 46) {
 			map[0x14B + i] = 0x14A + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 6)
-		{
+		while (i < 6) {
 			map[0x17A + i] = 0x179 + i;
 			i += 2;
 		}
 		i = 0;
 		map[0x17F] = 0x53;
 		map[0x180] = 0x243;
-		while (i < 4)
-		{
+		while (i < 4) {
 			map[0x183 + i] = 0x182 + i;
 			i += 2;
 		}
@@ -783,8 +716,7 @@ private class Utf8Ext
 		map[0x199] = 0x198;
 		map[0x19A] = 0x23D;
 		map[0x19E] = 0x220;
-		while (i < 6)
-		{
+		while (i < 6) {
 			map[0x1A1 + i] = 0x1A0 + i;
 			i += 2;
 		}
@@ -792,8 +724,7 @@ private class Utf8Ext
 		map[0x1A8] = 0x1A7;
 		map[0x1AD] = 0x1AC;
 		map[0x1B0] = 0x1AF;
-		while (i < 4)
-		{
+		while (i < 4) {
 			map[0x1B4 + i] = 0x1B3 + i;
 			i += 2;
 		}
@@ -804,15 +735,13 @@ private class Utf8Ext
 		map[0x1C6] = 0x1C4;
 		map[0x1C9] = 0x1C7;
 		map[0x1CC] = 0x1CA;
-		while (i < 16)
-		{
+		while (i < 16) {
 			map[0x1CE + i] = 0x1CD + i;
 			i += 2;
 		}
 		i = 0;
 		map[0x1DD] = 0x18E;
-		while (i < 18)
-		{
+		while (i < 18) {
 			map[0x1DF + i] = 0x1DE + i;
 			i += 2;
 		}
@@ -820,14 +749,12 @@ private class Utf8Ext
 		map[0x1F0] = 0x4A;
 		map[0x1F3] = 0x1F1;
 		map[0x1F5] = 0x1F4;
-		while (i < 40)
-		{
+		while (i < 40) {
 			map[0x1F9 + i] = 0x1F8 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 18)
-		{
+		while (i < 18) {
 			map[0x223 + i] = 0x222 + i;
 			i += 2;
 		}
@@ -836,8 +763,7 @@ private class Utf8Ext
 		for (i in 0...2)
 			map[0x23F + i] = 0x2C7E + i;
 		map[0x242] = 0x241;
-		while (i < 10)
-		{
+		while (i < 10) {
 			map[0x247 + i] = 0x246 + i;
 			i += 2;
 		}
@@ -878,8 +804,7 @@ private class Utf8Ext
 		map[0x292] = 0x1B7;
 		map[0x29D] = 0xA7B2;
 		map[0x29E] = 0xA7B0;
-		while (i < 4)
-		{
+		while (i < 4) {
 			map[0x371 + i] = 0x370 + i;
 			i += 2;
 		}
@@ -905,8 +830,7 @@ private class Utf8Ext
 		map[0x3D5] = 0x3A6;
 		map[0x3D6] = 0x3A0;
 		map[0x3D7] = 0x3CF;
-		while (i < 24)
-		{
+		while (i < 24) {
 			map[0x3D9 + i] = 0x3D8 + i;
 			i += 2;
 		}
@@ -922,27 +846,23 @@ private class Utf8Ext
 			map[0x430 + i] = 0x410 + i;
 		for (i in 0...16)
 			map[0x450 + i] = 0x400 + i;
-		while (i < 34)
-		{
+		while (i < 34) {
 			map[0x461 + i] = 0x460 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 54)
-		{
+		while (i < 54) {
 			map[0x48B + i] = 0x48A + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 14)
-		{
+		while (i < 14) {
 			map[0x4C2 + i] = 0x4C1 + i;
 			i += 2;
 		}
 		i = 0;
 		map[0x4CF] = 0x4C0;
-		while (i < 96)
-		{
+		while (i < 96) {
 			map[0x4D1 + i] = 0x4D0 + i;
 			i += 2;
 		}
@@ -962,8 +882,7 @@ private class Utf8Ext
 		map[0x1C88] = 0xA64A;
 		map[0x1D79] = 0xA77D;
 		map[0x1D7D] = 0x2C63;
-		while (i < 150)
-		{
+		while (i < 150) {
 			map[0x1E01 + i] = 0x1E00 + i;
 			i += 2;
 		}
@@ -973,8 +892,7 @@ private class Utf8Ext
 		map[0x1E98] = 0x57;
 		map[0x1E99] = 0x59;
 		map[0x1E9B] = 0x1E60;
-		while (i < 96)
-		{
+		while (i < 96) {
 			map[0x1EA1 + i] = 0x1EA0 + i;
 			i += 2;
 		}
@@ -1055,22 +973,19 @@ private class Utf8Ext
 		map[0x2C61] = 0x2C60;
 		map[0x2C65] = 0x23A;
 		map[0x2C66] = 0x23E;
-		while (i < 6)
-		{
+		while (i < 6) {
 			map[0x2C68 + i] = 0x2C67 + i;
 			i += 2;
 		}
 		i = 0;
 		map[0x2C73] = 0x2C72;
 		map[0x2C76] = 0x2C75;
-		while (i < 100)
-		{
+		while (i < 100) {
 			map[0x2C81 + i] = 0x2C80 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 4)
-		{
+		while (i < 4) {
 			map[0x2CEC + i] = 0x2CEB + i;
 			i += 2;
 		}
@@ -1080,57 +995,48 @@ private class Utf8Ext
 			map[0x2D00 + i] = 0x10A0 + i;
 		map[0x2D27] = 0x10C7;
 		map[0x2D2D] = 0x10CD;
-		while (i < 46)
-		{
+		while (i < 46) {
 			map[0xA641 + i] = 0xA640 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 28)
-		{
+		while (i < 28) {
 			map[0xA681 + i] = 0xA680 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 14)
-		{
+		while (i < 14) {
 			map[0xA723 + i] = 0xA722 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 62)
-		{
+		while (i < 62) {
 			map[0xA733 + i] = 0xA732 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 4)
-		{
+		while (i < 4) {
 			map[0xA77A + i] = 0xA779 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 10)
-		{
+		while (i < 10) {
 			map[0xA77F + i] = 0xA77E + i;
 			i += 2;
 		}
 		i = 0;
 		map[0xA78C] = 0xA78B;
-		while (i < 4)
-		{
+		while (i < 4) {
 			map[0xA791 + i] = 0xA790 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 20)
-		{
+		while (i < 20) {
 			map[0xA797 + i] = 0xA796 + i;
 			i += 2;
 		}
 		i = 0;
-		while (i < 4)
-		{
+		while (i < 4) {
 			map[0xA7B5 + i] = 0xA7B4 + i;
 			i += 2;
 		}

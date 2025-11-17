@@ -4,10 +4,8 @@ package lime.media.openal;
 import lime.system.CFFIPointer;
 
 @:allow(lime.media.openal.AL)
-abstract ALEffect(CFFIPointer) from CFFIPointer to CFFIPointer
-{
-	@:noCompletion private inline function new(handle:CFFIPointer)
-	{
+abstract ALEffect(CFFIPointer) from CFFIPointer to CFFIPointer {
+	@:noCompletion private inline function new(handle:CFFIPointer) {
 		this = handle;
 	}
 }

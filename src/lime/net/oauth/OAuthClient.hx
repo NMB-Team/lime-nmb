@@ -4,13 +4,11 @@ import haxe.crypto.Sha1;
 
 // import lime.net.URLRequestMethod;
 // import lime.net.URLRequest;
-class OAuthClient
-{
+class OAuthClient {
 	public var version:OAuthVersion;
 	public var consumer:OAuthConsumer;
 
-	public function new(version:OAuthVersion, consumer:OAuthConsumer)
-	{
+	public function new(version:OAuthVersion, consumer:OAuthConsumer) {
 		this.version = version;
 		this.consumer = consumer;
 	}
@@ -31,8 +29,7 @@ class OAuthClient
 	// return oauth.request;
 	//
 	// }
-	public function generateNonce():String
-	{
+	public function generateNonce():String {
 		return Sha1.encode(Std.string(Math.random()));
 	}
 }

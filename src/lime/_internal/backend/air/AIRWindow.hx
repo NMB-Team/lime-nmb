@@ -10,6 +10,7 @@ import flash.events.Event;
 import flash.events.NativeWindowBoundsEvent;
 import flash.html.HTMLLoader;
 import flash.Lib;
+
 import lime._internal.backend.flash.FlashApplication;
 import lime._internal.backend.flash.FlashWindow;
 import lime.app.Application;
@@ -17,24 +18,19 @@ import lime.ui.Window;
 
 @:access(lime._internal.backend.flash.FlashApplication)
 @:access(lime.ui.Window)
-class AIRWindow extends FlashWindow
-{
+class AIRWindow extends FlashWindow {
 	private var closing:Bool;
 	private var nativeWindow:NativeWindow;
 
-	public function new(parent:Window)
-	{
+	public function new(parent:Window) {
 		super(parent);
 	}
 
-	public override function alert(message:String, title:String):Void
-	{
-		if (nativeWindow != null)
-		{
+	override public function alert(message:String, title:String):Void {
+		if (nativeWindow != null) {
 			nativeWindow.notifyUser(NotificationType.INFORMATIONAL);
 
-			if (message != null)
-			{
+			if (message != null) {
 				var htmlLoader = new HTMLLoader();
 				htmlLoader.loadString("<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'><title></title><script></script></head><body></body></html>");
 				htmlLoader.window.alert(message);
@@ -42,26 +38,20 @@ class AIRWindow extends FlashWindow
 		}
 	}
 
-	public override function close():Void
-	{
-		if (!closing)
-		{
+	override public function close():Void {
+		if (!closing) {
 			closing = true;
 			parent.onClose.dispatch();
 
-			if (!parent.onClose.canceled)
-			{
+			if (!parent.onClose.canceled) {
 				nativeWindow.close();
-			}
-			else
-			{
+			} else {
 				closing = false;
 			}
 		}
 	}
 
-	private override function create():Void
-	{
+	override private function create():Void {
 		var title = (parent.__title != null && parent.__title != "") ? parent.__title : "Lime Application";
 		var attributes = parent.__attributes;
 
@@ -78,31 +68,37 @@ class AIRWindow extends FlashWindow
 		var width = 0;
 		var height = 0;
 
-		if (Reflect.hasField(attributes, "alwaysOnTop") && attributes.alwaysOnTop) alwaysOnTop = true;
-		if (Reflect.hasField(attributes, "borderless") && attributes.borderless) borderless = true;
-		if (Reflect.hasField(attributes, "fullscreen") && attributes.fullscreen) fullscreen = true;
-		if (Reflect.hasField(attributes, "context")
-			&& Reflect.hasField(attributes.context, "hardware")
-			&& attributes.context.hardware) hardware = true;
-		if (Reflect.hasField(attributes, "hidden") && attributes.hidden) hidden = true;
-		if (Reflect.hasField(attributes, "maximized") && attributes.maximized) maximized = true;
-		if (Reflect.hasField(attributes, "minimized") && attributes.minimized) minimized = true;
-		if (Reflect.hasField(attributes, "resizable") && attributes.resizable) resizable = true;
+		if (Reflect.hasField(attributes, "alwaysOnTop") && attributes.alwaysOnTop)
+			alwaysOnTop = true;
+		if (Reflect.hasField(attributes, "borderless") && attributes.borderless)
+			borderless = true;
+		if (Reflect.hasField(attributes, "fullscreen") && attributes.fullscreen)
+			fullscreen = true;
+		if (Reflect.hasField(attributes, "context") && Reflect.hasField(attributes.context, "hardware") && attributes.context.hardware)
+			hardware = true;
+		if (Reflect.hasField(attributes, "hidden") && attributes.hidden)
+			hidden = true;
+		if (Reflect.hasField(attributes, "maximized") && attributes.maximized)
+			maximized = true;
+		if (Reflect.hasField(attributes, "minimized") && attributes.minimized)
+			minimized = true;
+		if (Reflect.hasField(attributes, "resizable") && attributes.resizable)
+			resizable = true;
 
-		if (Reflect.hasField(attributes, "frameRate")) frameRate = attributes.frameRate;
-		if (Reflect.hasField(attributes, "width")) width = attributes.width;
-		if (Reflect.hasField(attributes, "height")) height = attributes.height;
+		if (Reflect.hasField(attributes, "frameRate"))
+			frameRate = attributes.frameRate;
+		if (Reflect.hasField(attributes, "width"))
+			width = attributes.width;
+		if (Reflect.hasField(attributes, "height"))
+			height = attributes.height;
 
-		if (FlashApplication.createFirstWindow)
-		{
+		if (FlashApplication.createFirstWindow) {
 			nativeWindow = Lib.current.stage.nativeWindow;
 
 			#if munit
 			hidden = true;
 			#end
-		}
-		else
-		{
+		} else {
 			var options = new NativeWindowInitOptions();
 			options.systemChrome = borderless ? NativeWindowSystemChrome.NONE : NativeWindowSystemChrome.STANDARD;
 			options.renderMode = hardware ? NativeWindowRenderMode.DIRECT : NativeWindowRenderMode.CPU;
@@ -114,12 +110,13 @@ class AIRWindow extends FlashWindow
 			nativeWindow = new NativeWindow(options);
 			nativeWindow.stage.frameRate = frameRate;
 
-			if (width > 0) nativeWindow.width = width;
-			if (height > 0) nativeWindow.height = height;
+			if (width > 0)
+				nativeWindow.width = width;
+			if (height > 0)
+				nativeWindow.height = height;
 		}
 
-		if (nativeWindow != null)
-		{
+		if (nativeWindow != null) {
 			parent.stage = nativeWindow.stage;
 
 			nativeWindow.addEventListener(Event.CLOSING, handleNativeWindowEvent);
@@ -127,8 +124,7 @@ class AIRWindow extends FlashWindow
 			// nativeWindow.addEventListener (Event.RESIZE, handleWindowEvent);
 			nativeWindow.addEventListener(NativeWindowBoundsEvent.MOVE, handleNativeWindowEvent);
 
-			if (hidden)
-			{
+			if (hidden) {
 				nativeWindow.visible = false;
 			}
 
@@ -136,23 +132,18 @@ class AIRWindow extends FlashWindow
 			nativeWindow.alwaysInFront = alwaysOnTop;
 			nativeWindow.title = title;
 
-			if (maximized)
-			{
+			if (maximized) {
 				nativeWindow.maximize();
-			}
-			else if (minimized)
-			{
+			} else if (minimized) {
 				nativeWindow.minimize();
 			}
 		}
 
-		if (fullscreen)
-		{
+		if (fullscreen) {
 			setFullscreen(true);
 		}
 
-		if (nativeWindow != null)
-		{
+		if (nativeWindow != null) {
 			parent.__width = Std.int(nativeWindow.width);
 			parent.__height = Std.int(nativeWindow.height);
 			parent.__x = Math.round(nativeWindow.x);
@@ -162,31 +153,25 @@ class AIRWindow extends FlashWindow
 
 		super.create();
 
-		if (hardware)
-		{
+		if (hardware) {
 			parent.context.attributes.hardware = true;
 			parent.context.attributes.depth = true;
 			parent.context.attributes.stencil = true;
 		}
 	}
 
-	public override function focus():Void
-	{
-		if (nativeWindow != null && nativeWindow.visible)
-		{
+	override public function focus():Void {
+		if (nativeWindow != null && nativeWindow.visible) {
 			nativeWindow.activate();
 		}
 	}
 
-	private function handleNativeWindowEvent(event:Event):Void
-	{
-		switch (event.type)
-		{
+	private function handleNativeWindowEvent(event:Event):Void {
+		switch (event.type) {
 			case Event.CLOSING:
 				parent.close();
 
-				if (parent.onClose.canceled)
-				{
+				if (parent.onClose.canceled) {
 					event.preventDefault();
 					event.stopImmediatePropagation();
 				}
@@ -214,50 +199,37 @@ class AIRWindow extends FlashWindow
 		}
 	}
 
-	public override function move(x:Int, y:Int):Void
-	{
-		if (nativeWindow != null)
-		{
+	override public function move(x:Int, y:Int):Void {
+		if (nativeWindow != null) {
 			nativeWindow.x = x;
 			nativeWindow.y = y;
 		}
 	}
 
-	public override function resize(width:Int, height:Int):Void
-	{
-		if (nativeWindow != null)
-		{
+	override public function resize(width:Int, height:Int):Void {
+		if (nativeWindow != null) {
 			nativeWindow.width = width;
 			nativeWindow.height = height;
 		}
 	}
 
-	public override function setMinSize(width:Int, height:Int):Void
-	{
-		if (nativeWindow != null)
-		{
+	override public function setMinSize(width:Int, height:Int):Void {
+		if (nativeWindow != null) {
 			nativeWindow.minSize = new Point(width, height);
 		}
 	}
 
-	public override function setMaxSize(width:Int, height:Int):Void
-	{
-		if (nativeWindow != null)
-		{
+	override public function setMaxSize(width:Int, height:Int):Void {
+		if (nativeWindow != null) {
 			nativeWindow.maxSize = new Point(width, height);
 		}
 	}
 
-	public override function setMaximized(value:Bool):Bool
-	{
-		if (nativeWindow != null)
-		{
-			if (value)
-			{
+	override public function setMaximized(value:Bool):Bool {
+		if (nativeWindow != null) {
+			if (value) {
 				nativeWindow.maximize();
-			}
-			else
-			{
+			} else {
 				nativeWindow.restore();
 			}
 		}
@@ -265,16 +237,11 @@ class AIRWindow extends FlashWindow
 		return value;
 	}
 
-	public override function setMinimized(value:Bool):Bool
-	{
-		if (nativeWindow != null)
-		{
-			if (value)
-			{
+	override public function setMinimized(value:Bool):Bool {
+		if (nativeWindow != null) {
+			if (value) {
 				nativeWindow.minimize();
-			}
-			else
-			{
+			} else {
 				nativeWindow.restore();
 			}
 		}
@@ -282,20 +249,16 @@ class AIRWindow extends FlashWindow
 		return value;
 	}
 
-	public override function setTitle(value:String):String
-	{
-		if (nativeWindow != null)
-		{
+	override public function setTitle(value:String):String {
+		if (nativeWindow != null) {
 			nativeWindow.title = value;
 		}
 
 		return value;
 	}
 
-	public override function setAlwaysOnTop(value:Bool):Bool
-	{
-		if (nativeWindow != null)
-		{
+	override public function setAlwaysOnTop(value:Bool):Bool {
+		if (nativeWindow != null) {
 			nativeWindow.alwaysInFront = value;
 		}
 

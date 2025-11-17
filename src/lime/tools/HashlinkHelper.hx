@@ -1,22 +1,22 @@
 package lime.tools;
 
 import hxp.Log;
+
 import sys.FileSystem;
+
 import lime.tools.ConfigHelper;
 import lime.tools.HXProject;
 import lime.tools.Platform;
+
 import hxp.Path;
 import hxp.System;
 
-class HashlinkHelper
-{
+class HashlinkHelper {
 	public static inline var BUNDLED_HL_VER = "1.14.0";
 
-	public static function copyHashlink(project:HXProject, targetDirectory:String, applicationDirectory:String, executablePath:String, ?is64 = true)
-	{
+	public static function copyHashlink(project:HXProject, targetDirectory:String, applicationDirectory:String, executablePath:String, ?is64 = true) {
 		var platform = project.target;
-		var bindir = switch project.target
-		{
+		var bindir = switch project.target {
 			case LINUX: "Linux";
 			case MAC: "Mac";
 			case WINDOWS: "Windows";
@@ -25,57 +25,47 @@ class HashlinkHelper
 				Sys.exit(1);
 				"";
 		};
-		if(is64) {
+		if (is64) {
 			bindir += "64";
 		}
 
 		var hlPath = ConfigHelper.getConfigValue("HL_PATH");
-		if (hlPath == null)
-		{
+		if (hlPath == null) {
 			System.recursiveCopyTemplate(project.templatePaths, 'bin/hl/$bindir', applicationDirectory);
 			System.renameFile(Path.combine(applicationDirectory, "hl" + (project.target == WINDOWS ? ".exe" : "")), executablePath);
-		}
-		else
-		{
+		} else {
 			System.copyFile(Path.combine(hlPath, "hl" + (platform == WINDOWS ? ".exe" : "")), executablePath);
-			if (platform == WINDOWS)
-			{
+			if (platform == WINDOWS) {
 				System.copyFile(Path.combine(hlPath, "libhl.dll"), Path.combine(applicationDirectory, "libhl.dll"));
 				var msvcrPath = Path.combine(hlPath, "msvcr120.dll");
-				if (FileSystem.exists(msvcrPath))
-				{
+				if (FileSystem.exists(msvcrPath)) {
 					System.copyFile(msvcrPath, Path.combine(applicationDirectory, "msvcr120.dll"));
 				}
 				var vcruntimePath = Path.combine(hlPath, "vcruntime140.dll");
-				if (FileSystem.exists(vcruntimePath))
-				{
+				if (FileSystem.exists(vcruntimePath)) {
 					System.copyFile(vcruntimePath, Path.combine(applicationDirectory, "vcruntime140.dll"));
 				}
-			}
-			else if (platform == MAC || platform == IOS)
-			{
+			} else if (platform == MAC || platform == IOS) {
 				System.copyFile(Path.combine(hlPath, "libhl.dylib"), Path.combine(applicationDirectory, "libhl.dylib"));
-			}
-			else
-			{
+			} else {
 				System.copyFile(Path.combine(hlPath, "libhl.so"), Path.combine(applicationDirectory, "libhl.so"));
 			}
 
+			final excludes = [
+				"sdl.hdll",
+				"openal.hdll",
+				"directx.hdll",
+				"dx12.hdll" /*, "mysql.hdll", "sqlite.hdll"*/];
 			for (file in System.readDirectory(hlPath)
-				.filter(function(f) return Path.extension(f) == "hdll"
-					&& Path.withoutDirectory(f) != "sdl.hdll"
-					&& Path.withoutDirectory(f) != "openal.hdll"))
-			{
+				.filter(function(f) return Path.extension(f) == "hdll" && excludes.indexOf(Path.withoutDirectory(f)) == -1)) {
 				System.copyFile(file, Path.combine(applicationDirectory, Path.withoutDirectory(file)));
 			}
 		}
 
 		// make sure no hxcpp hash files or MSVC build artifacts remain
 
-		for (file in System.readDirectory(applicationDirectory))
-		{
-			switch Path.extension(file)
-			{
+		for (file in System.readDirectory(applicationDirectory)) {
+			switch Path.extension(file) {
 				case "hash", "lib", "pdb", "ilk", "exp":
 					System.deleteFile(file);
 				default:

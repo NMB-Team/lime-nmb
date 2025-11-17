@@ -1,8 +1,7 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class QCOM_extended_get
-{
+@:noCompletion class QCOM_extended_get {
 	public var TEXTURE_WIDTH_QCOM = 0x8BD2;
 	public var TEXTURE_HEIGHT_QCOM = 0x8BD3;
 	public var TEXTURE_DEPTH_QCOM = 0x8BD4;

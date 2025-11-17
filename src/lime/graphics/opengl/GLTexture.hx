@@ -5,10 +5,8 @@ package lime.graphics.opengl;
 import lime.graphics.opengl.GL;
 
 @:forward(id)
-abstract GLTexture(GLObject) from GLObject to GLObject
-{
-	@:from private static inline function fromInt(id:Int):GLTexture
-	{
+abstract GLTexture(GLObject) from GLObject to GLObject {
+	@:from private static inline function fromInt(id:Int):GLTexture {
 		return GLObject.fromInt(TEXTURE, id);
 	}
 }

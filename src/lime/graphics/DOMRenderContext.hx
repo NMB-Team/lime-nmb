@@ -17,20 +17,16 @@ import js.html.Element;
 **/
 @:access(lime.graphics.RenderContext)
 @:forward
-abstract DOMRenderContext(Element) from Element to Element
-{
-	@:from private static function fromRenderContext(context:RenderContext):DOMRenderContext
-	{
+abstract DOMRenderContext(Element) from Element to Element {
+	@:from private static function fromRenderContext(context:RenderContext):DOMRenderContext {
 		return context.dom;
 	}
 }
 #else
 @:forward
 @:transitive
-abstract DOMRenderContext(Dynamic) from Dynamic to Dynamic
-{
-	@:from private static function fromRenderContext(context:RenderContext):DOMRenderContext
-	{
+abstract DOMRenderContext(Dynamic) from Dynamic to Dynamic {
+	@:from private static function fromRenderContext(context:RenderContext):DOMRenderContext {
 		return null;
 	}
 }

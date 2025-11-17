@@ -1,12 +1,14 @@
 package;
 
 import haxe.Json;
+
 import hxp.Haxelib;
 import hxp.HXML;
 import hxp.Log;
 import hxp.NDLL;
 import hxp.Path;
 import hxp.System;
+
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
 import lime.tools.CPPHelper;
@@ -18,76 +20,71 @@ import lime.tools.IconHelper;
 import lime.tools.Orientation;
 import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
+
 import sys.io.File;
 import sys.FileSystem;
 
-class WebAssemblyPlatform extends PlatformTarget
-{
+class WebAssemblyPlatform extends PlatformTarget {
 	private var dependencyPath:String;
 	private var outputFile:String;
 
-	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
-	{
+	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>) {
 		super(command, _project, targetFlags);
 
 		var defaults = new HXProject();
 
-		defaults.meta =
-			{
-				title: "MyApplication",
-				description: "",
-				packageName: "com.example.myapp",
-				version: "1.0.0",
-				company: "",
-				companyUrl: "",
-				buildNumber: null,
-				companyId: ""
-			};
+		defaults.meta = {
+			title: "MyApplication",
+			description: "",
+			packageName: "com.example.myapp",
+			version: "1.0.0",
+			company: "",
+			companyUrl: "",
+			buildNumber: null,
+			companyId: ""
+		};
 
-		defaults.app =
-			{
-				main: "Main",
-				file: "MyApplication",
-				path: "bin",
-				preloader: "",
-				swfVersion: 17,
-				url: "",
-				init: null
-			};
+		defaults.app = {
+			main: "Main",
+			file: "MyApplication",
+			path: "bin",
+			preloader: "",
+			swfVersion: 17,
+			url: "",
+			init: null
+		};
 
-		defaults.window =
-			{
-				width: 800,
-				height: 600,
-				parameters: "{}",
-				background: 0xFFFFFF,
-				fps: 30,
-				hardware: true,
-				display: 0,
-				resizable: true,
-				borderless: false,
-				orientation: Orientation.AUTO,
-				vsync: false,
-				fullscreen: false,
-				allowHighDPI: true,
-				alwaysOnTop: false,
-				antialiasing: 0,
-				allowShaders: true,
-				requireShaders: false,
-				depthBuffer: true,
-				stencilBuffer: true,
-				colorDepth: 32,
-				maximized: false,
-				minimized: false,
-				hidden: false,
-				title: ""
-			};
+		defaults.window = {
+			width: 800,
+			height: 600,
+			parameters: "{}",
+			background: 0xFFFFFF,
+			fps: 30,
+			hardware: true,
+			display: 0,
+			resizable: true,
+			borderless: false,
+			orientation: Orientation.AUTO,
+			vsync: false,
+			fullscreen: false,
+			allowHighDPI: true,
+			alwaysOnTop: false,
+			antialiasing: 0,
+			allowShaders: true,
+			requireShaders: false,
+			depthBuffer: true,
+			stencilBuffer: true,
+			colorDepth: 32,
+			maximized: false,
+			minimized: false,
+			hidden: false,
+			title: ""
+		};
 
 		defaults.window.fps = 60;
 		defaults.window.allowHighDPI = false;
 
-		for (i in 1...project.windows.length)
-		{
+		for (i in 1...project.windows.length) {
 			defaults.windows.push(defaults.window);
 		}
 
@@ -99,36 +96,43 @@ class WebAssemblyPlatform extends PlatformTarget
 		outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
 	}
 
-	public override function build():Void
-	{
+	override public function build():Void {
 		var sdkPath = null;
 
-		if (project.defines.exists("EMSCRIPTEN_SDK"))
-		{
+		if (project.defines.exists("EMSCRIPTEN_SDK")) {
 			sdkPath = project.defines.get("EMSCRIPTEN_SDK");
-		}
-		else if (project.environment.exists("EMSCRIPTEN_SDK"))
-		{
+		} else if (project.environment.exists("EMSCRIPTEN_SDK")) {
 			sdkPath = project.environment.get("EMSCRIPTEN_SDK");
 		}
 
-		if (sdkPath == null)
-		{
+		if (sdkPath == null) {
 			Log.error("You must define EMSCRIPTEN_SDK with the path to your Emscripten SDK.");
 		}
 
 		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
-		var args = [hxml, "-D", "webassembly", "-D", "wasm", "-D", "emscripten", "-D", "webgl", "-D", "static_link"];
+		var args = [
+			hxml,
+			"-D",
+			"webassembly",
+			"-D",
+			"wasm",
+			"-D",
+			"emscripten",
+			"-D",
+			"webgl",
+			"-D",
+			"static_link"
+		];
 
-		if (Log.verbose)
-		{
+		if (Log.verbose) {
 			args.push("-D");
 			args.push("verbose");
 		}
 
 		System.runCommand("", "haxe", args);
 
-		if (noOutput) return;
+		if (noOutput)
+			return;
 
 		CPPHelper.compile(project, targetDirectory + "/obj", ["-Dwebassembly", "-Dwasm", "-Demscripten", "-Dwebgl", "-Dstatic_link"]);
 		// CPPHelper.compile(project, targetDirectory + "/obj", ["-Demscripten", "-Dwebgl", "-Dstatic_link"], "BuildMain.xml");
@@ -139,8 +143,7 @@ class WebAssemblyPlatform extends PlatformTarget
 
 		args = ["Main.o"];
 
-		for (ndll in project.ndlls)
-		{
+		for (ndll in project.ndlls) {
 			var path = NDLL.getLibraryPath(ndll, "Emscripten", "lib", ".a", project.debug);
 			args.push(path);
 		}
@@ -154,8 +157,7 @@ class WebAssemblyPlatform extends PlatformTarget
 		while (versionSplit.length > 2)
 			versionSplit.pop();
 
-		if (Std.parseFloat(versionSplit.join(".")) > 3.1)
-		{
+		if (Std.parseFloat(versionSplit.join(".")) > 3.1) {
 			prefix = "lib";
 		}
 
@@ -165,13 +167,10 @@ class WebAssemblyPlatform extends PlatformTarget
 			"ApplicationMain.o"
 		]);
 
-		if (!project.targetFlags.exists("asmjs"))
-		{
+		if (!project.targetFlags.exists("asmjs")) {
 			args.push("-s");
 			args.push("WASM=1");
-		}
-		else
-		{
+		} else {
 			args.push("-s");
 			args.push("ASM_JS=1");
 		}
@@ -182,21 +181,18 @@ class WebAssemblyPlatform extends PlatformTarget
 		args.push("-s");
 		args.push("USE_SDL=2");
 
-		for (dependency in project.dependencies)
-		{
-			if (dependency.name != "")
-			{
+		for (dependency in project.dependencies) {
+			if (dependency.name != "") {
 				args.push("-l" + dependency.name);
 			}
 		}
 
-		if (project.targetFlags.exists("final") || project.defines.exists("disable-exception-catching") || project.targetFlags.exists("disable-exception-catching"))
-		{
+		if (project.targetFlags.exists("final")
+			|| project.defines.exists("disable-exception-catching")
+			|| project.targetFlags.exists("disable-exception-catching")) {
 			args.push("-s");
 			args.push("DISABLE_EXCEPTION_CATCHING=1");
-		}
-		else
-		{
+		} else {
 			args.push("-gsource-map");
 			args.push("-s");
 			args.push("DISABLE_EXCEPTION_CATCHING=0");
@@ -243,8 +239,7 @@ class WebAssemblyPlatform extends PlatformTarget
 		args.push("-s");
 		args.push("ALLOW_MEMORY_GROWTH=1");
 
-		if (project.targetFlags.exists("minify"))
-		{
+		if (project.targetFlags.exists("minify")) {
 			// 02 enables minification
 
 			// args.push ("--minify");
@@ -258,14 +253,12 @@ class WebAssemblyPlatform extends PlatformTarget
 		// args.push ("--jcache");
 		// args.push ("-g");
 
-		if (FileSystem.exists(targetDirectory + "/obj/assets"))
-		{
+		if (FileSystem.exists(targetDirectory + "/obj/assets")) {
 			args.push("--preload-file");
 			args.push("assets");
 		}
 
-		if (Log.verbose)
-		{
+		if (Log.verbose) {
 			args.push("-v");
 		}
 
@@ -288,16 +281,13 @@ class WebAssemblyPlatform extends PlatformTarget
 
 		System.runCommand(targetDirectory + "/obj", "emcc", args, true, false, true);
 
-		if (FileSystem.exists(outputFile))
-		{
+		if (FileSystem.exists(outputFile)) {
 			var context = project.templateContext;
 			context.SOURCE_FILE = File.getContent(outputFile);
 			context.embeddedLibraries = [];
 
-			for (dependency in project.dependencies)
-			{
-				if (dependency.embed && StringTools.endsWith(dependency.path, ".js") && FileSystem.exists(dependency.path))
-				{
+			for (dependency in project.dependencies) {
+				if (dependency.embed && StringTools.endsWith(dependency.path, ".js") && FileSystem.exists(dependency.path)) {
 					var script = File.getContent(dependency.path);
 					context.embeddedLibraries.push(script);
 				}
@@ -306,15 +296,12 @@ class WebAssemblyPlatform extends PlatformTarget
 			System.copyFileTemplate(project.templatePaths, "webassembly/output.js", outputFile, context);
 		}
 
-		if (project.targetFlags.exists("minify"))
-		{
+		if (project.targetFlags.exists("minify")) {
 			HTML5Helper.minify(project, targetDirectory + "/bin/" + project.app.file + ".js");
 		}
 
-		if (project.targetFlags.exists("compress"))
-		{
-			if (FileSystem.exists(targetDirectory + "/bin/" + project.app.file + ".data"))
-			{
+		if (project.targetFlags.exists("compress")) {
+			if (FileSystem.exists(targetDirectory + "/bin/" + project.app.file + ".data")) {
 				// var byteArray = ByteArray.readFile (targetDirectory + "/bin/" + project.app.file + ".data");
 				// byteArray.compress (CompressionAlgorithm.GZIP);
 				// File.saveBytes (targetDirectory + "/bin/" + project.app.file + ".data.compress", byteArray);
@@ -323,48 +310,35 @@ class WebAssemblyPlatform extends PlatformTarget
 			// var byteArray = ByteArray.readFile (targetDirectory + "/bin/" + project.app.file + ".js");
 			// byteArray.compress (CompressionAlgorithm.GZIP);
 			// File.saveBytes (targetDirectory + "/bin/" + project.app.file + ".js.compress", byteArray);
-		}
-		else
-		{
+		} else {
 			File.saveContent(targetDirectory + "/bin/.htaccess", "SetOutputFilter DEFLATE");
 		}
 	}
 
-	public override function clean():Void
-	{
-		if (FileSystem.exists(targetDirectory))
-		{
+	override public function clean():Void {
+		if (FileSystem.exists(targetDirectory)) {
 			System.removeDirectory(targetDirectory);
 		}
 	}
 
-	public override function deploy():Void
-	{
+	override public function deploy():Void {
 		DeploymentHelper.deploy(project, targetFlags, targetDirectory, "WebAssembly");
 	}
 
-	public override function display():Void
-	{
-		if (project.targetFlags.exists("output-file"))
-		{
+	override public function display():Void {
+		if (project.targetFlags.exists("output-file")) {
 			Sys.println(outputFile);
-		}
-		else
-		{
+		} else {
 			Sys.println(getDisplayHXML().toString());
 		}
 	}
 
-	private function getDisplayHXML():HXML
-	{
+	private function getDisplayHXML():HXML {
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
-		if (FileSystem.exists(path))
-		{
+		if (FileSystem.exists(path)) {
 			return File.getContent(path);
-		}
-		else
-		{
+		} else {
 			var context = project.templateContext;
 			var hxml = HXML.fromString(context.HAXE_FLAGS);
 			hxml.addClassName(context.APP_MAIN);
@@ -375,26 +349,21 @@ class WebAssemblyPlatform extends PlatformTarget
 		}
 	}
 
-	public override function rebuild():Void
-	{
+	override public function rebuild():Void {
 		CPPHelper.rebuild(project, [["-Dwebassembly", "-Dwasm", "-Demscripten", "-Dstatic_link"]]);
 	}
 
-	public override function run():Void
-	{
+	override public function run():Void {
 		HTML5Helper.launch(project, targetDirectory + "/bin");
 	}
 
-	public override function update():Void
-	{
+	override public function update():Void {
 		AssetHelper.processLibraries(project, targetDirectory);
 
 		// project = project.clone ();
 
-		for (asset in project.assets)
-		{
-			if (asset.embed && asset.sourcePath == "")
-			{
+		for (asset in project.assets) {
+			if (asset.embed && asset.sourcePath == "") {
 				var path = Path.combine(targetDirectory + "/obj/tmp", asset.targetPath);
 				System.mkdir(Path.directory(path));
 				AssetHelper.copyAsset(asset, path);
@@ -420,8 +389,7 @@ class WebAssemblyPlatform extends PlatformTarget
 		//
 		// }
 
-		if (project.targetFlags.exists("xml"))
-		{
+		if (project.targetFlags.exists("xml")) {
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
 		}
 
@@ -437,8 +405,7 @@ class WebAssemblyPlatform extends PlatformTarget
 
 		var icons = project.icons;
 
-		if (icons.length == 0)
-		{
+		if (icons.length == 0) {
 			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}
 
@@ -448,21 +415,15 @@ class WebAssemblyPlatform extends PlatformTarget
 		//
 		// }
 
-		if (IconHelper.createIcon(icons, 192, 192, Path.combine(destination, "favicon.png")))
-		{
+		if (IconHelper.createIcon(icons, 192, 192, Path.combine(destination, "favicon.png"))) {
 			context.favicons.push({rel: "shortcut icon", type: "image/png", href: "./favicon.png"});
 		}
 
-		for (dependency in project.dependencies)
-		{
-			if (!dependency.embed)
-			{
-				if (StringTools.endsWith(dependency.name, ".js"))
-				{
+		for (dependency in project.dependencies) {
+			if (!dependency.embed) {
+				if (StringTools.endsWith(dependency.name, ".js")) {
 					context.linkedLibraries.push(dependency.name);
-				}
-				else if (StringTools.endsWith(dependency.path, ".js") && FileSystem.exists(dependency.path))
-				{
+				} else if (StringTools.endsWith(dependency.path, ".js") && FileSystem.exists(dependency.path)) {
 					var name = Path.withoutDirectory(dependency.path);
 
 					context.linkedLibraries.push("./" + dependencyPath + "/" + name);
@@ -471,12 +432,10 @@ class WebAssemblyPlatform extends PlatformTarget
 			}
 		}
 
-		for (asset in project.assets)
-		{
+		for (asset in project.assets) {
 			var path = Path.combine(targetDirectory + "/obj/assets", asset.targetPath);
 
-			if (asset.type != AssetType.TEMPLATE)
-			{
+			if (asset.type != AssetType.TEMPLATE) {
 				// if (asset.type != AssetType.FONT) {
 
 				System.mkdir(Path.directory(path));
@@ -492,21 +451,19 @@ class WebAssemblyPlatform extends PlatformTarget
 		// ProjectHelper.recursiveSmartCopyTemplate(project, "webassembly/cpp", targetDirectory + "/obj", context);
 		ProjectHelper.recursiveSmartCopyTemplate(project, "cpp/static", targetDirectory + "/obj", context);
 
-		for (asset in project.assets)
-		{
+		for (asset in project.assets) {
 			var path = Path.combine(destination, asset.targetPath);
 
-			if (asset.type == AssetType.TEMPLATE)
-			{
+			if (asset.type == AssetType.TEMPLATE) {
 				System.mkdir(Path.directory(path));
 				AssetHelper.copyAsset(asset, path, context);
 			}
 		}
 	}
 
-	@ignore public override function install():Void {}
+	@ignore override public function install():Void {}
 
-	@ignore public override function trace():Void {}
+	@ignore override public function trace():Void {}
 
-	@ignore public override function uninstall():Void {}
+	@ignore override public function uninstall():Void {}
 }

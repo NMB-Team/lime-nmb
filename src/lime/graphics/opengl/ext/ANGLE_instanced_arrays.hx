@@ -2,8 +2,7 @@ package lime.graphics.opengl.ext;
 
 @:keep
 #if (!js || !html5 || display)
-@:noCompletion class ANGLE_instanced_arrays
-{
+@:noCompletion class ANGLE_instanced_arrays {
 	public var VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE = 0x88FE;
 
 	@:noCompletion private function new() {}
@@ -19,8 +18,7 @@ package lime.graphics.opengl.ext;
 }
 #else
 @:native("ANGLE_instanced_arrays")
-@:noCompletion extern class ANGLE_instanced_arrays
-{
+@:noCompletion extern class ANGLE_instanced_arrays {
 	public var VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE:Int;
 	public function drawArraysInstancedANGLE(mode:Int, first:Int, count:Int, primcount:Int):Void;
 	public function drawElementsInstancedANGLE(mode:Int, count:Int, type:Int, offset:Int, primcount:Int):Void;

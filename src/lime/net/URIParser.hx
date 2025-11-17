@@ -8,8 +8,7 @@ package lime.net;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class URIParser
-{
+class URIParser {
 	public static var URI_REGEX = ~/^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/;
 	public static var QUERY_REGEX = ~/(?:^|&)([^&=]*)=?([^&]*)/;
 
@@ -135,10 +134,8 @@ class URIParser
 		If the URI is malformed and cannot be parsed, the values will be `null`.
 		@param uri the URI to be parsed.
 	**/
-	public function new(uri:String)
-	{
-		if (URI_REGEX.match(uri))
-		{
+	public function new(uri:String) {
+		if (URI_REGEX.match(uri)) {
 			source = uri;
 			protocol = URI_REGEX.matched(1);
 			authority = URI_REGEX.matched(2);
@@ -154,25 +151,19 @@ class URIParser
 			query = URI_REGEX.matched(12);
 			anchor = URI_REGEX.matched(13);
 
-			if (query != null && query.length > 0)
-			{
+			if (query != null && query.length > 0) {
 				queryArray = parseQuery(query);
 			}
-		}
-		else
-		{
+		} else {
 			trace('URI "$uri" isn\'t well formed.');
 		}
 	}
 
-	public static function parseQuery(query:String):Array<KVPair>
-	{
+	public static function parseQuery(query:String):Array<KVPair> {
 		var result:Array<KVPair> = [];
 
-		for (str in query.split("&"))
-		{
-			if (QUERY_REGEX.match(str))
-			{
+		for (str in query.split("&")) {
+			if (QUERY_REGEX.match(str)) {
 				result.push({k: QUERY_REGEX.matched(1), v: QUERY_REGEX.matched(2)});
 			}
 		}
@@ -181,8 +172,7 @@ class URIParser
 	}
 }
 
-@:dox(hide) typedef KVPair =
-{
+@:dox(hide) typedef KVPair = {
 	k:String,
 	v:String
 };

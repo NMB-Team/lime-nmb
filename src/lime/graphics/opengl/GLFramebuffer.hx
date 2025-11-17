@@ -5,10 +5,8 @@ package lime.graphics.opengl;
 import lime.graphics.opengl.GL;
 
 @:forward(id)
-abstract GLFramebuffer(GLObject) from GLObject to GLObject
-{
-	@:from private static inline function fromInt(id:Int):GLFramebuffer
-	{
+abstract GLFramebuffer(GLObject) from GLObject to GLObject {
+	@:from private static inline function fromInt(id:Int):GLFramebuffer {
 		return GLObject.fromInt(FRAMEBUFFER, id);
 	}
 }

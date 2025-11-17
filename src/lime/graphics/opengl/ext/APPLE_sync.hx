@@ -1,8 +1,7 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class APPLE_sync
-{
+@:noCompletion class APPLE_sync {
 	public var SYNC_OBJECT_APPLE = 0x8A53;
 	public var MAX_SERVER_WAIT_TIMEOUT_APPLE = 0x9111;
 	public var OBJECT_TYPE_APPLE = 0x9112;

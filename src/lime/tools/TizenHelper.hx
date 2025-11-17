@@ -3,35 +3,33 @@ package lime.tools;
 import haxe.crypto.Crc32;
 import haxe.io.Bytes;
 import haxe.io.Eof;
+
 import hxp.*;
+
 import lime.tools.HXProject;
 import lime.tools.Platform;
+
 import sys.FileSystem;
 
-class TizenHelper
-{
+class TizenHelper {
 	private static var cacheID:String = null;
 	private static var cacheUUID:String = null;
 
-	public static function createPackage(project:HXProject, workingDirectory:String, targetPath:String):Void
-	{
+	public static function createPackage(project:HXProject, workingDirectory:String, targetPath:String):Void {
 		var keystore = null;
 		var password = null;
 
-		if (project.keystore != null)
-		{
+		if (project.keystore != null) {
 			keystore = Path.tryFullPath(project.keystore.path);
 			password = project.keystore.password;
 
-			if (password == null)
-			{
+			if (password == null) {
 				password = prompt("Keystore password", true);
 				Sys.println("");
 			}
 		}
 
-		if (keystore == null)
-		{
+		if (keystore == null) {
 			var templatePaths = [
 				Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
 			].concat(project.templatePaths);
@@ -41,41 +39,30 @@ class TizenHelper
 
 		var packageName = getUUID(project) + "-" + project.meta.version + "-";
 
-		if (project.targetFlags.exists("simulator"))
-		{
+		if (project.targetFlags.exists("simulator")) {
 			packageName += "i386";
-		}
-		else
-		{
+		} else {
 			packageName += "arm";
 		}
 
 		packageName += ".tpk";
 
-		if (FileSystem.exists(Path.combine(workingDirectory, packageName)))
-		{
-			try
-			{
+		if (FileSystem.exists(Path.combine(workingDirectory, packageName))) {
+			try {
 				FileSystem.deleteFile((Path.combine(workingDirectory, packageName)));
-			}
-			catch (e:Dynamic) {}
+			} catch (e:Dynamic) {}
 		}
 
 		runCommand(project, workingDirectory, "native-packaging", ["--sign-author-key", keystore, "--sign-author-pwd", password]);
 	}
 
-	public static function getUUID(project:HXProject):String
-	{
-		if (cacheID != project.meta.packageName)
-		{
-			if (project.meta.packageName != null || project.meta.packageName.length == 10 || project.meta.packageName.indexOf(".") == -1)
-			{
+	public static function getUUID(project:HXProject):String {
+		if (cacheID != project.meta.packageName) {
+			if (project.meta.packageName != null || project.meta.packageName.length == 10 || project.meta.packageName.indexOf(".") == -1) {
 				var bytes = Bytes.ofString(project.meta.packageName);
 				var crc = Crc32.make(bytes);
 				cacheUUID = StringTools.generateUUID(10, null, crc);
-			}
-			else
-			{
+			} else {
 				cacheUUID = project.meta.packageName;
 			}
 
@@ -85,16 +72,12 @@ class TizenHelper
 		return cacheUUID;
 	}
 
-	public static function install(project:HXProject, workingDirectory:String):Void
-	{
+	public static function install(project:HXProject, workingDirectory:String):Void {
 		var packageName = getUUID(project) + "-" + project.meta.version + "-";
 
-		if (project.targetFlags.exists("simulator"))
-		{
+		if (project.targetFlags.exists("simulator")) {
 			packageName += "i386";
-		}
-		else
-		{
+		} else {
 			packageName += "arm";
 		}
 
@@ -103,17 +86,14 @@ class TizenHelper
 		runCommand(project, "", "native-install", ["--package", FileSystem.fullPath(workingDirectory + "/" + packageName)]);
 	}
 
-	public static function launch(project:HXProject):Void
-	{
+	public static function launch(project:HXProject):Void {
 		runCommand(project, "", "native-run", ["--package", getUUID(project)]);
 	}
 
-	private static function prompt(name:String, ?passwd:Bool):String
-	{
+	private static function prompt(name:String, ?passwd:Bool):String {
 		Sys.print(name + ": ");
 
-		if (passwd)
-		{
+		if (passwd) {
 			var s = new StringBuf();
 			var c;
 			while ((c = Sys.getChar(false)) != 13)
@@ -121,32 +101,22 @@ class TizenHelper
 			return s.toString();
 		}
 
-		try
-		{
+		try {
 			return Sys.stdin().readLine();
-		}
-		catch (e:Eof)
-		{
+		} catch (e:Eof) {
 			return "";
 		}
 	}
 
-	private static function runCommand(project:HXProject, workingDirectory:String, command:String, args:Array<String>):Void
-	{
+	private static function runCommand(project:HXProject, workingDirectory:String, command:String, args:Array<String>):Void {
 		var sdkDirectory = "";
 
-		if (project.environment.exists("TIZEN_SDK"))
-		{
+		if (project.environment.exists("TIZEN_SDK")) {
 			sdkDirectory = project.environment.get("TIZEN_SDK");
-		}
-		else
-		{
-			if (System.hostPlatform == WINDOWS)
-			{
+		} else {
+			if (System.hostPlatform == WINDOWS) {
 				sdkDirectory = "C:\\Development\\Tizen\\tizen-sdk";
-			}
-			else
-			{
+			} else {
 				sdkDirectory = "~/Development/Tizen/tizen-sdk";
 			}
 		}
@@ -154,8 +124,7 @@ class TizenHelper
 		System.runCommand(workingDirectory, Path.combine(sdkDirectory, "tools/ide/bin/" + command), args);
 	}
 
-	public static function trace(project:HXProject, follow:Bool = true):Void
-	{
+	public static function trace(project:HXProject, follow:Bool = true):Void {
 		/*var args = [];
 
 			if (follow) {
@@ -170,18 +139,12 @@ class TizenHelper
 
 		var sdkDirectory = "";
 
-		if (project.environment.exists("TIZEN_SDK"))
-		{
+		if (project.environment.exists("TIZEN_SDK")) {
 			sdkDirectory = project.environment.get("TIZEN_SDK");
-		}
-		else
-		{
-			if (System.hostPlatform == WINDOWS)
-			{
+		} else {
+			if (System.hostPlatform == WINDOWS) {
 				sdkDirectory = "C:\\Development\\Tizen\\tizen-sdk";
-			}
-			else
-			{
+			} else {
 				sdkDirectory = "~/Development/Tizen/tizen-sdk";
 			}
 		}

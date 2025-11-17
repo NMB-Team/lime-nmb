@@ -1,7 +1,6 @@
 package cs.ndll;
 
-extern class NDLLFunction
-{
+extern class NDLLFunction {
 	static var Initialized(get, never):Bool;
 	static function Initialize(arrayType:Class<Dynamic>, reflectType:Class<Dynamic>, functionType:Class<Dynamic>, hxObjectype:Class<Dynamic>):Void;
 	static function Load(name:String, func:String, numArgs:Int):Dynamic;

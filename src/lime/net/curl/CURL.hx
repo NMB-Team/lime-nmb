@@ -2,6 +2,7 @@ package lime.net.curl;
 
 #if (!lime_doc_gen || lime_curl)
 import haxe.io.Bytes;
+
 import lime._internal.backend.native.NativeCFFI;
 import lime.system.CFFIPointer;
 
@@ -10,8 +11,7 @@ import lime.system.CFFIPointer;
 @:noDebug
 #end
 @:access(lime._internal.backend.native.NativeCFFI)
-class CURL
-{
+class CURL {
 	public static inline var GLOBAL_SSL:Int = 1 << 0;
 	public static inline var GLOBAL_WIN32:Int = 1 << 1;
 	public static inline var GLOBAL_ALL:Int = GLOBAL_SSL | GLOBAL_WIN32;
@@ -23,29 +23,23 @@ class CURL
 	@:noCompletion private var headerBytes:Bytes;
 	@:noCompletion private var writeBytes:Bytes;
 
-	public function new(handle:CFFIPointer = null)
-	{
-		if (handle != null)
-		{
+	public function new(handle:CFFIPointer = null) {
+		if (handle != null) {
 			this.handle = handle;
-		}
-		else
-		{
+		} else {
 			#if (lime_cffi && lime_curl && !macro)
 			this.handle = NativeCFFI.lime_curl_easy_init();
 			#end
 		}
 	}
 
-	public function cleanup():Void
-	{
+	public function cleanup():Void {
 		#if (lime_cffi && lime_curl && !macro)
 		NativeCFFI.lime_curl_easy_cleanup(handle);
 		#end
 	}
 
-	public function clone():CURL
-	{
+	public function clone():CURL {
 		#if (lime_cffi && lime_curl && !macro)
 		return new CURL(NativeCFFI.lime_curl_easy_duphandle(handle));
 		#else
@@ -53,8 +47,7 @@ class CURL
 		#end
 	}
 
-	public function escape(url:String, length:Int):String
-	{
+	public function escape(url:String, length:Int):String {
 		#if (lime_cffi && lime_curl && !macro)
 		var result = NativeCFFI.lime_curl_easy_escape(handle, url, length);
 		#if hl
@@ -66,8 +59,7 @@ class CURL
 		#end
 	}
 
-	public static function getDate(date:String, now:Int):Int
-	{
+	public static function getDate(date:String, now:Int):Int {
 		#if (lime_cffi && lime_curl && !macro)
 		return cast NativeCFFI.lime_curl_getdate(date, cast now);
 		#else
@@ -75,8 +67,7 @@ class CURL
 		#end
 	}
 
-	public function getInfo(info:CURLInfo):Dynamic
-	{
+	public function getInfo(info:CURLInfo):Dynamic {
 		#if (lime_cffi && lime_curl && !macro)
 		return NativeCFFI.lime_curl_easy_getinfo(handle, cast(info, Int));
 		#else
@@ -84,15 +75,13 @@ class CURL
 		#end
 	}
 
-	public static function globalCleanup():Void
-	{
+	public static function globalCleanup():Void {
 		#if (lime_cffi && lime_curl && !macro)
 		NativeCFFI.lime_curl_global_cleanup();
 		#end
 	}
 
-	public static function globalInit(flags:Int):CURLCode
-	{
+	public static function globalInit(flags:Int):CURLCode {
 		#if (lime_cffi && lime_curl && !macro)
 		return cast NativeCFFI.lime_curl_global_init(flags);
 		#else
@@ -100,8 +89,7 @@ class CURL
 		#end
 	}
 
-	public function pause(bitMask:Int):CURLCode
-	{
+	public function pause(bitMask:Int):CURLCode {
 		#if (lime_cffi && lime_curl && !macro)
 		return cast NativeCFFI.lime_curl_easy_pause(handle, bitMask);
 		#else
@@ -109,8 +97,7 @@ class CURL
 		#end
 	}
 
-	public function perform():CURLCode
-	{
+	public function perform():CURLCode {
 		#if (lime_cffi && lime_curl && !macro)
 		return cast NativeCFFI.lime_curl_easy_perform(handle);
 		#else
@@ -127,8 +114,7 @@ class CURL
 		#end
 
 	}*/
-	public function reset():Void
-	{
+	public function reset():Void {
 		#if (lime_cffi && lime_curl && !macro)
 		NativeCFFI.lime_curl_easy_reset(handle);
 		#end
@@ -143,31 +129,26 @@ class CURL
 		#end
 
 	}*/
-	public function setOption(option:CURLOption, parameter:Dynamic):CURLCode
-	{
+	public function setOption(option:CURLOption, parameter:Dynamic):CURLCode {
 		#if (lime_cffi && lime_curl && !macro)
 		var bytes = null;
 
-		switch (option)
-		{
+		switch (option) {
 			case CURLOption.PROGRESSFUNCTION:
-				var callback:CURL->Float->Float->Float->Float->Void = cast parameter;
-				parameter = function(dltotal:Float, dlnow:Float, ultotal:Float, ulnow:Float)
-				{
+				var callback:CURL -> Float -> Float -> Float -> Float -> Void = cast parameter;
+				parameter = function(dltotal:Float, dlnow:Float, ultotal:Float, ulnow:Float) {
 					callback(this, dltotal, dlnow, ultotal, ulnow);
 				}
 
 			case CURLOption.XFERINFOFUNCTION:
-				var callback:CURL->Int->Int->Int->Int->Int = cast parameter;
-				parameter = function(dltotal:Int, dlnow:Int, ultotal:Int, ulnow:Int):Int
-				{
+				var callback:CURL -> Int -> Int -> Int -> Int -> Int = cast parameter;
+				parameter = function(dltotal:Int, dlnow:Int, ultotal:Int, ulnow:Int):Int {
 					return callback(this, dltotal, dlnow, ultotal, ulnow);
 				}
 
 			case CURLOption.WRITEFUNCTION:
-				var callback:CURL->Bytes->Int = cast parameter;
-				parameter = function(bytes:Bytes, length:Int):Int
-				{
+				var callback:CURL -> Bytes -> Int = cast parameter;
+				parameter = function(bytes:Bytes, length:Int):Int {
 					var cacheLength = bytes.length;
 					@:privateAccess bytes.length = length;
 					var read = callback(this, bytes);
@@ -186,15 +167,13 @@ class CURL
 				bytes = parameter;
 
 			case CURLOption.HEADERFUNCTION:
-				var callback:CURL->String->Void = cast parameter;
+				var callback:CURL -> String -> Void = cast parameter;
 				#if hl
-				parameter = function(header:hl.Bytes)
-				{
+				parameter = function(header:hl.Bytes) {
 					callback(this, @:privateAccess String.fromUTF8(header));
 				}
 				#else
-				parameter = function(header:String)
-				{
+				parameter = function(header:String) {
 					callback(this, header);
 				}
 				#end
@@ -217,8 +196,7 @@ class CURL
 		#end
 	}
 
-	public static function strerror(code:CURLCode):String
-	{
+	public static function strerror(code:CURLCode):String {
 		#if (lime_cffi && lime_curl && !macro)
 		var result = NativeCFFI.lime_curl_easy_strerror(cast(code, Int));
 		#if hl
@@ -230,8 +208,7 @@ class CURL
 		#end
 	}
 
-	public function unescape(url:String, inLength:Int, outLength:Int):String
-	{
+	public function unescape(url:String, inLength:Int, outLength:Int):String {
 		#if (lime_cffi && lime_curl && !macro)
 		var result = NativeCFFI.lime_curl_easy_unescape(handle, url, inLength, outLength);
 		#if hl
@@ -243,8 +220,7 @@ class CURL
 		#end
 	}
 
-	public static function version():String
-	{
+	public static function version():String {
 		#if (lime_cffi && lime_curl && !macro)
 		var result = NativeCFFI.lime_curl_version();
 		#if hl
@@ -256,8 +232,7 @@ class CURL
 		#end
 	}
 
-	public static function versionInfo(type:CURLVersion):Dynamic
-	{
+	public static function versionInfo(type:CURLVersion):Dynamic {
 		#if (lime_cffi && lime_curl && !macro)
 		return NativeCFFI.lime_curl_version_info(cast(type, Int));
 		#else

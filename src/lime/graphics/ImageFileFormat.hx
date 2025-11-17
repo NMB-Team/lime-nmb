@@ -3,8 +3,7 @@ package lime.graphics;
 /**
 	An enum with values for image encoding formats
 **/
-enum ImageFileFormat
-{
+enum ImageFileFormat {
 	/**
 		An image file encoded in the BMP file format
 	**/

@@ -5,8 +5,7 @@ package lime.media.vorbis;
 #undef EFAULT
 #undef EINVAL
 ")
-class Vorbis
-{
+class Vorbis {
 	public static inline var FALSE = -1;
 	public static inline var EOF = -2;
 	public static inline var HOLE = -3;

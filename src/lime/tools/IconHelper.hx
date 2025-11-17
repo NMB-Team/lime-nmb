@@ -8,28 +8,26 @@ package lime.tools;
 // import format.SVG;
 import haxe.io.Bytes;
 import haxe.io.BytesOutput;
+
 import hxp.*;
+
 import lime.tools.ImageHelper;
 #if (lime && lime_cffi && !macro)
 import lime.graphics.Image;
 import lime.math.Rectangle;
 #end
 import lime.tools.Icon;
+
 import sys.io.File;
 import sys.FileSystem;
 
-class IconHelper
-{
-	private static function canUseCache(targetPath:String, icons:Array<Icon>):Bool
-	{
-		if (FileSystem.exists(targetPath))
-		{
+class IconHelper {
+	private static function canUseCache(targetPath:String, icons:Array<Icon>):Bool {
+		if (FileSystem.exists(targetPath)) {
 			var cacheTime = System.getLastModified(targetPath);
 
-			for (icon in icons)
-			{
-				if (System.getLastModified(icon.path) > cacheTime)
-				{
+			for (icon in icons) {
+				if (System.getLastModified(icon.path) > cacheTime) {
 					return false;
 				}
 			}
@@ -40,37 +38,29 @@ class IconHelper
 		return false;
 	}
 
-	public static function createIcon(icons:Array<Icon>, width:Int, height:Int, targetPath:String):Bool
-	{
+	public static function createIcon(icons:Array<Icon>, width:Int, height:Int, targetPath:String):Bool {
 		#if (lime && lime_cffi && !macro)
 		var icon = findMatch(icons, width, height);
 
-		if (icon != null && icon.size > 0 && Path.extension(icon.path) == "png")
-		{
-			if (canUseCache(targetPath, [icon]))
-			{
+		if (icon != null && icon.size > 0 && Path.extension(icon.path) == "png") {
+			if (canUseCache(targetPath, [icon])) {
 				return true;
 			}
 
 			System.mkdir(Path.directory(targetPath));
 			System.copyFile(icon.path, targetPath);
 			return true;
-		}
-		else
-		{
-			if (canUseCache(targetPath, icons))
-			{
+		} else {
+			if (canUseCache(targetPath, icons)) {
 				return true;
 			}
 
 			var image = getIconImage(icons, width, height);
 
-			if (image != null)
-			{
+			if (image != null) {
 				var bytes = image.encode(PNG);
 
-				if (bytes != null)
-				{
+				if (bytes != null) {
 					System.mkdir(Path.directory(targetPath));
 					File.saveBytes(targetPath, bytes);
 					return true;
@@ -82,11 +72,9 @@ class IconHelper
 		return false;
 	}
 
-	public static function createMacIcon(icons:Array<Icon>, targetPath:String):Bool
-	{
+	public static function createMacIcon(icons:Array<Icon>, targetPath:String):Bool {
 		#if (lime && lime_cffi && !macro)
-		if (canUseCache(targetPath, icons))
-		{
+		if (canUseCache(targetPath, icons)) {
 			return true;
 		}
 
@@ -95,14 +83,12 @@ class IconHelper
 
 		// Not sure why the 128x128 icon is not saving properly. Disabling for now
 
-		for (i in 0...3)
-		{
+		for (i in 0...3) {
 			var s = ([16, 32, 48, 128])[i];
 			var code = (["is32", "il32", "ih32", "it32"])[i];
 			var image = getIconImage(icons, s, s);
 
-			if (image != null)
-			{
+			if (image != null) {
 				for (c in 0...4)
 					out.writeByte(code.charCodeAt(c));
 
@@ -129,18 +115,15 @@ class IconHelper
 			}
 		}
 
-		for (i in 0...5)
-		{
+		for (i in 0...5) {
 			var s = ([32, 64, 256, 512, 1024])[i];
 			var code = (["ic11", "ic12", "ic08", "ic09", "ic10"])[i];
 			var image = getIconImage(icons, s, s);
 
-			if (image != null)
-			{
+			if (image != null) {
 				var bytes = image.encode(PNG);
 
-				if (bytes != null)
-				{
+				if (bytes != null) {
 					for (c in 0...4)
 						out.writeByte(code.charCodeAt(c));
 
@@ -152,8 +135,7 @@ class IconHelper
 
 		var bytes = out.getBytes();
 
-		if (bytes.length > 0)
-		{
+		if (bytes.length > 0) {
 			var file = File.write(targetPath, true);
 			file.bigEndian = true;
 
@@ -171,11 +153,9 @@ class IconHelper
 		return false;
 	}
 
-	public static function createWindowsIcon(icons:Array<Icon>, targetPath:String):Bool
-	{
+	public static function createWindowsIcon(icons:Array<Icon>, targetPath:String):Bool {
 		#if (lime && lime_cffi && !macro)
-		if (canUseCache(targetPath, icons))
-		{
+		if (canUseCache(targetPath, icons)) {
 			return true;
 		}
 
@@ -184,25 +164,19 @@ class IconHelper
 		var images = new Array<Image>();
 		var imageData = new Array<Bytes>();
 
-		for (size in sizes)
-		{
+		for (size in sizes) {
 			var image = getIconImage(icons, size, size);
 
-			if (image != null)
-			{
+			if (image != null) {
 				var data = null;
 
-				if (size < 256)
-				{
+				if (size < 256) {
 					data = lime._internal.format.BMP.encode(image, ICO);
-				}
-				else
-				{
+				} else {
 					data = image.encode(PNG);
 				}
 
-				if (data != null)
-				{
+				if (data != null) {
 					imageData.push(data);
 					images.push(image);
 				}
@@ -211,8 +185,7 @@ class IconHelper
 
 		var length = 6 + (16 * images.length);
 
-		for (data in imageData)
-		{
+		for (data in imageData) {
 			length += data.length;
 		}
 
@@ -227,8 +200,7 @@ class IconHelper
 
 		var dataOffset = 6 + (16 * images.length);
 
-		for (i in 0...images.length)
-		{
+		for (i in 0...images.length) {
 			var size = images[i].width;
 
 			icon.set(position++, size > 255 ? 0 : size);
@@ -247,14 +219,12 @@ class IconHelper
 			dataOffset += imageData[i].length;
 		}
 
-		for (data in imageData)
-		{
+		for (data in imageData) {
 			icon.blit(position, data, 0, data.length);
 			position += data.length;
 		}
 
-		if (images.length > 0)
-		{
+		if (images.length > 0) {
 			File.saveBytes(targetPath, icon);
 			return true;
 		}
@@ -263,26 +233,21 @@ class IconHelper
 		return false;
 	}
 
-	private static function extractBits(data:Bytes, offset:Int, len:Int):Bytes
-	{
+	private static function extractBits(data:Bytes, offset:Int, len:Int):Bytes {
 		var out = new BytesOutput();
 
-		for (i in 0...len)
-		{
+		for (i in 0...len) {
 			out.writeByte(data.get(i * 4 + offset));
 		}
 
 		return out.getBytes();
 	}
 
-	public static function findMatch(icons:Array<Icon>, width:Int, height:Int):Icon
-	{
+	public static function findMatch(icons:Array<Icon>, width:Int, height:Int):Icon {
 		var match:Icon = null;
 
-		for (icon in icons)
-		{
-			if (icon.width == width && icon.height == height && (match == null || match.priority <= icon.priority))
-			{
+		for (icon in icons) {
+			if (icon.width == width && icon.height == height && (match == null || match.priority <= icon.priority)) {
 				match = icon;
 			}
 		}
@@ -290,62 +255,51 @@ class IconHelper
 		return match;
 	}
 
-	public static function findNearestMatch(icons:Array<Icon>, width:Int, height:Int, ?acceptSmaller:Bool = false):Icon
-	{
+	public static function findNearestMatch(icons:Array<Icon>, width:Int, height:Int, ?acceptSmaller:Bool = false):Icon {
 		var match:Icon = null;
 		var matchDifference = Math.POSITIVE_INFINITY;
 
-		for (icon in icons)
-		{
+		for (icon in icons) {
 			var iconDifference = icon.width - width + icon.height - height;
 
 			// If size is unspecified, accept it as an almost-perfect match
-			if (icon.width == 0 && icon.height == 0)
-			{
+			if (icon.width == 0 && icon.height == 0) {
 				iconDifference = 1;
 			}
 
-			if (iconDifference < 0 && !acceptSmaller)
-			{
+			if (iconDifference < 0 && !acceptSmaller) {
 				continue;
 			}
 
 			if (Math.abs(iconDifference) < Math.abs(matchDifference)
-				|| iconDifference == matchDifference && icon.priority >= match.priority)
-			{
+				|| iconDifference == matchDifference
+				&& icon.priority >= match.priority) {
 				match = icon;
 				matchDifference = iconDifference;
 			}
 		}
 
-		if (match == null && !acceptSmaller)
-		{
+		if (match == null && !acceptSmaller) {
 			// Try again but accept any icon
 			return findNearestMatch(icons, width, height, true);
-		}
-		else
-		{
+		} else {
 			return match;
 		}
 	}
 
-	private static function getIconImage(icons:Array<Icon>, width:Int, height:Int,
-			backgroundColor:Int = null):#if (lime && lime_cffi && !macro) Image #else Dynamic #end
+	private static function getIconImage(icons:Array<Icon>, width:Int, height:Int, backgroundColor:Int = null):#if (lime && lime_cffi && !macro) Image #else Dynamic #end
 	{
 		var icon = findMatch(icons, width, height);
 
-		if (icon == null)
-		{
+		if (icon == null) {
 			icon = findNearestMatch(icons, width, height);
 		}
 
-		if (icon == null)
-		{
+		if (icon == null) {
 			return null;
 		}
 
-		if (icon.path == null || !FileSystem.exists(icon.path))
-		{
+		if (icon.path == null || !FileSystem.exists(icon.path)) {
 			Log.warn("Could not find icon path: " + icon.path);
 			return null;
 		}
@@ -354,8 +308,7 @@ class IconHelper
 		var image = null;
 
 		#if (lime && lime_cffi && !macro)
-		switch (extension)
-		{
+		switch (extension) {
 			case "png", "jpg", "jpeg":
 				image = ImageHelper.resizeImage(Image.fromFile(icon.path), width, height);
 
@@ -368,13 +321,11 @@ class IconHelper
 		return image;
 	}
 
-	private static function packBits(data:Bytes, offset:Int, len:Int):Bytes
-	{
+	private static function packBits(data:Bytes, offset:Int, len:Int):Bytes {
 		var out = new BytesOutput();
 		var idx = 0;
 
-		while (idx < len)
-		{
+		while (idx < len) {
 			var val = data.get(idx * 4 + offset);
 			var same = 1;
 
@@ -384,19 +335,15 @@ class IconHelper
 				same++;
 			 */
 
-			if (same == 1)
-			{
+			if (same == 1) {
 				var raw = idx + 120 < len ? 120 : len - idx;
 				out.writeByte(raw - 1);
 
-				for (i in 0...raw)
-				{
+				for (i in 0...raw) {
 					out.writeByte(data.get(idx * 4 + offset));
 					idx++;
 				}
-			}
-			else
-			{
+			} else {
 				out.writeByte(257 - same);
 				out.writeByte(val);
 				idx += same;

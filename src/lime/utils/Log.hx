@@ -6,15 +6,12 @@ import haxe.PosInfos;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class Log
-{
+class Log {
 	public static var level:LogLevel;
 	public static var throwErrors:Bool = true;
 
-	public static dynamic function debug(message:Dynamic, ?info:PosInfos):Void
-	{
-		if (level >= LogLevel.DEBUG)
-		{
+	public static dynamic function debug(message:Dynamic, ?info:PosInfos):Void {
+		if (level >= LogLevel.DEBUG) {
 			#if js
 			untyped #if haxe4 js.Syntax.code #else __js__ #end ("console").debug("[" + info.className + "] " + message);
 			#else
@@ -23,21 +20,16 @@ class Log
 		}
 	}
 
-	public static dynamic function error(message:Dynamic, ?info:PosInfos):Void
-	{
-		if (level >= LogLevel.ERROR)
-		{
+	public static dynamic function error(message:Dynamic, ?info:PosInfos):Void {
+		if (level >= LogLevel.ERROR) {
 			var message = "[" + info.className + "] ERROR: " + message;
 
-			if (throwErrors)
-			{
+			if (throwErrors) {
 				#if webassembly
 				println(message);
 				#end
 				throw message;
-			}
-			else
-			{
+			} else {
 				#if js
 				untyped #if haxe4 js.Syntax.code #else __js__ #end ("console").error(message);
 				#else
@@ -47,10 +39,8 @@ class Log
 		}
 	}
 
-	public static dynamic function info(message:Dynamic, ?info:PosInfos):Void
-	{
-		if (level >= LogLevel.INFO)
-		{
+	public static dynamic function info(message:Dynamic, ?info:PosInfos):Void {
+		if (level >= LogLevel.INFO) {
 			#if js
 			untyped #if haxe4 js.Syntax.code #else __js__ #end ("console").info("[" + info.className + "] " + message);
 			#else
@@ -59,8 +49,7 @@ class Log
 		}
 	}
 
-	public static inline function print(message:Dynamic):Void
-	{
+	public static inline function print(message:Dynamic):Void {
 		#if sys
 		Sys.print(Std.string(message));
 		#elseif flash
@@ -72,8 +61,7 @@ class Log
 		#end
 	}
 
-	public static inline function println(message:Dynamic):Void
-	{
+	public static inline function println(message:Dynamic):Void {
 		#if sys
 		Sys.println(Std.string(message));
 		#elseif flash
@@ -85,18 +73,14 @@ class Log
 		#end
 	}
 
-	public static dynamic function verbose(message:Dynamic, ?info:PosInfos):Void
-	{
-		if (level >= LogLevel.VERBOSE)
-		{
+	public static dynamic function verbose(message:Dynamic, ?info:PosInfos):Void {
+		if (level >= LogLevel.VERBOSE) {
 			println("[" + info.className + "] " + message);
 		}
 	}
 
-	public static dynamic function warn(message:Dynamic, ?info:PosInfos):Void
-	{
-		if (level >= LogLevel.WARN)
-		{
+	public static dynamic function warn(message:Dynamic, ?info:PosInfos):Void {
+		if (level >= LogLevel.WARN) {
 			#if js
 			untyped #if haxe4 js.Syntax.code #else __js__ #end ("console").warn("[" + info.className + "] WARNING: " + message);
 			#else
@@ -105,8 +89,7 @@ class Log
 		}
 	}
 
-	private static function __init__():Void
-	{
+	private static function __init__():Void {
 		#if no_traces
 		level = NONE;
 		#elseif verbose
@@ -114,11 +97,9 @@ class Log
 		#else
 		#if sys
 		var args = Sys.args();
-		if (args.indexOf("-v") > -1 || args.indexOf("-verbose") > -1)
-		{
+		if (args.indexOf("-v") > -1 || args.indexOf("-verbose") > -1) {
 			level = VERBOSE;
-		}
-		else
+		} else
 		#end
 		{
 			#if debug
@@ -130,12 +111,10 @@ class Log
 		#end
 
 		#if js
-		if (untyped #if haxe4 js.Syntax.code #else __js__ #end ("typeof console") == "undefined")
-		{
+		if (untyped #if haxe4 js.Syntax.code #else __js__ #end ("typeof console") == "undefined") {
 			untyped #if haxe4 js.Syntax.code #else __js__ #end ("console = {}");
 		}
-		if (untyped #if haxe4 js.Syntax.code #else __js__ #end ("console").log == null)
-		{
+		if (untyped #if haxe4 js.Syntax.code #else __js__ #end ("console").log == null) {
 			untyped #if haxe4 js.Syntax.code #else __js__ #end ("console").log = function() {};
 		}
 		#end

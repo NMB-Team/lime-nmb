@@ -1,7 +1,6 @@
 package lime.tools;
 
-enum Orientation
-{
+enum Orientation {
 	PORTRAIT;
 	LANDSCAPE;
 	ALL;

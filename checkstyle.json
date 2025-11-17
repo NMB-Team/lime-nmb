@@ -1,0 +1,339 @@
+{
+	"extendsConfigPath": "",
+	"defineCombinations": [],
+	"defaultSeverity": "INFO",
+	"baseDefines": [],
+	"version": 1,
+	"exclude": {},
+	"checks": [
+		{
+			"props": {},
+			"type": "Anonymous"
+		},
+		{
+			"props": {
+				"spaceBefore": false,
+				"spaceInside": false
+			},
+			"type": "ArrayAccess"
+		},
+		{
+			"props": {
+				"allowSingleArgParens": true,
+				"allowReturn": true,
+				"allowFunction": true,
+				"allowCurlyBody": true
+			},
+			"type": "ArrowFunction"
+		},
+		{
+			"props": {
+				"avoidIdentifiers": []
+			},
+			"type": "AvoidIdentifier"
+		},
+		{
+			"props": {
+				"severity": "IGNORE"
+			},
+			"type": "AvoidTernaryOperator"
+		},
+		{
+			"props": {},
+			"type": "DefaultComesLast"
+		},
+		{
+			"props": {
+				"max": 1000,
+				"ignoreEmptyLines": true,
+				"severity": "IGNORE"
+			},
+			"type": "FileLength"
+		},
+		{
+			"props": {
+				"character": "  ",
+				"severity": "IGNORE"
+			},
+			"type": "Indentation"
+		},
+		{
+			"props": {
+				"character": "tab",
+				"severity": "INFO",
+				"ignorePattern": "^$"
+			},
+			"type": "IndentationCharacter"
+		},
+		{
+			"props": {
+				"severity": "IGNORE"
+			},
+			"type": "LeftCurly"
+		},
+		{
+			"props": {
+				"requireEmptyLineAfterPackage": false,
+				"requireEmptyLineAfterInterface": false,
+				"requireEmptyLineAfterAbstract": false,
+				"allowEmptyLineAfterSingleLineComment": true,
+				"max": 1,
+				"requireEmptyLineAfterClass": false,
+				"allowEmptyLineAfterMultiLineComment": true
+			},
+			"type": "EmptyLines"
+		},
+		{
+			"props": {
+				"ignoreNumbers": [-1, 0, 1, 2],
+				"severity": "IGNORE"
+			},
+			"type": "MagicNumber"
+		},
+		{
+			"props": {
+				"max": 50,
+				"ignoreEmptyLines": true,
+				"severity": "IGNORE"
+			},
+			"type": "MethodLength"
+		},
+		{
+			"props": {
+				"ignoreExtern": true,
+				"format": "[a-z][a-zA-Z0-9]",
+				"tokens": [],
+				"severity": "IGNORE"
+			},
+			"type": "MethodName"
+		},
+		{
+			"props": {
+				"modifiers": [
+					"OVERRIDE",
+					"PUBLIC_PRIVATE",
+					"STATIC",
+					"MACRO",
+					"INLINE",
+					"DYNAMIC",
+					"FINAL"
+				]
+			},
+			"type": "ModifierOrder"
+		},
+		{
+			"props": {
+				"max": 3,
+				"severity": "IGNORE"
+			},
+			"type": "NestedControlFlow"
+		},
+		{
+			"props": {
+				"max": 1,
+				"severity": "IGNORE"
+			},
+			"type": "NestedForDepth"
+		},
+		{
+			"props": {
+				"max": 4
+			},
+			"type": "NestedIfDepth"
+		},
+		{
+			"props": {
+				"max": 1
+			},
+			"type": "NestedTryDepth"
+		},
+		{
+			"props": {
+				"tokens": [
+					"+",
+					"-",
+					"*",
+					"/",
+					"%",
+					">",
+					"<",
+					">=",
+					"<=",
+					"==",
+					"!=",
+					"&",
+					"|",
+					"^",
+					"&&",
+					"||",
+					"<<",
+					">>",
+					">>>",
+					"+=",
+					"-=",
+					"*=",
+					"/=",
+					"%=",
+					"<<=",
+					">>=",
+					">>>=",
+					"|=",
+					"&=",
+					"^=",
+					"...",
+					"=>",
+					"++",
+					"--"
+				],
+				"option": "nl"
+			},
+			"type": "OperatorWrap"
+		},
+		{
+			"props": {
+				"tokens": ["="],
+				"option": "eol"
+			},
+			"type": "OperatorWrap"
+		},
+		{
+			"props": {
+				"ignoreExtern": true,
+				"format": "^(_|[a-zA-Z][a-zA-Z0-9]*$)",
+				"tokens": []
+			},
+			"type": "ParameterName"
+		},
+		{
+			"props": {
+				"ignoreFormat": "^$",
+				"max": 2,
+				"severity": "IGNORE"
+			},
+			"type": "ReturnCount"
+		},
+		{
+			"props": {
+				"severity": "IGNORE"
+			},
+			"type": "RightCurly"
+		},
+		{
+			"props": {
+				"commaPolicy": "after",
+				"semicolonPolicy": "after",
+				"allowTrailingComma": false,
+				"dotPolicy": "none"
+			},
+			"type": "SeparatorWhitespace"
+		},
+		{
+			"props": {
+				"tokens": [","],
+				"option": "eol"
+			},
+			"type": "SeparatorWrap"
+		},
+		{
+			"props": {},
+			"type": "SimplifyBooleanExpression"
+		},
+		{
+			"props": {},
+			"type": "SimplifyBooleanReturn"
+		},
+		{
+			"props": {
+				"policy": "onlySingle",
+				"allowException": true,
+				"severity": "IGNORE"
+			},
+			"type": "StringLiteral"
+		},
+		{
+			"props": {
+				"severity": "IGNORE"
+			},
+			"type": "Trace"
+		},
+		{
+			"props": {},
+			"type": "TrailingWhitespace"
+		},
+		{
+			"props": {
+				"ignoreExtern": true,
+				"format": "[A-Z]+[a-zA-Z0-9]",
+				"tokens": []
+			},
+			"type": "TypeName"
+		},
+		{
+			"props": {},
+			"type": "UnnecessaryConstructor"
+		},
+		{
+			"props": {
+				"severity": "WARNING"
+			},
+			"type": "UnusedLocalVar"
+		},
+		{
+			"props": {
+				"tokens": [",", ";"],
+				"allowTrailingComma": false
+			},
+			"type": "WhitespaceAfter"
+		},
+		{
+			"props": {
+				"tokens": [
+					"=",
+					"+",
+					"-",
+					"*",
+					"/",
+					"%",
+					">",
+					"<",
+					">=",
+					"<=",
+					"==",
+					"!=",
+					"&",
+					"|",
+					"^",
+					"&&",
+					"||",
+					"<<",
+					">>",
+					">>>",
+					"+=",
+					"-=",
+					"*=",
+					"/=",
+					"%=",
+					"<<=",
+					">>=",
+					">>>=",
+					"|=",
+					"&=",
+					"^=",
+					"=>"
+				]
+			},
+			"type": "WhitespaceAround"
+		},
+		{
+			"props": {
+				"severity": "IGNORE"
+			},
+			"type": "UnnecessaryConstructor"
+		},
+		{
+			"props": {},
+			"type": "UnusedLocalVar"
+		}
+	],
+	"numberOfCheckerThreads": 5
+}

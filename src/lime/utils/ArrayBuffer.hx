@@ -13,33 +13,29 @@ abstract ArrayBuffer(Bytes) from Bytes to Bytes
 {
 	public var byteLength(get, never):Int;
 
-	private inline function get_byteLength()
-	{
+	private inline function get_byteLength() {
 		return this.length;
 	}
 
-	public inline function new(byteLength:Int)
-	{
+	public inline function new(byteLength:Int) {
 		this = Bytes.alloc(byteLength);
 	}
 
-	public static inline function isView(arg:Dynamic):Bool
-	{
+	public static inline function isView(arg:Dynamic):Bool {
 		return (arg != null && (arg is ArrayBufferView));
 	}
 
-	public inline function slice(begin:Int, end:Null<Int> = null)
-	{
-		if (end == null) end = this.length;
-		if (begin < 0) begin = 0;
-		if (end > this.length) end = this.length;
+	public inline function slice(begin:Int, end:Null<Int> = null) {
+		if (end == null)
+			end = this.length;
+		if (begin < 0)
+			begin = 0;
+		if (end > this.length)
+			end = this.length;
 		var length = end - begin;
-		if (begin < 0 || length <= 0)
-		{
+		if (begin < 0 || length <= 0) {
 			return new ArrayBuffer(0);
-		}
-		else
-		{
+		} else {
 			var bytes = Bytes.alloc(length);
 			bytes.blit(0, this, begin, length);
 			return cast bytes;

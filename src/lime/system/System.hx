@@ -1,6 +1,7 @@
 package lime.system;
 
 import haxe.Constraints;
+
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Application;
 import lime.graphics.RenderContextAttributes;
@@ -9,10 +10,12 @@ import lime.ui.WindowAttributes;
 import lime.utils.ArrayBuffer;
 import lime.utils.UInt8Array;
 import lime.utils.UInt16Array;
+
 #if ((js && html5) || electron)
 import js.html.Element;
 import js.Browser;
 #end
+
 #if sys
 import sys.io.Process;
 #end
@@ -37,8 +40,7 @@ extern "C" {
 #endif
 ')
 #end
-class System
-{
+class System {
 	/**
 		Determines if the screen saver is allowed to start or not.
 	**/
@@ -118,55 +120,43 @@ class System
 
 	#if (js && html5)
 	@:keep @:expose("lime.embed")
-	public static function embed(projectName:String, element:Dynamic, width:Null<Int> = null, height:Null<Int> = null, config:Dynamic = null):Void
-	{
-		if (__applicationEntryPoint == null) return;
+	public static function embed(projectName:String, element:Dynamic, width:Null<Int> = null, height:Null<Int> = null, config:Dynamic = null):Void {
+		if (__applicationEntryPoint == null)
+			return;
 
-		if (__applicationEntryPoint.exists(projectName))
-		{
+		if (__applicationEntryPoint.exists(projectName)) {
 			var htmlElement:Element = null;
 
-			if ((element is String))
-			{
+			if ((element is String)) {
 				htmlElement = cast Browser.document.getElementById(element);
-			}
-			else if (element == null)
-			{
+			} else if (element == null) {
 				htmlElement = cast Browser.document.createElement("div");
-			}
-			else
-			{
+			} else {
 				htmlElement = cast element;
 			}
 
-			if (htmlElement == null)
-			{
+			if (htmlElement == null) {
 				Browser.window.console.log("[lime.embed] ERROR: Cannot find target element: " + element);
 				return;
 			}
 
-			if (width == null)
-			{
+			if (width == null) {
 				width = 0;
 			}
 
-			if (height == null)
-			{
+			if (height == null) {
 				height = 0;
 			}
 
-			if (config == null) config = {};
+			if (config == null)
+				config = {};
 
-			if (Reflect.hasField(config, "background") && (config.background is String))
-			{
+			if (Reflect.hasField(config, "background") && (config.background is String)) {
 				var background = StringTools.replace(Std.string(config.background), "#", "");
 
-				if (background.indexOf("0x") > -1)
-				{
+				if (background.indexOf("0x") > -1) {
 					config.background = Std.parseInt(background);
-				}
-				else
-				{
+				} else {
 					config.background = Std.parseInt("0x" + background);
 				}
 			}
@@ -185,16 +175,13 @@ class System
 		Attempts to exit the application. Dispatches `onExit`, and will not
 		exit if the event is canceled.
 	**/
-	public static function exit(code:Int):Void
-	{
+	public static function exit(code:Int):Void {
 		var currentApp = Application.current;
 		#if ((sys || (js && html5) || air) && !macro)
-		if (currentApp != null)
-		{
+		if (currentApp != null) {
 			currentApp.onExit.dispatch(code);
 
-			if (currentApp.onExit.canceled)
-			{
+			if (currentApp.onExit.canceled) {
 				return;
 			}
 		}
@@ -203,8 +190,7 @@ class System
 		#if sys
 		Sys.exit(code);
 		#elseif (js && html5)
-		if (currentApp != null && currentApp.window != null)
-		{
+		if (currentApp != null && currentApp.window != null) {
 			currentApp.window.close();
 		}
 		#elseif air
@@ -216,13 +202,11 @@ class System
 	/**
 		Returns information about the video display with the specified ID.
 	**/
-	public static function getDisplay(id:Int):Display
-	{
+	public static function getDisplay(id:Int):Display {
 		#if (lime_cffi && !macro)
 		var displayInfo:Dynamic = NativeCFFI.lime_system_get_display(id);
 
-		if (displayInfo != null)
-		{
+		if (displayInfo != null) {
 			var display = new Display();
 			display.id = id;
 			#if hl
@@ -235,12 +219,9 @@ class System
 			#if ios
 			var tablet = NativeCFFI.lime_system_get_ios_tablet();
 			var scale = Application.current.window.scale;
-			if (!tablet && scale > 2.46)
-			{
+			if (!tablet && scale > 2.46) {
 				display.dpi = 401; // workaround for iPhone Plus
-			}
-			else
-			{
+			} else {
 				display.dpi = (tablet ? 132 : 163) * scale;
 			}
 			#elseif android
@@ -259,8 +240,7 @@ class System
 			#else
 			var supportedModes:Array<Dynamic> = displayInfo.supportedModes;
 			#end
-			for (mode in supportedModes)
-			{
+			for (mode in supportedModes) {
 				displayMode = new DisplayMode(mode.width, mode.height, mode.refreshRate, mode.pixelFormat);
 				display.supportedModes.push(displayMode);
 			}
@@ -268,13 +248,11 @@ class System
 			var mode = displayInfo.currentMode;
 			var currentMode = new DisplayMode(mode.width, mode.height, mode.refreshRate, mode.pixelFormat);
 
-			for (mode in display.supportedModes)
-			{
+			for (mode in display.supportedModes) {
 				if (currentMode.pixelFormat == mode.pixelFormat
 					&& currentMode.width == mode.width
 					&& currentMode.height == mode.height
-					&& currentMode.refreshRate == mode.refreshRate)
-				{
+					&& currentMode.refreshRate == mode.refreshRate) {
 					currentMode = mode;
 					break;
 				}
@@ -285,8 +263,7 @@ class System
 			return display;
 		}
 		#elseif (html5)
-		if (id == 0)
-		{
+		if (id == 0) {
 			var display = new Display();
 			display.id = 0;
 			display.name = "Generic Display";
@@ -302,9 +279,7 @@ class System
 	/**
 		The number of milliseconds since the application was initialized.
 	**/
-	public static function getTimer():Int
-	{
-
+	public static function getTimer():Int {
 		#if ((js && !nodejs) || electron)
 		return Std.int(Browser.window.performance.now());
 		#elseif (lime_cffi && !macro)
@@ -317,8 +292,8 @@ class System
 		return 0;
 		#end
 	}
-	public static function getTimerPrecise():Float
-	{
+
+	public static function getTimerPrecise():Float {
 		#if ((js && !nodejs) || electron)
 		return Browser.window.performance.now();
 		#elseif (lime_cffi && !macro)
@@ -333,8 +308,7 @@ class System
 	}
 
 	#if (!lime_doc_gen || lime_cffi)
-	public static inline function load(library:String, method:String, args:Int = 0, lazy:Bool = false):Dynamic
-	{
+	public static inline function load(library:String, method:String, args:Int = 0, lazy:Bool = false):Dynamic {
 		#if !macro
 		return CFFI.load(library, method, args, lazy);
 		#else
@@ -348,17 +322,16 @@ class System
 
 		In a web browser, opens a URL with target `_blank`.
 	**/
-	public static function openFile(path:String):Void
-	{
-		if (path != null)
-		{
+	public static function openFile(path:String):Void {
+		if (path != null) {
 			#if (sys && windows)
 			Sys.command("start", ["", path]);
 			#elseif mac
 			// generally `xdg-open` should work in every distro
 			var cmd = Sys.command("xdg-open", [path, "&"]);
 			// run old command JUST IN CASE it fails, which it shouldn't
-			if (cmd != 0) cmd = Sys.command("/usr/bin/xdg-open", [path, "&"]);
+			if (cmd != 0)
+				cmd = Sys.command("/usr/bin/xdg-open", [path, "&"]);
 			#elseif linux
 			Sys.command("/usr/bin/xdg-open", [path]);
 			#elseif (js && html5)
@@ -377,10 +350,8 @@ class System
 	/**
 		Opens a URL with the specified target web browser window.
 	**/
-	public static function openURL(url:String, target:String = "_blank"):Void
-	{
-		if (url != null)
-		{
+	public static function openURL(url:String, target:String = "_blank"):Void {
+		if (url != null) {
 			#if desktop
 			openFile(url);
 			#elseif (js && html5)
@@ -396,44 +367,34 @@ class System
 		}
 	}
 
-	@:noCompletion private static function __copyMissingFields(target:Dynamic, source:Dynamic):Void
-	{
-		if (source == null || target == null) return;
+	@:noCompletion private static function __copyMissingFields(target:Dynamic, source:Dynamic):Void {
+		if (source == null || target == null)
+			return;
 
-		for (field in Reflect.fields(source))
-		{
-			if (!Reflect.hasField(target, field))
-			{
+		for (field in Reflect.fields(source)) {
+			if (!Reflect.hasField(target, field)) {
 				Reflect.setField(target, field, Reflect.field(source, field));
 			}
 		}
 	}
 
-	@:noCompletion private static function __getDirectory(type:SystemDirectory):String
-	{
+	@:noCompletion private static function __getDirectory(type:SystemDirectory):String {
 		#if (lime_cffi && !macro)
-		if (__directories.exists(type))
-		{
+		if (__directories.exists(type)) {
 			return __directories.get(type);
-		}
-		else
-		{
+		} else {
 			var path:String;
 
-			if (type == APPLICATION_STORAGE)
-			{
+			if (type == APPLICATION_STORAGE) {
 				var company = "MyCompany";
 				var file = "MyApplication";
 
-				if (Application.current != null)
-				{
-					if (Application.current.meta.exists("company"))
-					{
+				if (Application.current != null) {
+					if (Application.current.meta.exists("company")) {
 						company = Application.current.meta.get("company");
 					}
 
-					if (Application.current.meta.exists("file"))
-					{
+					if (Application.current.meta.exists("file")) {
 						file = Application.current.meta.get("file");
 					}
 				}
@@ -443,9 +404,7 @@ class System
 				#else
 				path = NativeCFFI.lime_system_get_directory(type, company, file);
 				#end
-			}
-			else
-			{
+			} else {
 				#if hl
 				path = @:privateAccess String.fromUTF8(NativeCFFI.lime_system_get_directory(type, null, null));
 				#else
@@ -459,8 +418,7 @@ class System
 			var seperator = "/";
 			#end
 
-			if (path != null && path.length > 0 && !StringTools.endsWith(path, seperator))
-			{
+			if (path != null && path.length > 0 && !StringTools.endsWith(path, seperator)) {
 				path += seperator;
 			}
 
@@ -468,10 +426,8 @@ class System
 			return path;
 		}
 		#elseif flash
-		if (type != FONTS && Capabilities.playerType == "Desktop")
-		{
-			var propertyName = switch (type)
-			{
+		if (type != FONTS && Capabilities.playerType == "Desktop") {
+			var propertyName = switch (type) {
 				case APPLICATION: "applicationDirectory";
 				case APPLICATION_STORAGE: "applicationStorageDirectory";
 				case DESKTOP: "desktopDirectory";
@@ -487,8 +443,7 @@ class System
 	}
 
 	#if sys
-	private static function __parseArguments(attributes:WindowAttributes):Void
-	{
+	private static function __parseArguments(attributes:WindowAttributes):Void {
 		// TODO: Handle default arguments, like --window-fps=60
 
 		var arguments = Sys.args();
@@ -496,40 +451,35 @@ class System
 		var equals, argValue, parameters = null;
 		var windowParamPrefix = "--window-";
 
-		if (arguments != null)
-		{
-			for (argument in arguments)
-			{
+		if (arguments != null) {
+			for (argument in arguments) {
 				equals = argument.indexOf("=");
 
-				if (equals > 0)
-				{
+				if (equals > 0) {
 					argValue = argument.substr(equals + 1);
 
-					if (stripQuotes.match(argValue))
-					{
+					if (stripQuotes.match(argValue)) {
 						argValue = stripQuotes.matched(1);
 					}
 
-					if (parameters == null) parameters = new Map<String, String>();
+					if (parameters == null)
+						parameters = new Map<String, String>();
 					parameters.set(argument.substr(0, equals), argValue);
 				}
 			}
 		}
 
-		if (parameters != null)
-		{
-			if (attributes.parameters == null) attributes.parameters = {};
-			if (attributes.context == null) attributes.context = {};
+		if (parameters != null) {
+			if (attributes.parameters == null)
+				attributes.parameters = {};
+			if (attributes.context == null)
+				attributes.context = {};
 
-			for (parameter in parameters.keys())
-			{
+			for (parameter in parameters.keys()) {
 				argValue = parameters.get(parameter);
 
-				if (#if lime_disable_window_override false && #end StringTools.startsWith(parameter, windowParamPrefix))
-				{
-					switch (parameter.substr(windowParamPrefix.length))
-					{
+				if (#if lime_disable_window_override false && #end StringTools.startsWith(parameter, windowParamPrefix)) {
+					switch (parameter.substr(windowParamPrefix.length)) {
 						case "allow-high-dpi":
 							attributes.allowHighDPI = __parseBool(argValue);
 						case "always-on-top":
@@ -576,9 +526,7 @@ class System
 							attributes.y = Std.parseInt(argValue);
 						default:
 					}
-				}
-				else if (!Reflect.hasField(attributes.parameters, parameter))
-				{
+				} else if (!Reflect.hasField(attributes.parameters, parameter)) {
 					Reflect.setField(attributes.parameters, parameter, argValue);
 				}
 			}
@@ -586,41 +534,35 @@ class System
 	}
 	#end
 
-	@:noCompletion private static inline function __parseBool(value:String):Bool
-	{
+	@:noCompletion private static inline function __parseBool(value:String):Bool {
 		return (value == "true");
 	}
 
-	@:noCompletion private static function __registerEntryPoint(projectName:String, entryPoint:Function):Void
-	{
-		if (__applicationEntryPoint == null)
-		{
+	@:noCompletion private static function __registerEntryPoint(projectName:String, entryPoint:Function):Void {
+		if (__applicationEntryPoint == null) {
 			__applicationEntryPoint = new Map();
 		}
 
 		__applicationEntryPoint[projectName] = entryPoint;
 	}
 
-	@:noCompletion private static function __runProcess(command:String, args:Array<String> = null):String
-	{
+	@:noCompletion private static function __runProcess(command:String, args:Array<String> = null):String {
 		#if sys
-		try
-		{
-			if (args == null) args = [];
+		try {
+			if (args == null)
+				args = [];
 
 			var process = new Process(command, args);
 			var value = StringTools.trim(process.stdout.readLine().toString());
 			process.close();
 			return value;
-		}
-		catch (e:Dynamic) {}
+		} catch (e:Dynamic) {}
 		#end
 		return null;
 	}
 
 	// Get & Set Methods
-	private static function get_allowScreenTimeout():Bool
-	{
+	private static function get_allowScreenTimeout():Bool {
 		#if (lime_cffi && !macro)
 		return NativeCFFI.lime_system_get_allow_screen_timeout();
 		#else
@@ -628,8 +570,7 @@ class System
 		#end
 	}
 
-	private static function set_allowScreenTimeout(value:Bool):Bool
-	{
+	private static function set_allowScreenTimeout(value:Bool):Bool {
 		#if (lime_cffi && !macro)
 		return NativeCFFI.lime_system_set_allow_screen_timeout(value);
 		#else
@@ -637,30 +578,24 @@ class System
 		#end
 	}
 
-	private static function get_applicationDirectory():String
-	{
-		if (__applicationDirectory == null)
-		{
+	private static function get_applicationDirectory():String {
+		if (__applicationDirectory == null) {
 			__applicationDirectory = __getDirectory(APPLICATION);
 		}
 
 		return __applicationDirectory;
 	}
 
-	private static function get_applicationStorageDirectory():String
-	{
-		if (__applicationStorageDirectory == null)
-		{
+	private static function get_applicationStorageDirectory():String {
+		if (__applicationStorageDirectory == null) {
 			__applicationStorageDirectory = __getDirectory(APPLICATION_STORAGE);
 		}
 
 		return __applicationStorageDirectory;
 	}
 
-	private static function get_deviceModel():String
-	{
-		if (__deviceModel == null)
-		{
+	private static function get_deviceModel():String {
+		if (__deviceModel == null) {
 			#if (lime_cffi && !macro && (windows || ios || tvos))
 			#if hl
 			__deviceModel = @:privateAccess String.fromUTF8(NativeCFFI.lime_system_get_device_model());
@@ -670,13 +605,10 @@ class System
 			#elseif android
 			var manufacturer:String = JNI.createStaticField("android/os/Build", "MANUFACTURER", "Ljava/lang/String;").get();
 			var model:String = JNI.createStaticField("android/os/Build", "MODEL", "Ljava/lang/String;").get();
-			if (manufacturer != null && model != null)
-			{
-				if (StringTools.startsWith(model.toLowerCase(), manufacturer.toLowerCase()))
-				{
+			if (manufacturer != null && model != null) {
+				if (StringTools.startsWith(model.toLowerCase(), manufacturer.toLowerCase())) {
 					model = StringTools.trim(model.substr(manufacturer.length));
-					while (StringTools.startsWith(model, "-"))
-					{
+					while (StringTools.startsWith(model, "-")) {
 						model = StringTools.trim(model.substr(1));
 					}
 				}
@@ -692,10 +624,8 @@ class System
 		return __deviceModel;
 	}
 
-	private static function get_deviceVendor():String
-	{
-		if (__deviceVendor == null)
-		{
+	private static function get_deviceVendor():String {
+		if (__deviceVendor == null) {
 			#if (lime_cffi && !macro && windows && !html5)
 			#if hl
 			__deviceVendor = @:privateAccess String.fromUTF8(NativeCFFI.lime_system_get_device_vendor());
@@ -704,8 +634,7 @@ class System
 			#end
 			#elseif android
 			var vendor:String = JNI.createStaticField("android/os/Build", "MANUFACTURER", "Ljava/lang/String;").get();
-			if (vendor != null)
-			{
+			if (vendor != null) {
 				__deviceVendor = vendor.charAt(0).toUpperCase() + vendor.substr(1);
 			}
 			#elseif (ios || mac || tvos)
@@ -718,30 +647,24 @@ class System
 		return __deviceVendor;
 	}
 
-	private static function get_desktopDirectory():String
-	{
-		if (__desktopDirectory == null)
-		{
+	private static function get_desktopDirectory():String {
+		if (__desktopDirectory == null) {
 			__desktopDirectory = __getDirectory(DESKTOP);
 		}
 
 		return __desktopDirectory;
 	}
 
-	private static function get_documentsDirectory():String
-	{
-		if (__documentsDirectory == null)
-		{
+	private static function get_documentsDirectory():String {
+		if (__documentsDirectory == null) {
 			__documentsDirectory = __getDirectory(DOCUMENTS);
 		}
 
 		return __documentsDirectory;
 	}
 
-	private static function get_endianness():Endian
-	{
-		if (__endianness == null)
-		{
+	private static function get_endianness():Endian {
+		if (__endianness == null) {
 			#if (ps3 || wiiu || flash)
 			__endianness = BIG_ENDIAN;
 			#else
@@ -750,7 +673,8 @@ class System
 			var uint16array = new UInt16Array(arrayBuffer);
 			uint8Array[0] = 0xAA;
 			uint8Array[1] = 0xBB;
-			if (uint16array[0] == 0xAABB) __endianness = BIG_ENDIAN;
+			if (uint16array[0] == 0xAABB)
+				__endianness = BIG_ENDIAN;
 			else
 				__endianness = LITTLE_ENDIAN;
 			#end
@@ -759,18 +683,15 @@ class System
 		return __endianness;
 	}
 
-	private static function get_fontsDirectory():String
-	{
-		if (__fontsDirectory == null)
-		{
+	private static function get_fontsDirectory():String {
+		if (__fontsDirectory == null) {
 			__fontsDirectory = __getDirectory(FONTS);
 		}
 
 		return __fontsDirectory;
 	}
 
-	private static function get_numDisplays():Int
-	{
+	private static function get_numDisplays():Int {
 		#if (lime_cffi && !macro)
 		return NativeCFFI.lime_system_get_num_displays();
 		#else
@@ -778,34 +699,33 @@ class System
 		#end
 	}
 
-	private static function get_platformLabel():String
-	{
-		if (__platformLabel == null)
-		{
+	private static function get_platformLabel():String {
+		if (__platformLabel == null) {
 			#if (lime_cffi && !macro && windows && !html5)
 			#if hl
 			var label:String = @:privateAccess String.fromUTF8(NativeCFFI.lime_system_get_platform_label());
 			#else
 			var label:String = NativeCFFI.lime_system_get_platform_label();
 			#end
-			if (label != null) __platformLabel = StringTools.trim(label);
+			if (label != null)
+				__platformLabel = StringTools.trim(label);
 			#elseif linux
 			__platformLabel = __runProcess("lsb_release", ["-ds"]);
 			#else
 			var name = System.platformName;
 			var version = System.platformVersion;
-			if (name != null && version != null) __platformLabel = name + " " + version;
-			else if (name != null) __platformLabel = name;
+			if (name != null && version != null)
+				__platformLabel = name + " " + version;
+			else if (name != null)
+				__platformLabel = name;
 			#end
 		}
 
 		return __platformLabel;
 	}
 
-	private static function get_platformName():String
-	{
-		if (__platformName == null)
-		{
+	private static function get_platformName():String {
+		if (__platformName == null) {
 			#if windows
 			__platformName = "Windows";
 			#elseif mac
@@ -840,10 +760,8 @@ class System
 		return __platformName;
 	}
 
-	private static function get_platformVersion():String
-	{
-		if (__platformVersion == null)
-		{
+	private static function get_platformVersion():String {
+		if (__platformVersion == null) {
 			#if (lime_cffi && !macro && windows && !html5)
 			#if hl
 			__platformVersion = @:privateAccess String.fromUTF8(NativeCFFI.lime_system_get_platform_version());
@@ -853,7 +771,8 @@ class System
 			#elseif android
 			var release = JNI.createStaticField("android/os/Build$VERSION", "RELEASE", "Ljava/lang/String;").get();
 			var api = JNI.createStaticField("android/os/Build$VERSION", "SDK_INT", "I").get();
-			if (release != null && api != null) __platformVersion = release + " (API " + api + ")";
+			if (release != null && api != null)
+				__platformVersion = release + " (API " + api + ")";
 			#elseif (lime_cffi && !macro && (ios || tvos))
 			__platformVersion = NativeCFFI.lime_system_get_platform_version();
 			#elseif mac
@@ -868,10 +787,8 @@ class System
 		return __platformVersion;
 	}
 
-	private static function get_userDirectory():String
-	{
-		if (__userDirectory == null)
-		{
+	private static function get_userDirectory():String {
+		if (__userDirectory == null) {
 			__userDirectory = __getDirectory(USER);
 		}
 
@@ -879,8 +796,7 @@ class System
 	}
 }
 
-#if (haxe_ver >= 4.0) enum #else @:enum #end abstract SystemDirectory(Int) from Int to Int from UInt to UInt
-{
+#if (haxe_ver >= 4.0) enum #else @:enum #end abstract SystemDirectory(Int) from Int to Int from UInt to UInt {
 	var APPLICATION = 0;
 	var APPLICATION_STORAGE = 1;
 	var DESKTOP = 2;

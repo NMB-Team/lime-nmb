@@ -1,7 +1,6 @@
 package lime.ui;
 
-enum FileDialogType
-{
+enum FileDialogType {
 	OPEN;
 	OPEN_MULTIPLE;
 	SAVE;

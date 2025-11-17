@@ -1,8 +1,7 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class NV_fence
-{
+@:noCompletion class NV_fence {
 	public var ALL_COMPLETED_NV = 0x84F2;
 	public var FENCE_STATUS_NV = 0x84F3;
 	public var FENCE_CONDITION_NV = 0x84F4;

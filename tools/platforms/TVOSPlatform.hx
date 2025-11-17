@@ -1,6 +1,7 @@
 package;
 
 import haxe.Json;
+
 import hxp.ArrayTools;
 import hxp.Haxelib;
 import hxp.HXML;
@@ -9,6 +10,7 @@ import hxp.NDLL;
 import hxp.Path;
 import hxp.StringTools;
 import hxp.System;
+
 #if lime
 import lime.graphics.Image;
 #end
@@ -27,67 +29,63 @@ import lime.tools.Platform;
 import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
 import lime.tools.TVOSHelper;
+
 import sys.io.File;
 import sys.FileSystem;
 
-class TVOSPlatform extends PlatformTarget
-{
-	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
-	{
+class TVOSPlatform extends PlatformTarget {
+	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>) {
 		super(command, _project, targetFlags);
 
 		var defaults = new HXProject();
 
-		defaults.meta =
-			{
-				title: "MyApplication",
-				description: "",
-				packageName: "com.example.myapp",
-				version: "1.0.0",
-				company: "",
-				companyUrl: "",
-				buildNumber: null,
-				companyId: ""
-			};
+		defaults.meta = {
+			title: "MyApplication",
+			description: "",
+			packageName: "com.example.myapp",
+			version: "1.0.0",
+			company: "",
+			companyUrl: "",
+			buildNumber: null,
+			companyId: ""
+		};
 
-		defaults.app =
-			{
-				main: "Main",
-				file: "MyApplication",
-				path: "bin",
-				preloader: "",
-				swfVersion: 17,
-				url: "",
-				init: null
-			};
+		defaults.app = {
+			main: "Main",
+			file: "MyApplication",
+			path: "bin",
+			preloader: "",
+			swfVersion: 17,
+			url: "",
+			init: null
+		};
 
-		defaults.window =
-			{
-				width: 800,
-				height: 600,
-				parameters: "{}",
-				background: 0xFFFFFF,
-				fps: 30,
-				hardware: true,
-				display: 0,
-				resizable: true,
-				borderless: false,
-				orientation: Orientation.AUTO,
-				vsync: false,
-				fullscreen: false,
-				allowHighDPI: true,
-				alwaysOnTop: false,
-				antialiasing: 0,
-				allowShaders: true,
-				requireShaders: false,
-				depthBuffer: true,
-				stencilBuffer: true,
-				colorDepth: 32,
-				maximized: false,
-				minimized: false,
-				hidden: false,
-				title: ""
-			};
+		defaults.window = {
+			width: 800,
+			height: 600,
+			parameters: "{}",
+			background: 0xFFFFFF,
+			fps: 30,
+			hardware: true,
+			display: 0,
+			resizable: true,
+			borderless: false,
+			orientation: Orientation.AUTO,
+			vsync: false,
+			fullscreen: false,
+			allowHighDPI: true,
+			alwaysOnTop: false,
+			antialiasing: 0,
+			allowShaders: true,
+			requireShaders: false,
+			depthBuffer: true,
+			stencilBuffer: true,
+			colorDepth: 32,
+			maximized: false,
+			minimized: false,
+			hidden: false,
+			title: ""
+		};
 
 		defaults.architectures = [Architecture.ARM64];
 		defaults.window.width = 0;
@@ -95,86 +93,69 @@ class TVOSPlatform extends PlatformTarget
 		defaults.window.fullscreen = true;
 		defaults.window.requireShaders = true;
 
-		for (i in 1...project.windows.length)
-		{
+		for (i in 1...project.windows.length) {
 			defaults.windows.push(defaults.window);
 		}
 
 		defaults.merge(project);
 		project = defaults;
 
-		for (excludeArchitecture in project.excludeArchitectures)
-		{
+		for (excludeArchitecture in project.excludeArchitectures) {
 			project.architectures.remove(excludeArchitecture);
 		}
 
 		targetDirectory = Path.combine(project.app.path, project.config.getString("tvos.output-directory", "tvos"));
 	}
 
-	public override function build():Void
-	{
-		if (project.targetFlags.exists("xcode") && System.hostPlatform == MAC)
-		{
+	override public function build():Void {
+		if (project.targetFlags.exists("xcode") && System.hostPlatform == MAC) {
 			System.runCommand("", "open", [targetDirectory + "/" + project.app.file + ".xcodeproj"]);
-		}
-		else
-		{
+		} else {
 			TVOSHelper.build(project, targetDirectory);
 
-			if (noOutput) return;
+			if (noOutput)
+				return;
 
-			if (!project.targetFlags.exists("simulator"))
-			{
+			if (!project.targetFlags.exists("simulator")) {
 				TVOSHelper.sign(project, targetDirectory + "/bin");
 			}
 		}
 	}
 
-	public override function clean():Void
-	{
-		if (FileSystem.exists(targetDirectory))
-		{
+	override public function clean():Void {
+		if (FileSystem.exists(targetDirectory)) {
 			System.removeDirectory(targetDirectory);
 		}
 	}
 
-	public override function deploy():Void
-	{
+	override public function deploy():Void {
 		TVOSHelper.deploy(project, targetDirectory);
 	}
 
-	public override function display():Void
-	{
-		if (project.targetFlags.exists("output-file"))
-		{
+	override public function display():Void {
+		if (project.targetFlags.exists("output-file")) {
 			Sys.println(Path.combine(targetDirectory, project.app.file + ".xcodeproj"));
-		}
-		else
-		{
+		} else {
 			Sys.println(getDisplayHXML().toString());
 		}
 	}
 
-	private function generateContext():Dynamic
-	{
+	private function generateContext():Dynamic {
 		// project = project.clone ();
 
 		project.sources.unshift("");
 		project.sources = Path.relocatePaths(project.sources, Path.combine(targetDirectory, project.app.file + "/haxe"));
 		// project.dependencies.push ("stdc++");
 
-		if (project.targetFlags.exists("xml"))
-		{
+		if (project.targetFlags.exists("xml")) {
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
 		}
 
-		if (project.targetFlags.exists("final"))
-		{
+		if (project.targetFlags.exists("final")) {
 			project.haxedefs.set("final", "");
 		}
 
-		if (!project.config.exists("tvos.identity"))
-		{
+		if (!project.config.exists("tvos.identity")) {
 			project.config.set("tvos.identity", "tvOS Developer");
 		}
 
@@ -187,28 +168,22 @@ class TVOSPlatform extends PlatformTarget
 
 		context.linkedLibraries = [];
 
-		for (dependency in project.dependencies)
-		{
+		for (dependency in project.dependencies) {
 			if (!StringTools.endsWith(dependency.name, ".framework")
 				&& !StringTools.endsWith(dependency.name, ".tbd")
 				&& !StringTools.endsWith(dependency.path, ".framework")
-				&& !StringTools.endsWith(dependency.path, ".xcframework"))
-			{
-				if (dependency.path != "")
-				{
+				&& !StringTools.endsWith(dependency.path, ".xcframework")) {
+				if (dependency.path != "") {
 					var name = Path.withoutDirectory(Path.withoutExtension(dependency.path));
 
 					project.config.push("tvos.linker-flags", "-force_load $SRCROOT/$PRODUCT_NAME/lib/$CURRENT_ARCH/" + Path.withoutDirectory(dependency.path));
 
-					if (StringTools.startsWith(name, "lib"))
-					{
+					if (StringTools.startsWith(name, "lib")) {
 						name = name.substring(3, name.length);
 					}
 
 					context.linkedLibraries.push(name);
-				}
-				else if (dependency.name != "")
-				{
+				} else if (dependency.name != "") {
 					context.linkedLibraries.push(dependency.name);
 				}
 			}
@@ -218,15 +193,12 @@ class TVOSPlatform extends PlatformTarget
 		var arm64 = false;
 		var architectures = project.architectures;
 
-		if (architectures == null || architectures.length == 0)
-		{
+		if (architectures == null || architectures.length == 0) {
 			architectures = [Architecture.ARM64];
 		}
 
-		for (architecture in project.architectures)
-		{
-			switch (architecture)
-			{
+		for (architecture in project.architectures) {
+			switch (architecture) {
 				case ARM64:
 					valid_archs.push("arm64");
 					arm64 = true;
@@ -247,15 +219,13 @@ class TVOSPlatform extends PlatformTarget
 
 		context.REQUIRED_CAPABILITY = requiredCapabilities;
 		context.ARM64 = arm64;
-		context.TARGET_DEVICES = switch (project.config.getString("tvos.device", "appletv"))
-		{
+		context.TARGET_DEVICES = switch (project.config.getString("tvos.device", "appletv")) {
 			case "appletv": "3";
 			default: "3";
 		}
 		context.DEPLOYMENT = project.config.getString("tvos.deployment", "9.0");
 
-		if (project.config.getString("tvos.compiler") == "llvm" || project.config.getString("tvos.compiler", "clang") == "clang")
-		{
+		if (project.config.getString("tvos.compiler") == "llvm" || project.config.getString("tvos.compiler", "clang") == "clang") {
 			context.OBJC_ARC = true;
 		}
 
@@ -270,20 +240,16 @@ class TVOSPlatform extends PlatformTarget
 		while (versionSplit.length > 2)
 			versionSplit.pop();
 
-		if (Std.parseFloat(versionSplit.join(".")) > 3.1)
-		{
+		if (Std.parseFloat(versionSplit.join(".")) > 3.1) {
 			context.CPP_LIBPREFIX = "lib";
-		}
-		else
-		{
+		} else {
 			context.CPP_LIBPREFIX = "";
 		}
 
 		context.IOS_LINKER_FLAGS = ["-stdlib=libc++"].concat(project.config.getArrayString("tvos.linker-flags"));
 		context.IOS_NON_EXEMPT_ENCRYPTION = project.config.getBool("tvos.non-exempt-encryption", true);
 
-		switch (project.window.orientation)
-		{
+		switch (project.window.orientation) {
 			case PORTRAIT:
 				context.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationPortraitUpsideDown</string></array>";
 			case LANDSCAPE:
@@ -303,48 +269,37 @@ class TVOSPlatform extends PlatformTarget
 
 		context.frameworkSearchPaths = [];
 
-		for (dependency in project.dependencies)
-		{
+		for (dependency in project.dependencies) {
 			var name = null;
 			var path = null;
 			var fileType = null;
 
-			if (Path.extension(dependency.name) == "framework")
-			{
+			if (Path.extension(dependency.name) == "framework") {
 				name = dependency.name;
 				path = "/System/Library/Frameworks/" + dependency.name;
 				fileType = "wrapper.framework";
-			}
-			else if (Path.extension(dependency.name) == "tbd")
-			{
+			} else if (Path.extension(dependency.name) == "tbd") {
 				name = dependency.name;
 				path = "usr/lib/" + dependency.name;
 				fileType = "sourcecode.text-based-dylib-definition";
-			}
-			else if (Path.extension(dependency.path) == "framework")
-			{
+			} else if (Path.extension(dependency.path) == "framework") {
 				name = Path.withoutDirectory(dependency.path);
 				path = Path.tryFullPath(dependency.path);
 				fileType = "wrapper.framework";
-			}
-			else if (Path.extension(dependency.path) == "xcframework")
-			{
+			} else if (Path.extension(dependency.path) == "xcframework") {
 				name = Path.withoutDirectory(dependency.path);
 				path = Path.tryFullPath(dependency.path);
 				fileType = "wrapper.xcframework";
 			}
 
-			if (name != null)
-			{
+			if (name != null) {
 				var frameworkID = "11C0000000000018" + StringTools.getUniqueID();
 				var fileID = "11C0000000000018" + StringTools.getUniqueID();
 
 				ArrayTools.addUnique(context.frameworkSearchPaths, Path.directory(path));
 
-				context.ADDL_PBX_BUILD_FILE += "		" + frameworkID + " /* " + name + " in Frameworks */ = {isa = PBXBuildFile; fileRef = " + fileID + " /* "
-					+ name + " */; };\n";
-				context.ADDL_PBX_FILE_REFERENCE += "		" + fileID + " /* " + name + " */ = {isa = PBXFileReference; lastKnownFileType = \"" + fileType
-					+ "\"; name = \"" + name + "\"; path = \"" + path + "\"; sourceTree = SDKROOT; };\n";
+				context.ADDL_PBX_BUILD_FILE += "		" + frameworkID + " /* " + name + " in Frameworks */ = {isa = PBXBuildFile; fileRef = " + fileID + " /* " + name + " */; };\n";
+				context.ADDL_PBX_FILE_REFERENCE += "		" + fileID + " /* " + name + " */ = {isa = PBXFileReference; lastKnownFileType = \"" + fileType + "\"; name = \"" + name + "\"; path = \"" + path + "\"; sourceTree = SDKROOT; };\n";
 				context.ADDL_PBX_FRAMEWORKS_BUILD_PHASE += "				" + frameworkID + " /* " + name + " in Frameworks */,\n";
 				context.ADDL_PBX_FRAMEWORK_GROUP += "				" + fileID + " /* " + name + " */,\n";
 			}
@@ -355,28 +310,21 @@ class TVOSPlatform extends PlatformTarget
 
 		var haxelibPath = project.environment.get("HAXELIB_PATH");
 
-		if (haxelibPath != null)
-		{
+		if (haxelibPath != null) {
 			context.HAXELIB_PATH = 'export HAXELIB_PATH=$haxelibPath;';
-		}
-		else
-		{
+		} else {
 			context.HAXELIB_PATH = '';
 		}
 
 		return context;
 	}
 
-	private function getDisplayHXML():HXML
-	{
+	private function getDisplayHXML():HXML {
 		var path = targetDirectory + "/" + project.app.file + "/haxe/Build.hxml";
 
-		if (FileSystem.exists(path))
-		{
+		if (FileSystem.exists(path)) {
 			return File.getContent(path);
-		}
-		else
-		{
+		} else {
 			var context = project.templateContext;
 			var hxml = HXML.fromString(context.HAXE_FLAGS);
 			hxml.addClassName(context.APP_MAIN);
@@ -388,8 +336,7 @@ class TVOSPlatform extends PlatformTarget
 		}
 	}
 
-	public override function rebuild():Void
-	{
+	override public function rebuild():Void {
 		var arm64 = (command == "rebuild"
 			|| (project.architectures.indexOf(Architecture.ARM64) > -1 && !project.targetFlags.exists("simulator")));
 		var i386 = (command == "rebuild" || project.targetFlags.exists("simulator"));
@@ -397,52 +344,52 @@ class TVOSPlatform extends PlatformTarget
 
 		var commands = [];
 
-		if (arm64) commands.push([
-			"-Dtvos",
-			"-Dappletvos",
-			"-DHXCPP_CPP11",
-			"-DHXCPP_ARM64",
-			"-DOBJC_ARC",
-			"-DENABLE_BITCODE"
-		]);
-		if (i386) commands.push([
-			"-Dtvos",
-			"-Dappletvsim",
-			"-Dsimulator",
-			"-DHXCPP_CPP11",
-			"-DOBJC_ARC",
-			"-DENABLE_BITCODE"
-		]);
-		if (x86_64) commands.push([
-			"-Dtvos",
-			"-Dappletvsim",
-			"-Dsimulator",
-			"-DHXCPP_M64",
-			"-DHXCPP_CPP11",
-			"-DOBJC_ARC",
-			"-DENABLE_BITCODE"
-		]);
+		if (arm64)
+			commands.push([
+				"-Dtvos",
+				"-Dappletvos",
+				"-DHXCPP_CPP11",
+				"-DHXCPP_ARM64",
+				"-DOBJC_ARC",
+				"-DENABLE_BITCODE"
+			]);
+		if (i386)
+			commands.push([
+				"-Dtvos",
+				"-Dappletvsim",
+				"-Dsimulator",
+				"-DHXCPP_CPP11",
+				"-DOBJC_ARC",
+				"-DENABLE_BITCODE"
+			]);
+		if (x86_64)
+			commands.push([
+				"-Dtvos",
+				"-Dappletvsim",
+				"-Dsimulator",
+				"-DHXCPP_M64",
+				"-DHXCPP_CPP11",
+				"-DOBJC_ARC",
+				"-DENABLE_BITCODE"
+			]);
 
 		CPPHelper.rebuild(project, commands);
 	}
 
-	public override function run():Void
-	{
-		if (project.targetFlags.exists("xcode")) return;
+	override public function run():Void {
+		if (project.targetFlags.exists("xcode"))
+			return;
 
 		TVOSHelper.launch(project, targetDirectory);
 	}
 
-	public override function update():Void
-	{
+	override public function update():Void {
 		AssetHelper.processLibraries(project, targetDirectory);
 
 		// project = project.clone ();
 
-		for (asset in project.assets)
-		{
-			if (asset.embed && asset.sourcePath == "")
-			{
+		for (asset in project.assets) {
+			if (asset.embed && asset.sourcePath == "") {
 				var path = Path.combine(targetDirectory + "/" + project.app.file + "/obj/tmp", asset.targetPath);
 				System.mkdir(Path.directory(path));
 				AssetHelper.copyAsset(asset, path);
@@ -491,15 +438,12 @@ class TVOSPlatform extends PlatformTarget
 
 		var icons = project.icons;
 
-		if (icons.length == 0)
-		{
+		if (icons.length == 0) {
 			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}
 
-		for (iconSize in iconSizes)
-		{
-			if (!IconHelper.createIcon(icons, iconSize.size, iconSize.size, Path.combine(iconPath, iconSize.name)))
-			{
+		for (iconSize in iconSizes) {
+			if (!IconHelper.createIcon(icons, iconSize.size, iconSize.size, Path.combine(iconPath, iconSize.name))) {
 				context.HAS_ICON = false;
 			}
 		}
@@ -520,25 +464,20 @@ class TVOSPlatform extends PlatformTarget
 		var splashScreenPath = Path.combine(projectDirectory, "Images.xcassets/LaunchImage.launchimage");
 		System.mkdir(splashScreenPath);
 
-		for (size in splashSizes)
-		{
+		for (size in splashSizes) {
 			var match = false;
 
-			for (splashScreen in project.splashScreens)
-			{
-				if (splashScreen.width == size.w && splashScreen.height == size.h && Path.extension(splashScreen.path) == "png")
-				{
+			for (splashScreen in project.splashScreens) {
+				if (splashScreen.width == size.w && splashScreen.height == size.h && Path.extension(splashScreen.path) == "png") {
 					System.copyFile(splashScreen.path, Path.combine(splashScreenPath, size.name));
 					match = true;
 				}
 			}
 
-			if (!match)
-			{
+			if (!match) {
 				var imagePath = Path.combine(splashScreenPath, size.name);
 
-				if (!FileSystem.exists(imagePath))
-				{
+				if (!FileSystem.exists(imagePath)) {
 					#if (lime && lime_cffi && !macro)
 					Log.info("", " - \x1b[1mGenerating image:\x1b[0m " + imagePath);
 
@@ -564,8 +503,7 @@ class TVOSPlatform extends PlatformTarget
 		System.copyFileTemplate(project.templatePaths, "tvos/PROJ/PROJ-Entitlements.plist", projectDirectory
 			+ "/"
 			+ project.app.file
-			+ "-Entitlements.plist",
-			context);
+			+ "-Entitlements.plist", context);
 		System.copyFileTemplate(project.templatePaths, "tvos/PROJ/PROJ-Info.plist", projectDirectory + "/" + project.app.file + "-Info.plist", context);
 		System.copyFileTemplate(project.templatePaths, "tvos/PROJ/PROJ-Prefix.pch", projectDirectory + "/" + project.app.file + "-Prefix.pch", context);
 		ProjectHelper.recursiveSmartCopyTemplate(project, "tvos/PROJ.xcodeproj", targetDirectory + "/" + project.app.file + ".xcodeproj", context);
@@ -574,19 +512,18 @@ class TVOSPlatform extends PlatformTarget
 
 		System.mkdir(projectDirectory + "/lib");
 
-		for (archID in 0...3)
-		{
+		for (archID in 0...3) {
 			var arch = ["arm64", "i386", "x86_64"][archID];
 
-			if (arch == "arm64" && !context.ARM64) continue;
+			if (arch == "arm64" && !context.ARM64)
+				continue;
 
 			var libExt = [".appletvos-64.a", ".appletvsim.a", ".appletvsim-64.a"][archID];
 
 			System.mkdir(projectDirectory + "/lib/" + arch);
 			System.mkdir(projectDirectory + "/lib/" + arch + "-debug");
 
-			for (ndll in project.ndlls)
-			{
+			for (ndll in project.ndlls) {
 				// if (ndll.haxelib != null) {
 
 				var releaseLib = NDLL.getLibraryPath(ndll, "AppleTV", "lib", libExt);
@@ -596,8 +533,7 @@ class TVOSPlatform extends PlatformTarget
 				Log.info("releaseDest: " + releaseDest);
 				var debugDest = projectDirectory + "/lib/" + arch + "-debug/lib" + ndll.name + ".a";
 
-				if (!FileSystem.exists(releaseLib))
-				{
+				if (!FileSystem.exists(releaseLib)) {
 					releaseLib = NDLL.getLibraryPath(ndll, "AppleTV", "lib", ".appletvos-64.a");
 					Log.info("alternative releaseLib: " + releaseLib);
 					debugLib = NDLL.getLibraryPath(ndll, "AppleTV", "lib", ".appletvos-64.a", true);
@@ -605,26 +541,20 @@ class TVOSPlatform extends PlatformTarget
 
 				System.copyIfNewer(releaseLib, releaseDest);
 
-				if (FileSystem.exists(debugLib) && debugLib != releaseLib)
-				{
+				if (FileSystem.exists(debugLib) && debugLib != releaseLib) {
 					System.copyIfNewer(debugLib, debugDest);
-				}
-				else if (FileSystem.exists(debugDest))
-				{
+				} else if (FileSystem.exists(debugDest)) {
 					FileSystem.deleteFile(debugDest);
 				}
 
 				// }
 			}
 
-			for (dependency in project.dependencies)
-			{
-				if (StringTools.endsWith(dependency.path, ".a"))
-				{
+			for (dependency in project.dependencies) {
+				if (StringTools.endsWith(dependency.path, ".a")) {
 					var fileName = Path.withoutDirectory(dependency.path);
 
-					if (!StringTools.startsWith(fileName, "lib"))
-					{
+					if (!StringTools.startsWith(fileName, "lib")) {
 						fileName = "lib" + fileName;
 					}
 
@@ -635,10 +565,8 @@ class TVOSPlatform extends PlatformTarget
 
 		System.mkdir(projectDirectory + "/assets");
 
-		for (asset in project.assets)
-		{
-			if (asset.type != AssetType.TEMPLATE)
-			{
+		for (asset in project.assets) {
+			if (asset.type != AssetType.TEMPLATE) {
 				var targetPath = Path.combine(projectDirectory + "/assets/", asset.resourceName);
 
 				// var sourceAssetPath:String = projectDirectory + "haxe/" + asset.sourcePath;
@@ -648,9 +576,7 @@ class TVOSPlatform extends PlatformTarget
 
 				// System.mkdir (Path.directory (sourceAssetPath));
 				// System.linkFile (flatAssetPath, sourceAssetPath, true, true);
-			}
-			else
-			{
+			} else {
 				var targetPath = Path.combine(projectDirectory, asset.targetPath);
 
 				System.mkdir(Path.directory(targetPath));
@@ -658,8 +584,7 @@ class TVOSPlatform extends PlatformTarget
 			}
 		}
 
-		if (project.targetFlags.exists("xcode") && System.hostPlatform == MAC && command == "update")
-		{
+		if (project.targetFlags.exists("xcode") && System.hostPlatform == MAC && command == "update") {
 			System.runCommand("", "open", [targetDirectory + "/" + project.app.file + ".xcodeproj"]);
 		}
 	}
@@ -683,14 +608,12 @@ class TVOSPlatform extends PlatformTarget
 		context.HAS_LAUNCH_IMAGE = has_launch_image;
 
 	}*/
-	public override function watch():Void
-	{
+	override public function watch():Void {
 		var hxml = getDisplayHXML();
 		var dirs = hxml.getClassPaths(true);
 
 		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
-		dirs = dirs.filter(function(dir)
-		{
+		dirs = dirs.filter(function(dir) {
 			return (!Path.startsWith(dir, outputPath));
 		});
 
@@ -698,21 +621,19 @@ class TVOSPlatform extends PlatformTarget
 		System.watch(command, dirs);
 	}
 
-	@ignore public override function install():Void {}
+	@ignore override public function install():Void {}
 
-	@ignore public override function trace():Void {}
+	@ignore override public function trace():Void {}
 
-	@ignore public override function uninstall():Void {}
+	@ignore override public function uninstall():Void {}
 }
 
-private typedef IconSize =
-{
+private typedef IconSize = {
 	name:String,
 	size:Int,
 }
 
-private typedef SplashSize =
-{
+private typedef SplashSize = {
 	name:String,
 	w:Int,
 	h:Int,

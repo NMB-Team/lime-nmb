@@ -1,7 +1,6 @@
 package lime.tools;
 
-enum AssetType
-{
+enum AssetType {
 	BINARY;
 	BUNDLE;
 	FONT;

@@ -1,8 +1,7 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class APPLE_framebuffer_multisample
-{
+@:noCompletion class APPLE_framebuffer_multisample {
 	public var RENDERBUFFER_SAMPLES_APPLE = 0x8CAB;
 	public var FRAMEBUFFER_INCOMPLETE_MULTISAMPLE_APPLE = 0x8D56;
 	public var MAX_SAMPLES_APPLE = 0x8D57;

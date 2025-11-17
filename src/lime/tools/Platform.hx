@@ -1,7 +1,6 @@
 package lime.tools;
 
-#if (haxe_ver >= 4.0) enum #else @:enum #end abstract Platform(String)
-{
+#if (haxe_ver >= 4.0) enum #else @:enum #end abstract Platform(String) {
 	var AIR = "air";
 	var ANDROID = "android";
 	var BLACKBERRY = "blackberry";

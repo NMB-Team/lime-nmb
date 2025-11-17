@@ -4,12 +4,10 @@ package lime._internal.unifill;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class Exception
-{
+class Exception {
 	function new() {}
 
-	public function toString():String
-	{
+	public function toString():String {
 		throw null;
 	}
 }
@@ -18,18 +16,15 @@ class Exception
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class InvalidCodePoint extends Exception
-{
+class InvalidCodePoint extends Exception {
 	public var code(default, null):Int;
 
-	public function new(code:Int)
-	{
+	public function new(code:Int) {
 		super();
 		this.code = code;
 	}
 
-	override public function toString():String
-	{
+	override public function toString():String {
 		return 'InvalidCodePoint(code: $code)';
 	}
 }
@@ -38,18 +33,15 @@ class InvalidCodePoint extends Exception
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class InvalidCodeUnitSequence extends Exception
-{
+class InvalidCodeUnitSequence extends Exception {
 	public var index(default, null):Int;
 
-	public function new(index:Int)
-	{
+	public function new(index:Int) {
 		super();
 		this.index = index;
 	}
 
-	override public function toString():String
-	{
+	override public function toString():String {
 		return 'InvalidCodeUnitSequence(index: $index)';
 	}
 }

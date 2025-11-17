@@ -1,7 +1,6 @@
 package lime.tools;
 
-enum PlatformType
-{
+enum PlatformType {
 	DESKTOP;
 	MOBILE;
 	WEB;

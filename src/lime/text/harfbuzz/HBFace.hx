@@ -5,8 +5,7 @@ import lime._internal.backend.native.NativeCFFI;
 import lime.system.CFFIPointer;
 
 @:access(lime._internal.backend.native.NativeCFFI)
-abstract HBFace(CFFIPointer) from CFFIPointer to CFFIPointer
-{
+abstract HBFace(CFFIPointer) from CFFIPointer to CFFIPointer {
 	public static var empty(get, never):HBFace;
 
 	public var glyphCount(get, set):Int;
@@ -14,8 +13,7 @@ abstract HBFace(CFFIPointer) from CFFIPointer to CFFIPointer
 	public var index(get, set):Int;
 	public var upem(get, set):Int;
 
-	public function new(blob:HBBlob, index:Int)
-	{
+	public function new(blob:HBBlob, index:Int) {
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		this = NativeCFFI.lime_hb_face_create(blob, index);
 		#else
@@ -24,8 +22,7 @@ abstract HBFace(CFFIPointer) from CFFIPointer to CFFIPointer
 	}
 
 	// Get & Set Methods
-	private static inline function get_empty():HBFace
-	{
+	private static inline function get_empty():HBFace {
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_face_get_empty();
 		#else
@@ -33,8 +30,7 @@ abstract HBFace(CFFIPointer) from CFFIPointer to CFFIPointer
 		#end
 	}
 
-	@:noCompletion private inline function get_glyphCount():Int
-	{
+	@:noCompletion private inline function get_glyphCount():Int {
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_face_get_glyph_count(this);
 		#else
@@ -42,16 +38,14 @@ abstract HBFace(CFFIPointer) from CFFIPointer to CFFIPointer
 		#end
 	}
 
-	@:noCompletion private inline function set_glyphCount(value:Int):Int
-	{
+	@:noCompletion private inline function set_glyphCount(value:Int):Int {
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		NativeCFFI.lime_hb_face_set_glyph_count(this, value);
 		#end
 		return value;
 	}
 
-	@:noCompletion private inline function get_immutable():Bool
-	{
+	@:noCompletion private inline function get_immutable():Bool {
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_face_is_immutable(this);
 		#else
@@ -59,8 +53,7 @@ abstract HBFace(CFFIPointer) from CFFIPointer to CFFIPointer
 		#end
 	}
 
-	@:noCompletion private inline function get_index():Int
-	{
+	@:noCompletion private inline function get_index():Int {
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_face_get_index(this);
 		#else
@@ -68,16 +61,14 @@ abstract HBFace(CFFIPointer) from CFFIPointer to CFFIPointer
 		#end
 	}
 
-	@:noCompletion private inline function set_index(value:Int):Int
-	{
+	@:noCompletion private inline function set_index(value:Int):Int {
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		NativeCFFI.lime_hb_face_set_index(this, value);
 		#end
 		return value;
 	}
 
-	@:noCompletion private inline function get_upem():Int
-	{
+	@:noCompletion private inline function get_upem():Int {
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_face_get_upem(this);
 		#else
@@ -85,8 +76,7 @@ abstract HBFace(CFFIPointer) from CFFIPointer to CFFIPointer
 		#end
 	}
 
-	@:noCompletion private inline function set_upem(value:Int):Int
-	{
+	@:noCompletion private inline function set_upem(value:Int):Int {
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		NativeCFFI.lime_hb_face_set_upem(this, value);
 		#end

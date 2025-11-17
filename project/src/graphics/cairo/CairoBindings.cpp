@@ -49,12 +49,16 @@ namespace lime {
 
 	void hl_gc_cairo (HL_CFFIPointer* handle) {
 
-		cairo_t* cairo = (cairo_t*)handle->ptr;
-		handle->ptr = 0;
-		cairoObjects_Mutex.Lock ();
-		cairoObjects.erase (cairo);
-		cairoObjects_Mutex.Unlock ();
-		cairo_destroy (cairo);
+		if (handle->ptr) {
+
+			cairo_t* cairo = (cairo_t*)handle->ptr;
+			handle->ptr = 0;
+			cairoObjects_Mutex.Lock ();
+			cairoObjects.erase (cairo);
+			cairoObjects_Mutex.Unlock ();
+			cairo_destroy (cairo);
+
+		}
 
 	}
 
@@ -76,12 +80,16 @@ namespace lime {
 
 	void hl_gc_cairo_font_face (HL_CFFIPointer* handle) {
 
-		cairo_font_face_t* face = (cairo_font_face_t*)handle->ptr;
-		handle->ptr = 0;
-		cairoObjects_Mutex.Lock ();
-		cairoObjects.erase (face);
-		cairoObjects_Mutex.Unlock ();
-		cairo_font_face_destroy (face);
+		if (handle->ptr) {
+
+			cairo_font_face_t* face = (cairo_font_face_t*)handle->ptr;
+			handle->ptr = 0;
+			cairoObjects_Mutex.Lock ();
+			cairoObjects.erase (face);
+			cairoObjects_Mutex.Unlock ();
+			cairo_font_face_destroy (face);
+
+		}
 
 	}
 
@@ -124,12 +132,16 @@ namespace lime {
 
 	void hl_gc_cairo_pattern (HL_CFFIPointer* handle) {
 
-		cairo_pattern_t* pattern = (cairo_pattern_t*)handle->ptr;
-		handle->ptr = 0;
-		cairoObjects_Mutex.Lock ();
-		cairoObjects.erase (pattern);
-		cairoObjects_Mutex.Unlock ();
-		cairo_pattern_destroy (pattern);
+		if (handle->ptr) {
+
+			cairo_pattern_t* pattern = (cairo_pattern_t*)handle->ptr;
+			handle->ptr = 0;
+			cairoObjects_Mutex.Lock ();
+			cairoObjects.erase (pattern);
+			cairoObjects_Mutex.Unlock ();
+			cairo_pattern_destroy (pattern);
+
+		}
 
 	}
 
@@ -151,12 +163,16 @@ namespace lime {
 
 	void hl_gc_cairo_surface (HL_CFFIPointer* handle) {
 
-		cairo_surface_t* surface = (cairo_surface_t*)handle->ptr;
-		handle->ptr = 0;
-		cairoObjects_Mutex.Lock ();
-		cairoObjects.erase (surface);
-		cairoObjects_Mutex.Unlock ();
-		cairo_surface_destroy (surface);
+		if (handle->ptr) {
+
+			cairo_surface_t* surface = (cairo_surface_t*)handle->ptr;
+			handle->ptr = 0;
+			cairoObjects_Mutex.Lock ();
+			cairoObjects.erase (surface);
+			cairoObjects_Mutex.Unlock ();
+			cairo_surface_destroy (surface);
+
+		}
 
 	}
 

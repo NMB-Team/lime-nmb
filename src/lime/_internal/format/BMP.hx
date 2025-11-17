@@ -1,6 +1,7 @@
 package lime._internal.format;
 
 import haxe.io.Bytes;
+
 import lime.graphics.Image;
 import lime.math.Rectangle;
 
@@ -8,12 +9,9 @@ import lime.math.Rectangle;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class BMP
-{
-	public static function encode(image:Image, type:BMPType = null):Bytes
-	{
-		if (image.premultiplied || image.format != RGBA32)
-		{
+class BMP {
+	public static function encode(image:Image, type:BMPType = null):Bytes {
+		if (image.premultiplied || image.format != RGBA32) {
 			// TODO: Handle encode from different formats
 
 			image = image.clone();
@@ -21,8 +19,7 @@ class BMP
 			image.format = RGBA32;
 		}
 
-		if (type == null)
-		{
+		if (type == null) {
 			type = RGB;
 		}
 
@@ -30,8 +27,7 @@ class BMP
 		var infoHeaderLength = 40;
 		var pixelValuesLength = (image.width * image.height * 4);
 
-		switch (type)
-		{
+		switch (type) {
 			case BITFIELD:
 				infoHeaderLength = 108;
 
@@ -48,8 +44,7 @@ class BMP
 		var data = Bytes.alloc(fileHeaderLength + infoHeaderLength + pixelValuesLength);
 		var position = 0;
 
-		if (fileHeaderLength > 0)
-		{
+		if (fileHeaderLength > 0) {
 			data.set(position++, 0x42);
 			data.set(position++, 0x4D);
 			data.setInt32(position, data.length);
@@ -85,8 +80,7 @@ class BMP
 		data.setInt32(position, 0);
 		position += 4;
 
-		if (type == BITFIELD)
-		{
+		if (type == BITFIELD) {
 			data.setInt32(position, 0x00FF0000);
 			position += 4;
 			data.setInt32(position, 0x0000FF00);
@@ -101,8 +95,7 @@ class BMP
 			data.set(position++, 0x69);
 			data.set(position++, 0x57);
 
-			for (i in 0...48)
-			{
+			for (i in 0...48) {
 				data.set(position++, 0);
 			}
 		}
@@ -111,15 +104,12 @@ class BMP
 		var readPosition = 0;
 		var a, r, g, b;
 
-		switch (type)
-		{
+		switch (type) {
 			case BITFIELD:
-				for (y in 0...image.height)
-				{
+				for (y in 0...image.height) {
 					readPosition = (image.height - 1 - y) * 4 * image.width;
 
-					for (x in 0...image.width)
-					{
+					for (x in 0...image.width) {
 						a = pixels.get(readPosition++);
 						r = pixels.get(readPosition++);
 						g = pixels.get(readPosition++);
@@ -136,12 +126,10 @@ class BMP
 				var andMask = Bytes.alloc(image.width * image.height);
 				var maskPosition = 0;
 
-				for (y in 0...image.height)
-				{
+				for (y in 0...image.height) {
 					readPosition = (image.height - 1 - y) * 4 * image.width;
 
-					for (x in 0...image.width)
-					{
+					for (x in 0...image.width) {
 						a = pixels.get(readPosition++);
 						r = pixels.get(readPosition++);
 						g = pixels.get(readPosition++);
@@ -167,12 +155,10 @@ class BMP
 				data.blit(position, andMask, 0, image.width * image.height);
 
 			case RGB:
-				for (y in 0...image.height)
-				{
+				for (y in 0...image.height) {
 					readPosition = (image.height - 1 - y) * 4 * image.width;
 
-					for (x in 0...image.width)
-					{
+					for (x in 0...image.width) {
 						a = pixels.get(readPosition++);
 						r = pixels.get(readPosition++);
 						g = pixels.get(readPosition++);
@@ -183,8 +169,7 @@ class BMP
 						data.set(position++, r);
 					}
 
-					for (i in 0...((image.width * 3) % 4))
-					{
+					for (i in 0...((image.width * 3) % 4)) {
 						data.set(position++, 0);
 					}
 				}
@@ -196,8 +181,7 @@ class BMP
 	}
 }
 
-enum BMPType
-{
+enum BMPType {
 	RGB;
 	BITFIELD;
 	ICO;

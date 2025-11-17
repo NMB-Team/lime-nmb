@@ -8,10 +8,9 @@ import lime.app.Event;
 @:noDebug
 #end
 @:access(lime._internal.backend.native.NativeCFFI)
-class Joystick
-{
+class Joystick {
 	public static var devices = new Map<Int, Joystick>();
-	public static var onConnect = new Event<Joystick->Void>();
+	public static var onConnect = new Event<Joystick -> Void>();
 
 	public var connected(default, null):Bool;
 	public var guid(get, never):String;
@@ -21,59 +20,52 @@ class Joystick
 	public var numButtons(get, never):Int;
 	public var numHats(get, never):Int;
 	public var numTrackballs(get, never):Int;
-	public var onAxisMove = new Event<Int->Float->Void>();
-	public var onButtonDown = new Event<Int->Void>();
-	public var onButtonUp = new Event<Int->Void>();
-	public var onDisconnect = new Event<Void->Void>();
-	public var onHatMove = new Event<Int->JoystickHatPosition->Void>();
-	public var onTrackballMove = new Event<Int->Float->Float->Void>();
+	public var onAxisMove = new Event<Int -> Float -> Void>();
+	public var onButtonDown = new Event<Int -> Void>();
+	public var onButtonUp = new Event<Int -> Void>();
+	public var onDisconnect = new Event<Void -> Void>();
+	public var onHatMove = new Event<Int -> JoystickHatPosition -> Void>();
+	public var onTrackballMove = new Event<Int -> Float -> Float -> Void>();
 
-	public function new(id:Int)
-	{
+	public function new(id:Int) {
 		this.id = id;
 		connected = true;
 	}
 
-	@:noCompletion private static function __connect(id:Int):Void
-	{
-		if (!devices.exists(id))
-		{
+	@:noCompletion private static function __connect(id:Int):Void {
+		if (!devices.exists(id)) {
 			var joystick = new Joystick(id);
 			devices.set(id, joystick);
 			onConnect.dispatch(joystick);
 		}
 	}
 
-	@:noCompletion private static function __disconnect(id:Int):Void
-	{
+	@:noCompletion private static function __disconnect(id:Int):Void {
 		var joystick = devices.get(id);
-		if (joystick != null) joystick.connected = false;
+		if (joystick != null)
+			joystick.connected = false;
 		devices.remove(id);
-		if (joystick != null) joystick.onDisconnect.dispatch();
+		if (joystick != null)
+			joystick.onDisconnect.dispatch();
 	}
 
 	#if (js && html5)
-	@:noCompletion private static function __getDeviceData():Array<Dynamic>
-	{
+	@:noCompletion private static function __getDeviceData():Array<Dynamic> {
 		var res:Dynamic = null;
-		
-		try 
-		{
+
+		try {
 			res = (untyped navigator.getGamepads) ? untyped navigator.getGamepads() : (untyped navigator.webkitGetGamepads) ? untyped navigator.webkitGetGamepads() : null;
-		}
-		catch (err:Dynamic)
-		{
+		} catch (err:Dynamic) {
 			// if something went wrong, treat it the same as when navigator.getGamepads doesn't exist
 			// we probably don't have permission to use this feature
 		}
-		
+
 		return res;
 	}
 	#end
 
 	// Get & Set Methods
-	@:noCompletion private inline function get_guid():String
-	{
+	@:noCompletion private inline function get_guid():String {
 		#if (lime_cffi && !macro)
 		#if hl
 		return @:privateAccess String.fromUTF8(NativeCFFI.lime_joystick_get_device_guid(this.id));
@@ -88,8 +80,7 @@ class Joystick
 		#end
 	}
 
-	@:noCompletion private inline function get_name():String
-	{
+	@:noCompletion private inline function get_name():String {
 		#if (lime_cffi && !macro)
 		#if hl
 		return @:privateAccess String.fromUTF8(NativeCFFI.lime_joystick_get_device_name(this.id));
@@ -104,8 +95,7 @@ class Joystick
 		#end
 	}
 
-	@:noCompletion private inline function get_numAxes():Int
-	{
+	@:noCompletion private inline function get_numAxes():Int {
 		#if (lime_cffi && !macro)
 		return NativeCFFI.lime_joystick_get_num_axes(this.id);
 		#elseif (js && html5)
@@ -116,8 +106,7 @@ class Joystick
 		#end
 	}
 
-	@:noCompletion private inline function get_numButtons():Int
-	{
+	@:noCompletion private inline function get_numButtons():Int {
 		#if (lime_cffi && !macro)
 		return NativeCFFI.lime_joystick_get_num_buttons(this.id);
 		#elseif (js && html5)
@@ -128,8 +117,7 @@ class Joystick
 		#end
 	}
 
-	@:noCompletion private inline function get_numHats():Int
-	{
+	@:noCompletion private inline function get_numHats():Int {
 		#if (lime_cffi && !macro)
 		return NativeCFFI.lime_joystick_get_num_hats(this.id);
 		#else
@@ -137,8 +125,7 @@ class Joystick
 		#end
 	}
 
-	@:noCompletion private inline function get_numTrackballs():Int
-	{
+	@:noCompletion private inline function get_numTrackballs():Int {
 		#if (lime_cffi && !macro)
 		return NativeCFFI.lime_joystick_get_num_trackballs(this.id);
 		#else

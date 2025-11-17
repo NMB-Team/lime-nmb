@@ -1,8 +1,7 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class OES_compressed_paletted_texture
-{
+@:noCompletion class OES_compressed_paletted_texture {
 	public var PALETTE4_RGB8_OES = 0x8B90;
 	public var PALETTE4_RGBA8_OES = 0x8B91;
 	public var PALETTE4_R5_G6_B5_OES = 0x8B92;

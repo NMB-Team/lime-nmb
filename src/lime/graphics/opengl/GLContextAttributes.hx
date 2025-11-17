@@ -6,8 +6,7 @@ package lime.graphics.opengl;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-typedef GLContextAttributes =
-{
+typedef GLContextAttributes = {
 	alpha:Bool,
 	depth:Bool,
 	stencil:Bool,

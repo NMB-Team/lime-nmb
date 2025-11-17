@@ -2,19 +2,23 @@ package lime.ui;
 
 import haxe.io.Bytes;
 import haxe.io.Path;
+
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Event;
 import lime.graphics.Image;
 import lime.system.BackgroundWorker;
 import lime.utils.ArrayBuffer;
 import lime.utils.Resource;
+
 #if hl
 import hl.Bytes as HLBytes;
 import hl.NativeArray;
 #end
+
 #if sys
 import sys.io.File;
 #end
+
 #if (js && html5)
 import js.html.Blob;
 #end
@@ -47,42 +51,41 @@ import js.html.Blob;
 #end
 @:access(lime._internal.backend.native.NativeCFFI)
 @:access(lime.graphics.Image)
-class FileDialog
-{
+class FileDialog {
 	/**
 		Triggers when the user clicks "Cancel" during any operation, or when a function is unsupported
 		(such as `open()` on HTML5).
 	**/
-	public var onCancel = new Event<Void->Void>();
+	public var onCancel = new Event<Void -> Void>();
 
 	/**
 		Triggers when `open()` is successful. The `lime.utils.Resource` contains the file's data, and can
 		be implicitly cast to `haxe.io.Bytes`.
 	**/
-	public var onOpen = new Event<Resource->Void>();
+	public var onOpen = new Event<Resource -> Void>();
 
 	/**
 		Triggers when `open()` is successful. The `lime.utils.Resource` contains the file's data, and can
 		be implicitly cast to `haxe.io.Bytes`, the String is the path to the file.
 	**/
-	public var onOpenFile = new Event<(Resource, String)->Void>(); // Added by @NeeEoo
+	public var onOpenFile = new Event<(Resource, String) -> Void>(); // Added by @NeeEoo
 
 	/**
 		Triggers when `save()` is successful. The `String` is the path to the saved file.
 	**/
-	public var onSave = new Event<String->Void>();
+	public var onSave = new Event<String -> Void>();
 
 	/**
 		Triggers when `browse()` is successful and `type` is anything other than
 		`FileDialogType.OPEN_MULTIPLE`. The `String` is the path to the selected file.
 	**/
-	public var onSelect = new Event<String->Void>();
+	public var onSelect = new Event<String -> Void>();
 
 	/**
 		Triggers when `browse()` is successful and `type` is `FileDialogType.OPEN_MULTIPLE`. The
 		`Array<String>` contains all selected file paths.
 	**/
-	public var onSelectMultiple = new Event<Array<String>->Void>();
+	public var onSelectMultiple = new Event<Array<String> -> Void>();
 
 	public function new() {}
 
@@ -99,28 +102,26 @@ class FileDialog
 		@param title 		The title to give the dialog window.
 		@return Whether `browse()` is supported on this target.
 	**/
-	public function browse(type:FileDialogType = null, filter:String = null, defaultPath:String = null, title:String = null):Bool
-	{
-		if (type == null) type = FileDialogType.OPEN;
+	public function browse(type:FileDialogType = null, filter:String = null, defaultPath:String = null, title:String = null):Bool {
+		if (type == null)
+			type = FileDialogType.OPEN;
 
 		#if desktop
 		var worker = new BackgroundWorker();
 
-		worker.doWork.add(function(_)
-		{
-			switch (type)
-			{
+		worker.doWork.add(function(_) {
+			switch (type) {
 				case OPEN:
 					#if linux
-					if (title == null) title = "Open File";
+					if (title == null)
+						title = "Open File";
 					#end
 
 					var path = null;
 					#if (!macro && lime_cffi)
 					#if hl
 					var bytes = NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath);
-					if (bytes != null)
-					{
+					if (bytes != null) {
 						path = @:privateAccess String.fromUTF8(cast bytes);
 					}
 					#else
@@ -132,18 +133,17 @@ class FileDialog
 
 				case OPEN_MULTIPLE:
 					#if linux
-					if (title == null) title = "Open Files";
+					if (title == null)
+						title = "Open Files";
 					#end
 
 					var paths = null;
 					#if (!macro && lime_cffi)
 					#if hl
 					var bytes:NativeArray<HLBytes> = cast NativeCFFI.lime_file_dialog_open_files(title, filter, defaultPath);
-					if (bytes != null)
-					{
+					if (bytes != null) {
 						paths = [];
-						for (i in 0...bytes.length)
-						{
+						for (i in 0...bytes.length) {
 							paths[i] = @:privateAccess String.fromUTF8(bytes[i]);
 						}
 					}
@@ -156,15 +156,15 @@ class FileDialog
 
 				case OPEN_DIRECTORY:
 					#if linux
-					if (title == null) title = "Open Directory";
+					if (title == null)
+						title = "Open Directory";
 					#end
 
 					var path = null;
 					#if (!macro && lime_cffi)
 					#if hl
 					var bytes = NativeCFFI.lime_file_dialog_open_directory(title, filter, defaultPath);
-					if (bytes != null)
-					{
+					if (bytes != null) {
 						path = @:privateAccess String.fromUTF8(cast bytes);
 					}
 					#else
@@ -176,15 +176,15 @@ class FileDialog
 
 				case SAVE:
 					#if linux
-					if (title == null) title = "Save File";
+					if (title == null)
+						title = "Save File";
 					#end
 
 					var path = null;
 					#if (!macro && lime_cffi)
 					#if hl
 					var bytes = NativeCFFI.lime_file_dialog_save_file(title, filter, defaultPath);
-					if (bytes != null)
-					{
+					if (bytes != null) {
 						path = @:privateAccess String.fromUTF8(cast bytes);
 					}
 					#else
@@ -196,37 +196,28 @@ class FileDialog
 			}
 		});
 
-		worker.onComplete.add(function(result)
-		{
-			switch (type)
-			{
+		worker.onComplete.add(function(result) {
+			switch (type) {
 				case OPEN, OPEN_DIRECTORY, SAVE:
 					var path:String = cast result;
 
-					if (path != null)
-					{
+					if (path != null) {
 						// Makes sure the filename ends with extension
-						if (type == SAVE && filter != null && path.indexOf(".") == -1)
-						{
+						if (type == SAVE && filter != null && path.indexOf(".") == -1) {
 							path += "." + filter;
 						}
 
 						onSelect.dispatch(path);
-					}
-					else
-					{
+					} else {
 						onCancel.dispatch();
 					}
 
 				case OPEN_MULTIPLE:
 					var paths:Array<String> = cast result;
 
-					if (paths != null && paths.length > 0)
-					{
+					if (paths != null && paths.length > 0) {
 						onSelectMultiple.dispatch(paths);
-					}
-					else
-					{
+					} else {
 						onCancel.dispatch();
 					}
 			}
@@ -252,22 +243,22 @@ class FileDialog
 		@param title 		The title to give the dialog window.
 		@return Whether `open()` is supported on this target.
 	**/
-	public function open(filter:String = null, defaultPath:String = null, title:String = null):Bool
-	{
+	public function open(filter:String = null, defaultPath:String = null, title:String = null):Bool {
 		#if (desktop && sys)
 		var worker = new BackgroundWorker();
 
-		worker.doWork.add(function(_)
-		{
+		worker.doWork.add(function(_) {
 			#if linux
-			if (title == null) title = "Open File";
+			if (title == null)
+				title = "Open File";
 			#end
 
 			var path = null;
 			#if (!macro && lime_cffi)
 			#if hl
 			var bytes = NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath);
-			if (bytes != null) path = @:privateAccess String.fromUTF8(cast bytes);
+			if (bytes != null)
+				path = @:privateAccess String.fromUTF8(cast bytes);
 			#else
 			path = NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath);
 			#end
@@ -276,19 +267,15 @@ class FileDialog
 			worker.sendComplete(path);
 		});
 
-		worker.onComplete.add(function(path:String)
-		{
-			if (path != null)
-			{
-				try
-				{
+		worker.onComplete.add(function(path:String) {
+			if (path != null) {
+				try {
 					var data = File.getBytes(path);
 					onOpen.dispatch(data);
 					onOpenFile.dispatch(data, path);
 
 					return;
-				}
-				catch (e:Dynamic) {}
+				} catch (e:Dynamic) {}
 			}
 
 			onCancel.dispatch();
@@ -318,10 +305,8 @@ class FileDialog
 		file data. Used only if targeting HTML5.
 		@return Whether `save()` is supported on this target.
 	**/
-	public function save(data:Resource, filter:String = null, defaultPath:String = null, title:String = null, type:String = "application/octet-stream"):Bool
-	{
-		if (data == null)
-		{
+	public function save(data:Resource, filter:String = null, defaultPath:String = null, title:String = null, type:String = "application/octet-stream"):Bool {
+		if (data == null) {
 			onCancel.dispatch();
 			return false;
 		}
@@ -329,10 +314,10 @@ class FileDialog
 		#if (desktop && sys)
 		var worker = new BackgroundWorker();
 
-		worker.doWork.add(function(_)
-		{
+		worker.doWork.add(function(_) {
 			#if linux
-			if (title == null) title = "Save File";
+			if (title == null)
+				title = "Save File";
 			#end
 
 			var path = null;
@@ -348,17 +333,13 @@ class FileDialog
 			worker.sendComplete(path);
 		});
 
-		worker.onComplete.add(function(path:String)
-		{
-			if (path != null)
-			{
-				try
-				{
+		worker.onComplete.add(function(path:String) {
+			if (path != null) {
+				try {
 					File.saveBytes(path, data);
 					onSave.dispatch(path);
 					return;
-				}
-				catch (e:Dynamic) {}
+				} catch (e:Dynamic) {}
 			}
 
 			onCancel.dispatch();
@@ -372,23 +353,16 @@ class FileDialog
 
 		var defaultExtension = "";
 
-		if (Image.__isPNG(data))
-		{
+		if (Image.__isPNG(data)) {
 			type = "image/png";
 			defaultExtension = ".png";
-		}
-		else if (Image.__isJPG(data))
-		{
+		} else if (Image.__isJPG(data)) {
 			type = "image/jpeg";
 			defaultExtension = ".jpg";
-		}
-		else if (Image.__isGIF(data))
-		{
+		} else if (Image.__isGIF(data)) {
 			type = "image/gif";
 			defaultExtension = ".gif";
-		}
-		else if (Image.__isWebP(data))
-		{
+		} else if (Image.__isWebP(data)) {
 			type = "image/webp";
 			defaultExtension = ".webp";
 		}

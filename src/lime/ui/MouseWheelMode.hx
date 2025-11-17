@@ -1,7 +1,6 @@
 package lime.ui;
 
-enum MouseWheelMode
-{
+enum MouseWheelMode {
 	PIXELS;
 	LINES;
 	PAGES;

@@ -6,8 +6,7 @@ package lime.graphics.opengl;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-typedef GLActiveInfo =
-{
+typedef GLActiveInfo = {
 	size:Int,
 	type:Int,
 	name:String

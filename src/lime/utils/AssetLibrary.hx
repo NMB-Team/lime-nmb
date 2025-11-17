@@ -1,6 +1,7 @@
 package lime.utils;
 
 import haxe.io.Path;
+
 import lime.app.Event;
 import lime.app.Future;
 import lime.app.Promise;
@@ -16,9 +17,8 @@ import lime.utils.AssetType;
 #end
 @:access(lime.text.Font)
 @:access(lime.utils.Assets)
-class AssetLibrary
-{
-	public var onChange = new Event<Void->Void>();
+class AssetLibrary {
+	public var onChange = new Event<Void -> Void>();
 
 	@:noCompletion private var assetsLoaded:Int;
 	@:noCompletion private var assetsTotal:Int;
@@ -39,26 +39,21 @@ class AssetLibrary
 	@:noCompletion private var sizes = new Map<String, Int>();
 	@:noCompletion private var types = new Map<String, AssetType>();
 
-	public function new()
-	{
+	public function new() {
 		bytesLoaded = 0;
 		bytesTotal = 0;
 	}
 
-	public function exists(id:String, type:String):Bool
-	{
+	public function exists(id:String, type:String):Bool {
 		var requestedType = type != null ? cast(type, AssetType) : null;
 		var assetType = types.get(id);
 
-		if (assetType != null)
-		{
+		if (assetType != null) {
 			if (assetType == requestedType
-				|| ((requestedType == SOUND || requestedType == MUSIC) && (assetType == MUSIC || assetType == SOUND)))
-			{
+				|| ((requestedType == SOUND || requestedType == MUSIC) && (assetType == MUSIC || assetType == SOUND))) {
 				return true;
 			}
-			if (requestedType == BINARY || requestedType == null || (assetType == BINARY && requestedType == TEXT))
-			{
+			if (requestedType == BINARY || requestedType == null || (assetType == BINARY && requestedType == TEXT)) {
 				return true;
 			}
 		}
@@ -66,39 +61,28 @@ class AssetLibrary
 		return false;
 	}
 
-	public static function fromBytes(bytes:Bytes, rootPath:String = null):AssetLibrary
-	{
+	public static function fromBytes(bytes:Bytes, rootPath:String = null):AssetLibrary {
 		return fromManifest(AssetManifest.fromBytes(bytes, rootPath));
 	}
 
-	public static function fromFile(path:String, rootPath:String = null):AssetLibrary
-	{
+	public static function fromFile(path:String, rootPath:String = null):AssetLibrary {
 		return fromManifest(AssetManifest.fromFile(path, rootPath));
 	}
 
-	public static function fromBundle(bundle:AssetBundle):AssetLibrary
-	{
-		if (bundle.data.exists("library.json"))
-		{
+	public static function fromBundle(bundle:AssetBundle):AssetLibrary {
+		if (bundle.data.exists("library.json")) {
 			var manifest = AssetManifest.fromBytes(bundle.data.get("library.json"));
-			if (manifest != null)
-			{
+			if (manifest != null) {
 				var library:AssetLibrary = null;
 
-				if (manifest.libraryType == null)
-				{
+				if (manifest.libraryType == null) {
 					library = new AssetLibrary();
-				}
-				else
-				{
+				} else {
 					var libraryClass = Type.resolveClass(manifest.libraryType);
 
-					if (libraryClass != null)
-					{
+					if (libraryClass != null) {
 						library = Type.createInstance(libraryClass, manifest.libraryArgs);
-					}
-					else
-					{
+					} else {
 						Log.warn("Could not find library type: " + manifest.libraryType);
 						return null;
 					}
@@ -107,9 +91,7 @@ class AssetLibrary
 				library.__fromBundle(bundle, manifest);
 				return library;
 			}
-		}
-		else
-		{
+		} else {
 			var library = new AssetLibrary();
 			library.__fromBundle(bundle);
 			return library;
@@ -117,26 +99,20 @@ class AssetLibrary
 		return null;
 	}
 
-	public static function fromManifest(manifest:AssetManifest):AssetLibrary
-	{
-		if (manifest == null) return null;
+	public static function fromManifest(manifest:AssetManifest):AssetLibrary {
+		if (manifest == null)
+			return null;
 
 		var library:AssetLibrary = null;
 
-		if (manifest.libraryType == null)
-		{
+		if (manifest.libraryType == null) {
 			library = new AssetLibrary();
-		}
-		else
-		{
+		} else {
 			var libraryClass = Type.resolveClass(manifest.libraryType);
 
-			if (libraryClass != null)
-			{
+			if (libraryClass != null) {
 				library = Type.createInstance(libraryClass, manifest.libraryArgs);
-			}
-			else
-			{
+			} else {
 				Log.warn("Could not find library type: " + manifest.libraryType);
 				return null;
 			}
@@ -147,10 +123,8 @@ class AssetLibrary
 		return library;
 	}
 
-	public function getAsset(id:String, type:String):Dynamic
-	{
-		return switch (type)
-		{
+	public function getAsset(id:String, type:String):Dynamic {
+		return switch (type) {
 			case BINARY: getBytes(id);
 			case FONT: getFont(id);
 			case IMAGE: getImage(id);
@@ -162,128 +136,89 @@ class AssetLibrary
 		}
 	}
 
-	public function getAudioBuffer(id:String):AudioBuffer
-	{
-		if (cachedAudioBuffers.exists(id))
-		{
+	public function getAudioBuffer(id:String):AudioBuffer {
+		if (cachedAudioBuffers.exists(id)) {
 			return cachedAudioBuffers.get(id);
-		}
-		else if (classTypes.exists(id))
-		{
+		} else if (classTypes.exists(id)) {
 			return AudioBuffer.fromBytes(cast(Type.createInstance(classTypes.get(id), []), Bytes));
-		}
-		else
-		{
+		} else {
 			return AudioBuffer.fromFile(getPath(id));
 		}
 	}
 
-	public function getBytes(id:String):Bytes
-	{
-		if (cachedBytes.exists(id))
-		{
+	public function getBytes(id:String):Bytes {
+		if (cachedBytes.exists(id)) {
 			return cachedBytes.get(id);
-		}
-		else if (cachedText.exists(id))
-		{
+		} else if (cachedText.exists(id)) {
 			var bytes = Bytes.ofString(cachedText.get(id));
 			cachedBytes.set(id, bytes);
 			return bytes;
-		}
-		else if (classTypes.exists(id))
-		{
+		} else if (classTypes.exists(id)) {
 			return cast(Type.createInstance(classTypes.get(id), []), Bytes);
-		}
-		else
-		{
+		} else {
 			return Bytes.fromFile(getPath(id));
 		}
 	}
 
-	public function getFont(id:String):Font
-	{
-		if (cachedFonts.exists(id))
-		{
+	public function getFont(id:String):Font {
+		if (cachedFonts.exists(id)) {
 			return cachedFonts.get(id);
-		}
-		else if (classTypes.exists(id))
-		{
+		} else if (classTypes.exists(id)) {
 			return cast(Type.createInstance(classTypes.get(id), []), Font);
-		}
-		else
-		{
+		} else {
 			return Font.fromFile(getPath(id));
 		}
 	}
 
-	public function getImage(id:String):Image
-	{
-		if (cachedImages.exists(id))
-		{
+	public function getImage(id:String):Image {
+		if (cachedImages.exists(id)) {
 			return cachedImages.get(id);
-		}
-		else if (classTypes.exists(id))
-		{
+		} else if (classTypes.exists(id)) {
 			return cast(Type.createInstance(classTypes.get(id), []), Image);
-		}
-		else
-		{
+		} else {
 			return Image.fromFile(getPath(id));
 		}
 	}
 
-	public function getPath(id:String):String
-	{
-		if (paths.exists(id))
-		{
+	public function getPath(id:String):String {
+		if (paths.exists(id)) {
 			return paths.get(id);
-		}
-		else if (pathGroups.exists(id))
-		{
+		} else if (pathGroups.exists(id)) {
 			return pathGroups.get(id)[0];
-		}
-		else
-		{
+		} else {
 			return null;
 		}
 	}
 
-	public function getText(id:String):String
-	{
-		if (cachedText.exists(id))
-		{
+	public function getText(id:String):String {
+		if (cachedText.exists(id)) {
 			return cachedText.get(id);
-		}
-		else
-		{
+		} else {
 			var bytes = getBytes(id);
 
-			if (bytes == null)
-			{
+			if (bytes == null) {
 				return null;
-			}
-			else
-			{
+			} else {
 				return bytes.getString(0, bytes.length);
 			}
 		}
 	}
 
-	public function isLocal(id:String, type:String):Bool
-	{
+	public function isLocal(id:String, type:String):Bool {
 		#if sys
 		return true;
 		#else
-		if (classTypes.exists(id))
-		{
+		if (classTypes.exists(id)) {
 			return true;
 		}
 
-		return switch (cast(type, AssetType))
-		{
+		return switch (cast(type, AssetType)) {
 			case null:
-				cachedBytes.exists(id) || cachedText.exists(id) || cachedImages.exists(id)
-					|| cachedAudioBuffers.exists(id) || cachedFonts.exists(id);
+				cachedBytes.exists(id)
+				|| cachedText.exists(id)
+				|| cachedImages.exists(id)
+				|| cachedAudioBuffers.exists(id)
+				|| cachedFonts.exists(id);
 
 			case IMAGE:
 				cachedImages.exists(id);
@@ -294,21 +229,17 @@ class AssetLibrary
 			case FONT:
 				cachedFonts.exists(id);
 
-			default:
-				cachedBytes.exists(id) || cachedText.exists(id);
+			default: cachedBytes.exists(id) || cachedText.exists(id);
 		}
 		#end
 	}
 
-	public function list(type:String):Array<String>
-	{
+	public function list(type:String):Array<String> {
 		var requestedType = type != null ? cast(type, AssetType) : null;
 		var items = [];
 
-		for (id in types.keys())
-		{
-			if (requestedType == null || exists(id, type))
-			{
+		for (id in types.keys()) {
+			if (requestedType == null || exists(id, type)) {
 				items.push(id);
 			}
 		}
@@ -316,10 +247,8 @@ class AssetLibrary
 		return items;
 	}
 
-	public function loadAsset(id:String, type:String):Future<Dynamic>
-	{
-		return switch (type)
-		{
+	public function loadAsset(id:String, type:String):Future<Dynamic> {
+		return switch (type) {
 			case BINARY: loadBytes(id);
 			case FONT: loadFont(id);
 			case IMAGE: loadImage(id);
@@ -331,29 +260,25 @@ class AssetLibrary
 		}
 	}
 
-	public function load():Future<AssetLibrary>
-	{
-		if (loaded)
-		{
+	public function load():Future<AssetLibrary> {
+		if (loaded) {
 			return Future.withValue(this);
 		}
 
-		if (promise == null)
-		{
+		if (promise == null) {
 			promise = new Promise<AssetLibrary>();
 			bytesLoadedCache = new Map();
 
 			assetsLoaded = 0;
 			assetsTotal = 1;
 
-			for (id in preload.keys())
-			{
-				if (!preload.get(id)) continue;
+			for (id in preload.keys()) {
+				if (!preload.get(id))
+					continue;
 
 				Log.verbose("Preloading asset: " + id + " [" + types.get(id) + "]");
 
-				switch (types.get(id))
-				{
+				switch (types.get(id)) {
 					case BINARY:
 						assetsTotal++;
 
@@ -404,53 +329,34 @@ class AssetLibrary
 		return promise.future;
 	}
 
-	public function loadAudioBuffer(id:String):Future<AudioBuffer>
-	{
-		if (cachedAudioBuffers.exists(id))
-		{
+	public function loadAudioBuffer(id:String):Future<AudioBuffer> {
+		if (cachedAudioBuffers.exists(id)) {
 			return Future.withValue(cachedAudioBuffers.get(id));
-		}
-		else if (classTypes.exists(id))
-		{
+		} else if (classTypes.exists(id)) {
 			return Future.withValue(AudioBuffer.fromBytes(cast(Type.createInstance(classTypes.get(id), []), Bytes)));
-		}
-		else
-		{
-			if (pathGroups.exists(id))
-			{
+		} else {
+			if (pathGroups.exists(id)) {
 				return AudioBuffer.loadFromFiles(pathGroups.get(id));
-			}
-			else
-			{
+			} else {
 				return AudioBuffer.loadFromFile(paths.get(id));
 			}
 		}
 	}
 
-	public function loadBytes(id:String):Future<Bytes>
-	{
-		if (cachedBytes.exists(id))
-		{
+	public function loadBytes(id:String):Future<Bytes> {
+		if (cachedBytes.exists(id)) {
 			return Future.withValue(cachedBytes.get(id));
-		}
-		else if (classTypes.exists(id))
-		{
+		} else if (classTypes.exists(id)) {
 			return Future.withValue(Type.createInstance(classTypes.get(id), []));
-		}
-		else
-		{
+		} else {
 			return Bytes.loadFromFile(getPath(id));
 		}
 	}
 
-	public function loadFont(id:String):Future<Font>
-	{
-		if (cachedFonts.exists(id))
-		{
+	public function loadFont(id:String):Future<Font> {
+		if (cachedFonts.exists(id)) {
 			return Future.withValue(cachedFonts.get(id));
-		}
-		else if (classTypes.exists(id))
-		{
+		} else if (classTypes.exists(id)) {
 			var font:Font = Type.createInstance(classTypes.get(id), []);
 
 			#if (js && html5)
@@ -458,9 +364,7 @@ class AssetLibrary
 			#else
 			return Future.withValue(font);
 			#end
-		}
-		else
-		{
+		} else {
 			#if (js && html5)
 			return Font.loadFromName(getPath(id));
 			#else
@@ -469,91 +373,64 @@ class AssetLibrary
 		}
 	}
 
-	public static function loadFromBytes(bytes:Bytes, rootPath:String = null):Future<AssetLibrary>
-	{
-		return AssetManifest.loadFromBytes(bytes, rootPath).then(function(manifest)
-		{
+	public static function loadFromBytes(bytes:Bytes, rootPath:String = null):Future<AssetLibrary> {
+		return AssetManifest.loadFromBytes(bytes, rootPath).then(function(manifest) {
 			return loadFromManifest(manifest);
 		});
 	}
 
-	public static function loadFromFile(path:String, rootPath:String = null):Future<AssetLibrary>
-	{
-		return AssetManifest.loadFromFile(path, rootPath).then(function(manifest)
-		{
+	public static function loadFromFile(path:String, rootPath:String = null):Future<AssetLibrary> {
+		return AssetManifest.loadFromFile(path, rootPath).then(function(manifest) {
 			return loadFromManifest(manifest);
 		});
 	}
 
-	public static function loadFromManifest(manifest:AssetManifest):Future<AssetLibrary>
-	{
+	public static function loadFromManifest(manifest:AssetManifest):Future<AssetLibrary> {
 		var library = fromManifest(manifest);
 
-		if (library != null)
-		{
+		if (library != null) {
 			return library.load();
-		}
-		else
-		{
+		} else {
 			return cast Future.withError("Could not load asset manifest");
 		}
 	}
 
-	public function loadImage(id:String):Future<Image>
-	{
-		if (cachedImages.exists(id))
-		{
+	public function loadImage(id:String):Future<Image> {
+		if (cachedImages.exists(id)) {
 			return Future.withValue(cachedImages.get(id));
-		}
-		else if (classTypes.exists(id))
-		{
+		} else if (classTypes.exists(id)) {
 			return Future.withValue(Type.createInstance(classTypes.get(id), []));
-		}
-		else if (cachedBytes.exists(id))
-		{
-			return Image.loadFromBytes(cachedBytes.get(id)).then(function(image)
-			{
+		} else if (cachedBytes.exists(id)) {
+			return Image.loadFromBytes(cachedBytes.get(id)).then(function(image) {
 				cachedBytes.remove(id);
 				cachedImages.set(id, image);
 				return Future.withValue(image);
 			});
-		}
-		else
-		{
+		} else {
 			return Image.loadFromFile(getPath(id));
 		}
 	}
 
-	public function loadText(id:String):Future<String>
-	{
-		if (cachedText.exists(id))
-		{
+	public function loadText(id:String):Future<String> {
+		if (cachedText.exists(id)) {
 			return Future.withValue(cachedText.get(id));
-		}
-		else if (cachedBytes.exists(id) || classTypes.exists(id))
-		{
+		} else if (cachedBytes.exists(id) || classTypes.exists(id)) {
 			var bytes = getBytes(id);
 
-			if (bytes == null)
-			{
+			if (bytes == null) {
 				return cast Future.withValue(null);
-			}
-			else
-			{
+			} else {
 				var text = bytes.getString(0, bytes.length);
 				cachedText.set(id, text);
 				return Future.withValue(text);
 			}
-		}
-		else
-		{
+		} else {
 			var request = new HTTPRequest<String>();
 			return request.load(getPath(id));
 		}
 	}
 
-	public function unload():Void
-	{
+	public function unload():Void {
 		#if haxe4
 		cachedBytes.clear();
 		cachedFonts.clear();
@@ -569,29 +446,22 @@ class AssetLibrary
 		#end
 	}
 
-	@:noCompletion private function __assetLoaded(id:String):Void
-	{
+	@:noCompletion private function __assetLoaded(id:String):Void {
 		assetsLoaded++;
 
-		if (id != null)
-		{
+		if (id != null) {
 			Log.verbose("Loaded asset: " + id + " [" + types.get(id) + "] (" + (assetsLoaded - 1) + "/" + (assetsTotal - 1) + ")");
 		}
 
-		if (id != null)
-		{
+		if (id != null) {
 			var size = sizes.exists(id) ? sizes.get(id) : 0;
 
-			if (!bytesLoadedCache.exists(id))
-			{
+			if (!bytesLoadedCache.exists(id)) {
 				bytesLoaded += size;
-			}
-			else
-			{
+			} else {
 				var cache = bytesLoadedCache.get(id);
 
-				if (cache < size)
-				{
+				if (cache < size) {
 					bytesLoaded += (size - cache);
 				}
 			}
@@ -599,38 +469,29 @@ class AssetLibrary
 			bytesLoadedCache.set(id, size);
 		}
 
-		if (assetsLoaded < assetsTotal)
-		{
+		if (assetsLoaded < assetsTotal) {
 			promise.progress(bytesLoaded, bytesTotal);
-		}
-		else
-		{
+		} else {
 			loaded = true;
 			promise.progress(bytesTotal, bytesTotal);
 			promise.complete(this);
 		}
 	}
 
-	@:noCompletion private function __cacheBreak(path:String):String
-	{
+	@:noCompletion private function __cacheBreak(path:String):String {
 		return Assets.__cacheBreak(path);
 	}
 
-	@:noCompletion private function __fromBundle(bundle:AssetBundle, manifest:AssetManifest = null):Void
-	{
-		if (manifest != null)
-		{
+	@:noCompletion private function __fromBundle(bundle:AssetBundle, manifest:AssetManifest = null):Void {
+		if (manifest != null) {
 			var id, data, type:AssetType;
-			for (asset in manifest.assets)
-			{
+			for (asset in manifest.assets) {
 				id = Reflect.hasField(asset, "id") ? asset.id : asset.path;
 				data = bundle.data.get(asset.path);
 
-				if (Reflect.hasField(asset, "type"))
-				{
+				if (Reflect.hasField(asset, "type")) {
 					type = asset.type;
-					switch (type)
-					{
+					switch (type) {
 						#if !web
 						case IMAGE:
 							cachedImages.set(id, Image.fromBytes(data));
@@ -645,49 +506,41 @@ class AssetLibrary
 							cachedBytes.set(id, data);
 					}
 					types.set(id, asset.type);
-				}
-				else
-				{
+				} else {
 					cachedBytes.set(id, data);
 					types.set(id, BINARY);
 				}
 			}
-		}
-		else
-		{
-			for (path in bundle.paths)
-			{
+		} else {
+			for (path in bundle.paths) {
 				cachedBytes.set(path, bundle.data.get(path));
 				types.set(path, BINARY);
 			}
 		}
 	}
 
-	@:noCompletion private function __fromManifest(manifest:AssetManifest):Void
-	{
+	@:noCompletion private function __fromManifest(manifest:AssetManifest):Void {
 		var hasSize = (manifest.version >= 2);
 		var size, id, pathGroup:Array<String>, classRef;
 
 		var basePath = manifest.rootPath;
-		if (basePath == null) basePath = "";
-		if (basePath != "") basePath += "/";
+		if (basePath == null)
+			basePath = "";
+		if (basePath != "")
+			basePath += "/";
 
-		for (asset in manifest.assets)
-		{
+		for (asset in manifest.assets) {
 			size = hasSize && Reflect.hasField(asset, "size") ? asset.size : 100;
 			id = Reflect.hasField(asset, "id") ? asset.id : asset.path;
 
-			if (Reflect.hasField(asset, "path"))
-			{
+			if (Reflect.hasField(asset, "path")) {
 				paths.set(id, __cacheBreak(__resolvePath(basePath + Reflect.field(asset, "path"))));
 			}
 
-			if (Reflect.hasField(asset, "pathGroup"))
-			{
+			if (Reflect.hasField(asset, "pathGroup")) {
 				pathGroup = Reflect.field(asset, "pathGroup");
 
-				for (i in 0...pathGroup.length)
-				{
+				for (i in 0...pathGroup.length) {
 					pathGroup[i] = __cacheBreak(__resolvePath(basePath + pathGroup[i]));
 				}
 
@@ -697,18 +550,15 @@ class AssetLibrary
 			sizes.set(id, size);
 			types.set(id, asset.type);
 
-			if (Reflect.hasField(asset, "preload"))
-			{
+			if (Reflect.hasField(asset, "preload")) {
 				preload.set(id, Reflect.field(asset, "preload"));
 			}
 
-			if (Reflect.hasField(asset, "className"))
-			{
+			if (Reflect.hasField(asset, "className")) {
 				classRef = Type.resolveClass(Reflect.field(asset, "className"));
 
 				#if (js && html5 && modular)
-				if (classRef == null)
-				{
+				if (classRef == null) {
 					classRef = untyped $hx_exports[asset.className];
 				}
 				#end
@@ -719,67 +569,49 @@ class AssetLibrary
 
 		bytesTotal = 0;
 
-		for (asset in manifest.assets)
-		{
+		for (asset in manifest.assets) {
 			id = Reflect.hasField(asset, "id") ? asset.id : asset.path;
 
-			if (preload.exists(id) && preload.get(id) && sizes.exists(id))
-			{
+			if (preload.exists(id) && preload.get(id) && sizes.exists(id)) {
 				bytesTotal += sizes.get(id);
 			}
 		}
 	}
 
-	@:noCompletion private function __resolvePath(path:String):String
-	{
+	@:noCompletion private function __resolvePath(path:String):String {
 		path = StringTools.replace(path, "\\", "/");
 
 		var colonIdx:Int = path.indexOf(":");
-		if (StringTools.startsWith(path, "http") && colonIdx > 0)
-		{
+		if (StringTools.startsWith(path, "http") && colonIdx > 0) {
 			var lastSlashIdx:Int = colonIdx + 3;
 			var httpSection:String = path.substr(0, lastSlashIdx);
 			path = httpSection + StringTools.replace(path.substr(lastSlashIdx), "//", "/");
-		}
-		else
-		{
+		} else {
 			path = StringTools.replace(path, "//", "/");
 		}
 
 		#if android
-		if (StringTools.startsWith(path, "./"))
-		{
+		if (StringTools.startsWith(path, "./")) {
 			path = path.substr(2);
 		}
 		#end
 
-		if (path.indexOf("./") > -1)
-		{
+		if (path.indexOf("./") > -1) {
 			var split = path.split("/");
 			var newPath = [];
 
-			for (i in 0...split.length)
-			{
-				if (split[i] == "..")
-				{
-					if (i == 0 || newPath[i - 1] == "..")
-					{
+			for (i in 0...split.length) {
+				if (split[i] == "..") {
+					if (i == 0 || newPath[i - 1] == "..") {
 						newPath.push("..");
-					}
-					else
-					{
+					} else {
 						newPath.pop();
 					}
-				}
-				else if (split[i] == ".")
-				{
-					if (i == 0)
-					{
+				} else if (split[i] == ".") {
+					if (i == 0) {
 						newPath.push(".");
 					}
-				}
-				else
-				{
+				} else {
 					newPath.push(split[i]);
 				}
 			}
@@ -790,22 +622,18 @@ class AssetLibrary
 	}
 
 	// Event Handlers
-	@:noCompletion private function loadAudioBuffer_onComplete(id:String, audioBuffer:AudioBuffer):Void
-	{
+	@:noCompletion private function loadAudioBuffer_onComplete(id:String, audioBuffer:AudioBuffer):Void {
 		cachedAudioBuffers.set(id, audioBuffer);
 
-		if (pathGroups.exists(id))
-		{
+		if (pathGroups.exists(id)) {
 			var pathGroup = pathGroups.get(id);
 
-			for (otherID in pathGroups.keys())
-			{
-				if (otherID == id) continue;
+			for (otherID in pathGroups.keys()) {
+				if (otherID == id)
+					continue;
 
-				for (path in pathGroup)
-				{
-					if (pathGroups.get(otherID).indexOf(path) > -1)
-					{
+				for (path in pathGroup) {
+					if (pathGroups.get(otherID).indexOf(path) > -1) {
 						cachedAudioBuffers.set(otherID, audioBuffer);
 						break;
 					}
@@ -816,15 +644,11 @@ class AssetLibrary
 		__assetLoaded(id);
 	}
 
-	@:noCompletion private function loadAudioBuffer_onError(id:String, message:Dynamic):Void
-	{
+	@:noCompletion private function loadAudioBuffer_onError(id:String, message:Dynamic):Void {
 		#if (js && html5)
-		if (message != null && message != "")
-		{
+		if (message != null && message != "") {
 			Log.warn("Could not load \"" + id + "\": " + Std.string(message));
-		}
-		else
-		{
+		} else {
 			Log.warn("Could not load \"" + id + "\"");
 		}
 
@@ -834,73 +658,57 @@ class AssetLibrary
 		#end
 	}
 
-	@:noCompletion private function loadBytes_onComplete(id:String, bytes:Bytes):Void
-	{
+	@:noCompletion private function loadBytes_onComplete(id:String, bytes:Bytes):Void {
 		cachedBytes.set(id, bytes);
 		__assetLoaded(id);
 	}
 
-	@:noCompletion private function loadFont_onComplete(id:String, font:Font):Void
-	{
+	@:noCompletion private function loadFont_onComplete(id:String, font:Font):Void {
 		cachedFonts.set(id, font);
 		__assetLoaded(id);
 	}
 
-	@:noCompletion private function loadImage_onComplete(id:String, image:Image):Void
-	{
+	@:noCompletion private function loadImage_onComplete(id:String, image:Image):Void {
 		cachedImages.set(id, image);
 		__assetLoaded(id);
 	}
 
-	@:noCompletion private function loadText_onComplete(id:String, text:String):Void
-	{
+	@:noCompletion private function loadText_onComplete(id:String, text:String):Void {
 		cachedText.set(id, text);
 		__assetLoaded(id);
 	}
 
-	@:noCompletion private function load_onError(id:String, message:Dynamic):Void
-	{
-		if (message != null && message != "")
-		{
+	@:noCompletion private function load_onError(id:String, message:Dynamic):Void {
+		if (message != null && message != "") {
 			promise.error("Error loading asset \"" + id + "\": " + Std.string(message));
-		}
-		else
-		{
+		} else {
 			promise.error("Error loading asset \"" + id + "\"");
 		}
 	}
 
-	@:noCompletion private function load_onProgress(id:String, bytesLoaded:Int, bytesTotal:Int):Void
-	{
-		if (bytesLoaded > 0)
-		{
+	@:noCompletion private function load_onProgress(id:String, bytesLoaded:Int, bytesTotal:Int):Void {
+		if (bytesLoaded > 0) {
 			var size = sizes.get(id);
 			var percent;
 
-			if (bytesTotal > 0)
-			{
+			if (bytesTotal > 0) {
 				// Use a ratio in case the real bytesTotal is different than our precomputed total
 
 				percent = (bytesLoaded / bytesTotal);
-				if (percent > 1) percent = 1;
+				if (percent > 1)
+					percent = 1;
 				bytesLoaded = Math.floor(percent * size);
-			}
-			else if (bytesLoaded > size)
-			{
+			} else if (bytesLoaded > size) {
 				bytesLoaded = size;
 			}
 
-			if (bytesLoadedCache.exists(id))
-			{
+			if (bytesLoadedCache.exists(id)) {
 				var cache = bytesLoadedCache.get(id);
 
-				if (bytesLoaded != cache)
-				{
+				if (bytesLoaded != cache) {
 					this.bytesLoaded += (bytesLoaded - cache);
 				}
-			}
-			else
-			{
+			} else {
 				this.bytesLoaded += bytesLoaded;
 			}
 

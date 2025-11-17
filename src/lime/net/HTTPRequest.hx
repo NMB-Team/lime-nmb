@@ -2,6 +2,7 @@ package lime.net;
 
 import haxe.io.Bytes;
 import haxe.macro.Compiler;
+
 import lime.app.Event;
 import lime.app.Future;
 import lime.app.Promise;
@@ -11,8 +12,7 @@ import lime.app.Promise;
 @:noDebug
 #end
 #if doc_gen
-class HTTPRequest<T>
-{
+class HTTPRequest<T> {
 #else
 #if !macro
 @:genericBuild(lime._internal.macros.HTTPRequestMacro.build())
@@ -23,8 +23,7 @@ class HTTPRequest<T> extends AbstractHTTPRequest<T> {}
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-private class AbstractHTTPRequest<T> implements _IHTTPRequest
-{
+private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 #end
 
 public var contentType:String;
@@ -46,8 +45,7 @@ public var manageCookies:Bool;
 @:noCompletion private var __backend:HTTPRequestBackend;
 #end
 
-public function new(uri:String = null)
-{
+public function new(uri:String = null) {
 	this.uri = uri;
 
 	contentType = "application/x-www-form-urlencoded";
@@ -66,15 +64,13 @@ public function new(uri:String = null)
 	#end
 }
 
-public function cancel():Void
-{
+public function cancel():Void {
 	#if !doc_gen
 	__backend.cancel();
 	#end
 }
 
-public function load(uri:String = null):Future<T>
-{
+public function load(uri:String = null):Future<T> {
 	return null;
 }
 }
@@ -83,22 +79,17 @@ public function load(uri:String = null):Future<T>
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-@:noCompletion class _HTTPRequest_Bytes<T> extends AbstractHTTPRequest<T>
-{
-	public function new(uri:String = null)
-	{
+@:noCompletion class _HTTPRequest_Bytes<T> extends AbstractHTTPRequest<T> {
+	public function new(uri:String = null) {
 		super(uri);
 	}
 
-	@:noCompletion private function fromBytes(bytes:Bytes):T
-	{
+	@:noCompletion private function fromBytes(bytes:Bytes):T {
 		return cast bytes;
 	}
 
-	public override function load(uri:String = null):Future<T>
-	{
-		if (uri != null)
-		{
+	override public function load(uri:String = null):Future<T> {
+		if (uri != null) {
 			this.uri = uri;
 		}
 
@@ -106,14 +97,12 @@ public function load(uri:String = null):Future<T>
 		var future = __backend.loadData(this.uri);
 
 		future.onProgress(promise.progress);
-		future.onError(function(errorResponse:_HTTPRequestErrorResponse<T>)
-		{
+		future.onError(function(errorResponse:_HTTPRequestErrorResponse<T>) {
 			responseData = errorResponse.responseData;
 			promise.error(errorResponse.error);
 		});
 
-		future.onComplete(function(bytes)
-		{
+		future.onComplete(function(bytes) {
 			responseData = fromBytes(bytes);
 			promise.complete(responseData);
 		});
@@ -126,17 +115,13 @@ public function load(uri:String = null):Future<T>
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-@:noCompletion class _HTTPRequest_String<T> extends AbstractHTTPRequest<T>
-{
-	public function new(uri:String = null)
-	{
+@:noCompletion class _HTTPRequest_String<T> extends AbstractHTTPRequest<T> {
+	public function new(uri:String = null) {
 		super(uri);
 	}
 
-	public override function load(uri:String = null):Future<T>
-	{
-		if (uri != null)
-		{
+	override public function load(uri:String = null):Future<T> {
+		if (uri != null) {
 			this.uri = uri;
 		}
 
@@ -144,14 +129,12 @@ public function load(uri:String = null):Future<T>
 		var future = __backend.loadText(this.uri);
 
 		future.onProgress(promise.progress);
-		future.onError(function(errorResponse:_HTTPRequestErrorResponse<T>)
-		{
+		future.onError(function(errorResponse:_HTTPRequestErrorResponse<T>) {
 			responseData = errorResponse.responseData;
 			promise.error(errorResponse.error);
 		});
 
-		future.onComplete(function(text)
-		{
+		future.onComplete(function(text) {
 			responseData = cast text;
 			promise.complete(responseData);
 		});
@@ -163,14 +146,14 @@ public function load(uri:String = null):Future<T>
 @:noCompletion class _HTTPRequestErrorResponse<T> {
 	public var error:Dynamic;
 	public var responseData:T;
+
 	public function new(error:Dynamic, responseData:T) {
 		this.error = error;
 		this.responseData = responseData;
 	}
 }
 
-@:noCompletion interface _IHTTPRequest
-{
+@:noCompletion interface _IHTTPRequest {
 	public var contentType:String;
 	public var data:haxe.io.Bytes;
 	public var enableResponseHeaders:Bool;

@@ -8,9 +8,11 @@ import lime.graphics.RenderContextAttributes;
 import lime.math.Rectangle;
 import lime.system.Display;
 import lime.system.DisplayMode;
+
 #if (js && html5)
 import js.html.Element;
 #end
+
 #if openfl
 import openfl.display.Stage;
 #elseif flash
@@ -26,8 +28,7 @@ typedef Stage = Dynamic;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class Window
-{
+class Window {
 	public var application(default, null):Application;
 	public var borderless(get, set):Bool;
 	public var context(default, null):RenderContext;
@@ -58,37 +59,37 @@ class Window
 	public var minimized(get, set):Bool;
 	public var minWidth(get, set):Int;
 	public var mouseLock(get, set):Bool;
-	public var onActivate(default, null) = new Event<Void->Void>();
-	public var onClose(default, null) = new Event<Void->Void>();
-	public var onDeactivate(default, null) = new Event<Void->Void>();
-	public var onDropFile(default, null) = new Event<String->Void>();
-	public var onEnter(default, null) = new Event<Void->Void>();
-	public var onExpose(default, null) = new Event<Void->Void>();
-	public var onFocusIn(default, null) = new Event<Void->Void>();
-	public var onFocusOut(default, null) = new Event<Void->Void>();
-	public var onFullscreen(default, null) = new Event<Void->Void>();
-	public var onHide(default, null) = new Event<Void->Void>();
-	public var onKeyDown(default, null) = new Event<KeyCode->KeyModifier->Void>();
-	public var onKeyDownPrecise(default, null) = new Event<KeyCode->KeyModifier->Float->Void>();
-	public var onKeyUp(default, null) = new Event<KeyCode->KeyModifier->Void>();
-	public var onKeyUpPrecise(default, null) = new Event<KeyCode->KeyModifier->Float->Void>();
-	public var onLeave(default, null) = new Event<Void->Void>();
-	public var onMaximize(default, null) = new Event<Void->Void>();
-	public var onMinimize(default, null) = new Event<Void->Void>();
-	public var onMouseDown(default, null) = new Event<Float->Float->MouseButton->Void>();
-	public var onMouseMove(default, null) = new Event<Float->Float->Void>();
-	public var onMouseMoveRelative(default, null) = new Event<Float->Float->Void>();
-	public var onMouseUp(default, null) = new Event<Float->Float->Int->Void>();
-	public var onMouseWheel(default, null) = new Event<Float->Float->MouseWheelMode->Void>();
-	public var onMove(default, null) = new Event<Float->Float->Void>();
-	public var onRender(default, null) = new Event<RenderContext->Void>();
-	public var onRenderContextLost(default, null) = new Event<Void->Void>();
-	public var onRenderContextRestored(default, null) = new Event<RenderContext->Void>();
-	public var onResize(default, null) = new Event<Int->Int->Void>();
-	public var onRestore(default, null) = new Event<Void->Void>();
-	public var onShow(default, null) = new Event<Void->Void>();
-	public var onTextEdit(default, null) = new Event<String->Int->Int->Void>();
-	public var onTextInput(default, null) = new Event<String->Void>();
+	public var onActivate(default, null) = new Event<Void -> Void>();
+	public var onClose(default, null) = new Event<Void -> Void>();
+	public var onDeactivate(default, null) = new Event<Void -> Void>();
+	public var onDropFile(default, null) = new Event<String -> Void>();
+	public var onEnter(default, null) = new Event<Void -> Void>();
+	public var onExpose(default, null) = new Event<Void -> Void>();
+	public var onFocusIn(default, null) = new Event<Void -> Void>();
+	public var onFocusOut(default, null) = new Event<Void -> Void>();
+	public var onFullscreen(default, null) = new Event<Void -> Void>();
+	public var onHide(default, null) = new Event<Void -> Void>();
+	public var onKeyDown(default, null) = new Event<KeyCode -> KeyModifier -> Void>();
+	public var onKeyDownPrecise(default, null) = new Event<KeyCode -> KeyModifier -> Float -> Void>();
+	public var onKeyUp(default, null) = new Event<KeyCode -> KeyModifier -> Void>();
+	public var onKeyUpPrecise(default, null) = new Event<KeyCode -> KeyModifier -> Float -> Void>();
+	public var onLeave(default, null) = new Event<Void -> Void>();
+	public var onMaximize(default, null) = new Event<Void -> Void>();
+	public var onMinimize(default, null) = new Event<Void -> Void>();
+	public var onMouseDown(default, null) = new Event<Float -> Float -> MouseButton -> Void>();
+	public var onMouseMove(default, null) = new Event<Float -> Float -> Void>();
+	public var onMouseMoveRelative(default, null) = new Event<Float -> Float -> Void>();
+	public var onMouseUp(default, null) = new Event<Float -> Float -> Int -> Void>();
+	public var onMouseWheel(default, null) = new Event<Float -> Float -> MouseWheelMode -> Void>();
+	public var onMove(default, null) = new Event<Float -> Float -> Void>();
+	public var onRender(default, null) = new Event<RenderContext -> Void>();
+	public var onRenderContextLost(default, null) = new Event<Void -> Void>();
+	public var onRenderContextRestored(default, null) = new Event<RenderContext -> Void>();
+	public var onResize(default, null) = new Event<Int -> Int -> Void>();
+	public var onRestore(default, null) = new Event<Void -> Void>();
+	public var onShow(default, null) = new Event<Void -> Void>();
+	public var onTextEdit(default, null) = new Event<String -> Int -> Int -> Void>();
+	public var onTextInput(default, null) = new Event<String -> Void>();
 	public var opacity(get, set):Float;
 	public var parameters:Dynamic;
 	public var resizable(get, set):Bool;
@@ -139,44 +140,42 @@ class Window
 	@:noCompletion private var __maxHeight:Int = 0x7FFFFFFF;
 
 	#if commonjs
-	private static function __init__()
-	{
+	private static function __init__() {
 		var p = untyped Window.prototype;
-		untyped Object.defineProperties(p,
-			{
-				"borderless": {get: p.get_borderless, set: p.set_borderless},
-				"cursor": {get: p.get_cursor, set: p.set_cursor},
-				"display": {get: p.get_display},
-				"displayMode": {get: p.get_displayMode, set: p.set_displayMode},
-				"frameRate": {get: p.get_frameRate, set: p.set_frameRate},
-				"fullscreen": {get: p.get_fullscreen, set: p.set_fullscreen},
-				"height": {get: p.get_height, set: p.set_height},
-				"maxHeight": {get: p.get_maxHeight, set: p.set_maxHeight},
-				"maximized": {get: p.get_maximized, set: p.set_maximized},
-				"maxWidth": {get: p.get_maxWidth, set: p.set_maxWidth},
-				"minHeight": {get: p.get_minHeight, set: p.set_minHeight},
-				"minimized": {get: p.get_minimized, set: p.set_minimized},
-				"minWidth": {get: p.get_minWidth, set: p.set_minWidth},
-				"mouseLock": {get: p.get_mouseLock, set: p.set_mouseLock},
-				"resizable": {get: p.get_resizable, set: p.set_resizable},
-				"scale": {get: p.get_scale},
-				"textInputEnabled": {get: p.get_textInputEnabled, set: p.set_textInputEnabled},
-				"title": {get: p.get_title, set: p.set_title},
-				"visible": {get: p.get_visible, set: p.set_visible},
-				"alwaysOnTop": {get: p.get_alwaysOnTop, set: p.set_alwaysOnTop},
-				"width": {get: p.get_width, set: p.set_width},
-				"x": {get: p.get_x, set: p.set_y},
-				"y": {get: p.get_x, set: p.set_y}
-			});
+		untyped Object.defineProperties(p, {
+			"borderless": {get: p.get_borderless, set: p.set_borderless},
+			"cursor": {get: p.get_cursor, set: p.set_cursor},
+			"display": {get: p.get_display},
+			"displayMode": {get: p.get_displayMode, set: p.set_displayMode},
+			"frameRate": {get: p.get_frameRate, set: p.set_frameRate},
+			"fullscreen": {get: p.get_fullscreen, set: p.set_fullscreen},
+			"height": {get: p.get_height, set: p.set_height},
+			"maxHeight": {get: p.get_maxHeight, set: p.set_maxHeight},
+			"maximized": {get: p.get_maximized, set: p.set_maximized},
+			"maxWidth": {get: p.get_maxWidth, set: p.set_maxWidth},
+			"minHeight": {get: p.get_minHeight, set: p.set_minHeight},
+			"minimized": {get: p.get_minimized, set: p.set_minimized},
+			"minWidth": {get: p.get_minWidth, set: p.set_minWidth},
+			"mouseLock": {get: p.get_mouseLock, set: p.set_mouseLock},
+			"resizable": {get: p.get_resizable, set: p.set_resizable},
+			"scale": {get: p.get_scale},
+			"textInputEnabled": {get: p.get_textInputEnabled, set: p.set_textInputEnabled},
+			"title": {get: p.get_title, set: p.set_title},
+			"visible": {get: p.get_visible, set: p.set_visible},
+			"alwaysOnTop": {get: p.get_alwaysOnTop, set: p.set_alwaysOnTop},
+			"width": {get: p.get_width, set: p.set_width},
+			"x": {get: p.get_x, set: p.set_y},
+			"y": {get: p.get_x, set: p.set_y}
+		});
 	}
 	#end
 
-	@:noCompletion private function new(application:Application, attributes:WindowAttributes)
-	{
+	@:noCompletion private function new(application:Application, attributes:WindowAttributes) {
 		this.application = application;
 		__attributes = attributes != null ? attributes : {};
 
-		if (Reflect.hasField(__attributes, "parameters")) parameters = __attributes.parameters;
+		if (Reflect.hasField(__attributes, "parameters"))
+			parameters = __attributes.parameters;
 
 		__width = 0;
 		__height = 0;
@@ -405,50 +404,38 @@ class Window
 		#end
 	}
 
-	public function alert(message:String = null, title:String = null):Void
-	{
+	public function alert(message:String = null, title:String = null):Void {
 		__backend.alert(message, title);
 	}
 
-	public function close():Void
-	{
+	public function close():Void {
 		__backend.close();
 	}
 
-	public function focus():Void
-	{
+	public function focus():Void {
 		__backend.focus();
 	}
 
-	public function move(x:Int, y:Int):Void
-	{
+	public function move(x:Int, y:Int):Void {
 		__backend.move(x, y);
 
 		__x = x;
 		__y = y;
 	}
 
-	public function readPixels(rect:Rectangle = null):Image
-	{
+	public function readPixels(rect:Rectangle = null):Image {
 		return __backend.readPixels(rect);
 	}
 
-	public function resize(width:Int, height:Int):Void
-	{
-		if (width < __minWidth)
-		{
+	public function resize(width:Int, height:Int):Void {
+		if (width < __minWidth) {
 			width = __minWidth;
-		}
-		else if (width > __maxWidth)
-		{
+		} else if (width > __maxWidth) {
 			width = __maxWidth;
 		}
-		if (height < __minHeight)
-		{
+		if (height < __minHeight) {
 			height = __minHeight;
-		}
-		else if (height > __maxHeight)
-		{
+		} else if (height > __maxHeight) {
 			height = __maxHeight;
 		}
 
@@ -458,8 +445,7 @@ class Window
 		__height = height;
 	}
 
-	public function setMinSize(width:Int, height:Int):Void
-	{
+	public function setMinSize(width:Int, height:Int):Void {
 		__backend.setMinSize(width, height);
 
 		__minWidth = width;
@@ -469,8 +455,7 @@ class Window
 		}
 	}
 
-	public function setMaxSize(width:Int, height:Int):Void
-	{
+	public function setMaxSize(width:Int, height:Int):Void {
 		__backend.setMaxSize(width, height);
 
 		__maxWidth = width;
@@ -480,302 +465,245 @@ class Window
 		}
 	}
 
-	public function setIcon(image:Image):Void
-	{
-		if (image == null)
-		{
+	public function setIcon(image:Image):Void {
+		if (image == null) {
 			return;
 		}
 
 		__backend.setIcon(image);
 	}
 
-	public function toString():String
-	{
+	public function toString():String {
 		return "[object Window]";
 	}
 
-	public function warpMouse(x:Int, y:Int):Void
-	{
+	public function warpMouse(x:Int, y:Int):Void {
 		__backend.warpMouse(x, y);
 	}
 
 	// Get & Set Methods
-	@:noCompletion private function get_cursor():MouseCursor
-	{
+	@:noCompletion private function get_cursor():MouseCursor {
 		return __backend.getCursor();
 	}
 
-	@:noCompletion private function set_cursor(value:MouseCursor):MouseCursor
-	{
+	@:noCompletion private function set_cursor(value:MouseCursor):MouseCursor {
 		return __backend.setCursor(value);
 	}
 
-	@:noCompletion private function get_display():Display
-	{
+	@:noCompletion private function get_display():Display {
 		return __backend.getDisplay();
 	}
 
-	@:noCompletion private function get_displayMode():DisplayMode
-	{
+	@:noCompletion private function get_displayMode():DisplayMode {
 		return __backend.getDisplayMode();
 	}
 
-	@:noCompletion private function set_displayMode(value:DisplayMode):DisplayMode
-	{
+	@:noCompletion private function set_displayMode(value:DisplayMode):DisplayMode {
 		return __backend.setDisplayMode(value);
 	}
 
-	@:noCompletion private function get_nativeHandle():Dynamic
-	{
+	@:noCompletion private function get_nativeHandle():Dynamic {
 		return __backend.getNativeHandle();
 	}
 
-	@:noCompletion private inline function get_borderless():Bool
-	{
+	@:noCompletion private inline function get_borderless():Bool {
 		return __borderless;
 	}
 
-	@:noCompletion private function set_borderless(value:Bool):Bool
-	{
+	@:noCompletion private function set_borderless(value:Bool):Bool {
 		return __borderless = __backend.setBorderless(value);
 	}
 
-	@:noCompletion private inline function get_frameRate():Float
-	{
+	@:noCompletion private inline function get_frameRate():Float {
 		return __backend.getFrameRate();
 	}
 
-	@:noCompletion private inline function set_frameRate(value:Float):Float
-	{
+	@:noCompletion private inline function set_frameRate(value:Float):Float {
 		return __backend.setFrameRate(value);
 	}
 
-	@:noCompletion private inline function get_fullscreen():Bool
-	{
+	@:noCompletion private inline function get_fullscreen():Bool {
 		return __fullscreen;
 	}
 
-	@:noCompletion private function set_fullscreen(value:Bool):Bool
-	{
+	@:noCompletion private function set_fullscreen(value:Bool):Bool {
 		return __fullscreen = __backend.setFullscreen(value);
 	}
 
-	@:noCompletion private inline function get_height():Int
-	{
+	@:noCompletion private inline function get_height():Int {
 		return __height;
 	}
 
-	@:noCompletion private function set_height(value:Int):Int
-	{
+	@:noCompletion private function set_height(value:Int):Int {
 		resize(__width, value);
 		return __height;
 	}
 
-	@:noCompletion private inline function get_hidden():Bool
-	{
+	@:noCompletion private inline function get_hidden():Bool {
 		return __hidden;
 	}
 
-	@:noCompletion private inline function get_maxHeight():Int
-	{
+	@:noCompletion private inline function get_maxHeight():Int {
 		return __maxHeight;
 	}
 
-	@:noCompletion private function set_maxHeight(value:Int):Int
-	{
+	@:noCompletion private function set_maxHeight(value:Int):Int {
 		setMaxSize(__maxWidth, value);
 		return __maxHeight;
 	}
 
-	@:noCompletion private inline function get_maximized():Bool
-	{
+	@:noCompletion private inline function get_maximized():Bool {
 		return __maximized;
 	}
 
-	@:noCompletion private inline function set_maximized(value:Bool):Bool
-	{
+	@:noCompletion private inline function set_maximized(value:Bool):Bool {
 		__minimized = false;
 		return __maximized = __backend.setMaximized(value);
 	}
 
-	@:noCompletion private inline function get_maxWidth():Int
-	{
+	@:noCompletion private inline function get_maxWidth():Int {
 		return __maxWidth;
 	}
 
-	@:noCompletion private function set_maxWidth(value:Int):Int
-	{
+	@:noCompletion private function set_maxWidth(value:Int):Int {
 		setMinSize(value, __maxHeight);
 		return __maxWidth;
 	}
 
-	@:noCompletion private inline function get_minHeight():Int
-	{
+	@:noCompletion private inline function get_minHeight():Int {
 		return __minHeight;
 	}
 
-	@:noCompletion private function set_minHeight(value:Int):Int
-	{
+	@:noCompletion private function set_minHeight(value:Int):Int {
 		setMinSize(__minWidth, value);
 		return __minHeight;
 	}
 
-	@:noCompletion private inline function get_minimized():Bool
-	{
+	@:noCompletion private inline function get_minimized():Bool {
 		return __minimized;
 	}
 
-	@:noCompletion private function set_minimized(value:Bool):Bool
-	{
+	@:noCompletion private function set_minimized(value:Bool):Bool {
 		__maximized = false;
 		return __minimized = __backend.setMinimized(value);
 	}
 
-	@:noCompletion private inline function get_minWidth():Int
-	{
+	@:noCompletion private inline function get_minWidth():Int {
 		return __minWidth;
 	}
 
-	@:noCompletion private function set_minWidth(value:Int):Int
-	{
+	@:noCompletion private function set_minWidth(value:Int):Int {
 		setMinSize(value, __minHeight);
 		return __minWidth;
 	}
 
-	@:noCompletion private function get_mouseLock():Bool
-	{
+	@:noCompletion private function get_mouseLock():Bool {
 		return __backend.getMouseLock();
 	}
 
-	@:noCompletion private function set_mouseLock(value:Bool):Bool
-	{
+	@:noCompletion private function set_mouseLock(value:Bool):Bool {
 		__backend.setMouseLock(value);
 		return value;
 	}
 
-	@:noCompletion private function get_opacity():Float
-	{
+	@:noCompletion private function get_opacity():Float {
 		return __backend.getOpacity();
 	}
 
-	@:noCompletion private function set_opacity(value:Float):Float
-	{
+	@:noCompletion private function set_opacity(value:Float):Float {
 		__backend.setOpacity(value);
 		return value;
 	}
 
-	@:noCompletion private inline function get_resizable():Bool
-	{
+	@:noCompletion private inline function get_resizable():Bool {
 		return __resizable;
 	}
 
-	@:noCompletion private function set_resizable(value:Bool):Bool
-	{
+	@:noCompletion private function set_resizable(value:Bool):Bool {
 		__resizable = __backend.setResizable(value);
 		return __resizable;
 	}
 
-	@:noCompletion private inline function get_scale():Float
-	{
+	@:noCompletion private inline function get_scale():Float {
 		return __scale;
 	}
 
-	@:noCompletion private inline function get_textInputEnabled():Bool
-	{
+	@:noCompletion private inline function get_textInputEnabled():Bool {
 		return __backend.getTextInputEnabled();
 	}
 
-	@:noCompletion private inline function set_textInputEnabled(value:Bool):Bool
-	{
+	@:noCompletion private inline function set_textInputEnabled(value:Bool):Bool {
 		return __backend.setTextInputEnabled(value);
 	}
 
-	public function setTextInputRect(value:Rectangle):Rectangle
-	{
+	public function setTextInputRect(value:Rectangle):Rectangle {
 		return __backend.setTextInputRect(value);
 	}
 
-	@:noCompletion private inline function get_title():String
-	{
+	@:noCompletion private inline function get_title():String {
 		return __title;
 	}
 
-	@:noCompletion private function set_title(value:String):String
-	{
+	@:noCompletion private function set_title(value:String):String {
 		return __title = __backend.setTitle(value);
 	}
 
-	@:noCompletion private inline function get_visible():Bool
-	{
+	@:noCompletion private inline function get_visible():Bool {
 		return !__hidden;
 	}
 
-	@:noCompletion private function set_visible(value:Bool):Bool
-	{
+	@:noCompletion private function set_visible(value:Bool):Bool {
 		__hidden = !__backend.setVisible(value);
 		return !__hidden;
 	}
 
-	@:noCompletion private inline function get_vsync():Bool
-	{
+	@:noCompletion private inline function get_vsync():Bool {
 		return __vsync;
 	}
 
-	@:noCompletion private function set_vsync(value:Bool):Bool
-	{
+	@:noCompletion private function set_vsync(value:Bool):Bool {
 		return __vsync = __backend.setVSync(value);
 	}
 
-	@:noCompletion private inline function get_alwaysOnTop():Bool
-	{
+	@:noCompletion private inline function get_alwaysOnTop():Bool {
 		return __alwaysOnTop;
 	}
 
-	@:noCompletion private inline function get_enableFullscreenKey():Bool
-	{
+	@:noCompletion private inline function get_enableFullscreenKey():Bool {
 		return __enableFullscreenKey;
 	}
 
-	@:noCompletion private function set_enableFullscreenKey(value:Bool):Bool
-	{
+	@:noCompletion private function set_enableFullscreenKey(value:Bool):Bool {
 		return __enableFullscreenKey = value;
 	}
 
-	@:noCompletion private function set_alwaysOnTop(value:Bool):Bool
-	{
+	@:noCompletion private function set_alwaysOnTop(value:Bool):Bool {
 		return __alwaysOnTop = __backend.setAlwaysOnTop(value);
 	}
 
-	@:noCompletion private inline function get_width():Int
-	{
+	@:noCompletion private inline function get_width():Int {
 		return __width;
 	}
 
-	@:noCompletion private function set_width(value:Int):Int
-	{
+	@:noCompletion private function set_width(value:Int):Int {
 		resize(value, __height);
 		return __width;
 	}
 
-	@:noCompletion private inline function get_x():Int
-	{
+	@:noCompletion private inline function get_x():Int {
 		return __x;
 	}
 
-	@:noCompletion private function set_x(value:Int):Int
-	{
+	@:noCompletion private function set_x(value:Int):Int {
 		move(value, __y);
 		return __x;
 	}
 
-	@:noCompletion private inline function get_y():Int
-	{
+	@:noCompletion private inline function get_y():Int {
 		return __y;
 	}
 
-	@:noCompletion private function set_y(value:Int):Int
-	{
+	@:noCompletion private function set_y(value:Int):Int {
 		move(__x, value);
 		return __y;
 	}

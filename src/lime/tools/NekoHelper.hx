@@ -1,19 +1,18 @@
 package lime.tools;
 
 import hxp.*;
+
 import lime.tools.Platform;
+
 import sys.FileSystem;
 import sys.io.File;
 
-class NekoHelper
-{
-	public static function copyLibraries(templatePaths:Array<String>, platformName:String, targetPath:String)
-	{
+class NekoHelper {
+	public static function copyLibraries(templatePaths:Array<String>, platformName:String, targetPath:String) {
 		// System.recursiveCopyTemplate (templatePaths, "neko/ndll/" + platformName, targetPath);
 	}
 
-	public static function createExecutable(templatePaths:Array<String>, platformName:String, source:String, target:String, iconPath:String = null):Void
-	{
+	public static function createExecutable(templatePaths:Array<String>, platformName:String, source:String, target:String, iconPath:String = null):Void {
 		/*var executablePath = System.findTemplate (templatePaths, "neko/bin/neko-" + platformName);
 			var executable = File.getBytes (executablePath);
 			var sourceContents = File.getBytes (source);
@@ -33,16 +32,14 @@ class NekoHelper
 
 		var path = Path.withoutExtension(source);
 
-		if (System.hostPlatform == WINDOWS)
-		{
+		if (System.hostPlatform == WINDOWS) {
 			path += ".exe";
 		}
 
 		System.copyFile(path, target);
 	}
 
-	public static function createWindowsExecutable(templatePaths:Array<String>, source:String, target:String, iconPath:String):Void
-	{
+	public static function createWindowsExecutable(templatePaths:Array<String>, source:String, target:String, iconPath:String):Void {
 		/*var executablePath = System.findTemplate (templatePaths, "neko/bin/neko-windows");
 			var executable = File.getBytes (executablePath);
 			var sourceContents = File.getBytes (source);

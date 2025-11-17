@@ -1,8 +1,7 @@
 package lime.media.vorbis;
 
 #if (!lime_doc_gen || lime_vorbis)
-class VorbisInfo
-{
+class VorbisInfo {
 	public var bitrateLower:Int;
 	public var bitrateNominal:Int;
 	public var bitrateUpper:Int;

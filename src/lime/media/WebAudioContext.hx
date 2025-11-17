@@ -2,8 +2,7 @@ package lime.media;
 
 #if (!lime_doc_gen || (js && html5))
 #if (!lime_doc_gen && (!js || !html5 || display))
-class WebAudioContext
-{
+class WebAudioContext {
 	public var activeSourceCount(default, null):Int;
 	public var currentTime(default, null):Float;
 	public var destination(default, null):Dynamic /*AudioDestinationNode*/;
@@ -14,100 +13,81 @@ class WebAudioContext
 	public function new() {}
 
 	#if (haxe_ver >= 4.2)
-	public function resume():Dynamic /*Promise<Void>*/
-	{
+	public function resume():Dynamic /*Promise<Void>*/ {
 		return null;
 	}
 	#end
 
-	public function createAnalyser():Dynamic /*AnalyserNode*/
-	{
+	public function createAnalyser():Dynamic /*AnalyserNode*/ {
 		return null;
 	}
 
-	public function createBiquadFilter():Dynamic /*BiquadFilterNode*/
-	{
+	public function createBiquadFilter():Dynamic /*BiquadFilterNode*/ {
 		return null;
 	}
 
 	@:overload(function(numberOfChannels:Int, numberOfFrames:Int, sampleRate:Float):Dynamic /*AudioBuffer*/ {})
-	public function createBuffer(buffer:Dynamic /*js.html.ArrayBuffer*/, mixToMono:Bool):Dynamic /*AudioBuffer*/
-	{
+	public function createBuffer(buffer:Dynamic /*js.html.ArrayBuffer*/, mixToMono:Bool):Dynamic /*AudioBuffer*/ {
 		return null;
 	}
 
-	public function createBufferSource():Dynamic /*AudioBufferSourceNode*/
-	{
+	public function createBufferSource():Dynamic /*AudioBufferSourceNode*/ {
 		return null;
 	}
 
-	public function createChannelMerger(?numberOfInputs:Int):Dynamic /*ChannelMergerNode*/
-	{
+	public function createChannelMerger(?numberOfInputs:Int):Dynamic /*ChannelMergerNode*/ {
 		return null;
 	}
 
-	public function createChannelSplitter(?numberOfOutputs:Int):Dynamic /*ChannelSplitterNode*/
-	{
+	public function createChannelSplitter(?numberOfOutputs:Int):Dynamic /*ChannelSplitterNode*/ {
 		return null;
 	}
 
-	public function createConvolver():Dynamic /*ConvolverNode*/
-	{
+	public function createConvolver():Dynamic /*ConvolverNode*/ {
 		return null;
 	}
 
-	public function createDelay(?maxDelayTime:Float):Dynamic /*DelayNode*/
-	{
+	public function createDelay(?maxDelayTime:Float):Dynamic /*DelayNode*/ {
 		return null;
 	}
 
-	public function createDynamicsCompressor():Dynamic /*DynamicsCompressorNode*/
-	{
+	public function createDynamicsCompressor():Dynamic /*DynamicsCompressorNode*/ {
 		return null;
 	}
 
-	public function createGain():Dynamic /*GainNode*/
-	{
+	public function createGain():Dynamic /*GainNode*/ {
 		return null;
 	}
 
-	public function createMediaElementSource(mediaElement:Dynamic /*js.html.MediaElement*/):Dynamic /*MediaElementAudioSourceNode*/
-	{
+	public function createMediaElementSource(mediaElement:Dynamic /*js.html.MediaElement*/):Dynamic /*MediaElementAudioSourceNode*/ {
 		return null;
 	}
 
-	public function createMediaStreamSource(mediaStream:Dynamic /*js.html.rtc.MediaStream*/):Dynamic /*MediaStreamAudioSourceNode*/
-	{
+	public function createMediaStreamSource(mediaStream:Dynamic /*js.html.rtc.MediaStream*/):Dynamic /*MediaStreamAudioSourceNode*/ {
 		return null;
 	}
 
-	public function createOscillator():Dynamic /*OscillatorNode*/
-	{
+	public function createOscillator():Dynamic /*OscillatorNode*/ {
 		return null;
 	}
 
-	public function createPanner():Dynamic /*PannerNode*/
-	{
+	public function createPanner():Dynamic /*PannerNode*/ {
 		return null;
 	}
 
-	public function createScriptProcessor(bufferSize:Int, ?numberOfInputChannels:Int, ?numberOfOutputChannels:Int):Dynamic /*ScriptProcessorNode*/
-	{
+	public function createScriptProcessor(bufferSize:Int, ?numberOfInputChannels:Int, ?numberOfOutputChannels:Int):Dynamic /*ScriptProcessorNode*/ {
 		return null;
 	}
 
-	public function createWaveShaper():Dynamic /*WaveShaperNode*/
-	{
+	public function createWaveShaper():Dynamic /*WaveShaperNode*/ {
 		return null;
 	}
 
-	public function createWaveTable(real:Dynamic /*js.html.Float32Array*/, imag:Dynamic /*js.html.Float32Array*/):Dynamic /*WaveTable*/
-	{
+	public function createWaveTable(real:Dynamic /*js.html.Float32Array*/, imag:Dynamic /*js.html.Float32Array*/):Dynamic /*WaveTable*/ {
 		return null;
 	}
 
-	public function decodeAudioData(audioData:Dynamic /*js.html.ArrayBuffer*/, successCallback:Dynamic /*AudioBufferCallback*/,
-		?errorCallback:Dynamic /*AudioBufferCallback*/):Void {}
+	public function decodeAudioData(audioData:Dynamic /*js.html.ArrayBuffer*/, successCallback:Dynamic /*AudioBufferCallback*/, ?errorCallback:Dynamic /*AudioBufferCallback*/):Void {}
 
 	public function startRendering():Void {}
 }

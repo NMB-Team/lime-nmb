@@ -1,7 +1,6 @@
 package lime.tools;
 
-enum AssetEncoding
-{
+enum AssetEncoding {
 	NONE;
 	BASE64;
 }

@@ -24,11 +24,9 @@ import lime.utils.Preloader;
 **/
 @:access(lime.ui.Window)
 #if !lime_debug
-@:fileXml('tags="haxe,release"')
-@:noDebug
+@:fileXml('tags="haxe,release"') @:noDebug
 #end
-class Application extends Module
-{
+class Application extends Module {
 	/**
 		The current Application instance that is executing
 	**/
@@ -47,12 +45,12 @@ class Application extends Module
 	/**
 		Update events are dispatched each frame (usually just before rendering)
 	**/
-	public var onUpdate = new Event<Float->Void>();
+	public var onUpdate = new Event<Float -> Void>();
 
 	/**
 		Dispatched when a new window has been created by this application
 	**/
-	public var onCreateWindow = new Event<Window->Void>();
+	public var onCreateWindow = new Event<Window -> Void>();
 
 	/**
 		The Preloader for the current Application
@@ -76,29 +74,24 @@ class Application extends Module
 	@:noCompletion private var __windowByID:Map<Int, Window>;
 	@:noCompletion private var __windows:Array<Window>;
 
-	private static function __init__()
-	{
-		var _init = ApplicationBackend;
+	private static function __init__() {
 		#if commonjs
 		var p = untyped Application.prototype;
-		untyped Object.defineProperties(p,
-			{
-				"preloader": {get: p.get_preloader},
-				"window": {get: p.get_window},
-				"windows": {get: p.get_windows}
-			});
+		untyped Object.defineProperties(p, {
+			"preloader": {get: p.get_preloader},
+			"window": {get: p.get_window},
+			"windows": {get: p.get_windows}
+		});
 		#end
 	}
 
 	/**
 		Creates a new Application instance
 	**/
-	public function new()
-	{
+	public function new() {
 		super();
 
-		if (Application.current == null)
-		{
+		if (Application.current == null) {
 			Application.current = this;
 		}
 
@@ -120,8 +113,7 @@ class Application extends Module
 		Adds a new module to the Application
 		@param	module	A module to add
 	**/
-	public function addModule(module:IModule):Void
-	{
+	public function addModule(module:IModule):Void {
 		module.__registerLimeModule(this);
 		modules.push(module);
 	}
@@ -130,8 +122,7 @@ class Application extends Module
 		Creates a new Window and adds it to the Application
 		@param	attributes	A set of parameters to initialize the window
 	**/
-	public function createWindow(attributes:WindowAttributes):Window
-	{
+	public function createWindow(attributes:WindowAttributes):Window {
 		var window = __createWindow(attributes);
 		__addWindow(window);
 		return window;
@@ -143,8 +134,7 @@ class Application extends Module
 		platforms, it will return immediately
 		@return	An exit code, 0 if there was no error
 	**/
-	public function exec():Int
-	{
+	public function exec():Int {
 		Application.current = this;
 
 		return __backend.exec();
@@ -436,10 +426,8 @@ class Application extends Module
 		Removes a module from the Application
 		@param	module	A module to remove
 	**/
-	public function removeModule(module:IModule):Void
-	{
-		if (module != null)
-		{
+	public function removeModule(module:IModule):Void {
+		if (module != null) {
 			module.__unregisterLimeModule(this);
 			modules.remove(module);
 		}
@@ -457,17 +445,14 @@ class Application extends Module
 	**/
 	public function update(deltaTime:Float):Void {}
 
-	@:noCompletion private function __addWindow(window:Window):Void
-	{
-		if (window != null)
-		{
+	@:noCompletion private function __addWindow(window:Window):Void {
+		if (window != null) {
 			__windows.push(window);
 			__windowByID.set(window.id, window);
 
 			window.onClose.add(__onWindowClose.bind(window), false, -10000);
 
-			if (__window == null)
-			{
+			if (__window == null) {
 				__window = window;
 
 				window.onActivate.add(onWindowActivate);
@@ -503,28 +488,25 @@ class Application extends Module
 		}
 	}
 
-	@:noCompletion private function __createWindow(attributes:WindowAttributes):Window
-	{
+	@:noCompletion private function __createWindow(attributes:WindowAttributes):Window {
 		var window = new Window(this, attributes);
-		if (window.id == -1) return null;
+		if (window.id == -1)
+			return null;
 		return window;
 	}
 
-	@:noCompletion private override function __registerLimeModule(application:Application):Void
-	{
+	@:noCompletion override private function __registerLimeModule(application:Application):Void {
 		application.onUpdate.add(update);
 		application.onExit.add(onModuleExit, false, 0);
 		application.onExit.add(__onModuleExit, false, -1000);
 
-		for (gamepad in Gamepad.devices)
-		{
+		for (gamepad in Gamepad.devices) {
 			__onGamepadConnect(gamepad);
 		}
 
 		Gamepad.onConnect.add(__onGamepadConnect);
 
-		for (joystick in Joystick.devices)
-		{
+		for (joystick in Joystick.devices) {
 			__onJoystickConnect(joystick);
 		}
 
@@ -536,12 +518,9 @@ class Application extends Module
 		Touch.onEnd.add(onTouchEnd);
 	}
 
-	@:noCompletion private function __removeWindow(window:Window):Void
-	{
-		if (window != null && __windowByID.exists(window.id))
-		{
-			if (__window == window)
-			{
+	@:noCompletion private function __removeWindow(window:Window):Void {
+		if (window != null && __windowByID.exists(window.id)) {
+			if (__window == window) {
 				__window = null;
 			}
 
@@ -553,12 +532,10 @@ class Application extends Module
 		}
 	}
 
-	@:noCompletion private function __checkForAllWindowsClosed():Void
-	{
+	@:noCompletion private function __checkForAllWindowsClosed():Void {
 		// air handles this automatically with NativeApplication.autoExit
 		#if !air
-		if (__windows.length == 0)
-		{
+		if (__windows.length == 0) {
 			#if !lime_doc_gen
 			System.exit(0);
 			#end
@@ -566,8 +543,7 @@ class Application extends Module
 		#end
 	}
 
-	@:noCompletion private function __onGamepadConnect(gamepad:Gamepad):Void
-	{
+	@:noCompletion private function __onGamepadConnect(gamepad:Gamepad):Void {
 		onGamepadConnect(gamepad);
 
 		gamepad.onAxisMove.add(onGamepadAxisMove.bind(gamepad));
@@ -576,8 +552,7 @@ class Application extends Module
 		gamepad.onDisconnect.add(onGamepadDisconnect.bind(gamepad));
 	}
 
-	@:noCompletion private function __onJoystickConnect(joystick:Joystick):Void
-	{
+	@:noCompletion private function __onJoystickConnect(joystick:Joystick):Void {
 		onJoystickConnect(joystick);
 
 		joystick.onAxisMove.add(onJoystickAxisMove.bind(joystick));
@@ -588,33 +563,27 @@ class Application extends Module
 		joystick.onTrackballMove.add(onJoystickTrackballMove.bind(joystick));
 	}
 
-	@:noCompletion private function __onModuleExit(code:Int):Void
-	{
-		if (onExit.canceled)
-		{
+	@:noCompletion private function __onModuleExit(code:Int):Void {
+		if (onExit.canceled) {
 			return;
 		}
 
 		__unregisterLimeModule(this);
 		__backend.exit();
-		if (Application.current == this)
-		{
+		if (Application.current == this) {
 			Application.current = null;
 		}
 	}
 
-	@:noCompletion private function __onWindowClose(window:Window):Void
-	{
-		if (this.window == window)
-		{
+	@:noCompletion private function __onWindowClose(window:Window):Void {
+		if (this.window == window) {
 			onWindowClose();
 		}
 
 		__removeWindow(window);
 	}
 
-	@:noCompletion private override function __unregisterLimeModule(application:Application):Void
-	{
+	@:noCompletion override private function __unregisterLimeModule(application:Application):Void {
 		application.onUpdate.remove(update);
 		application.onExit.remove(__onModuleExit);
 		application.onExit.remove(onModuleExit);
@@ -628,18 +597,15 @@ class Application extends Module
 	}
 
 	// Get & Set Methods
-	@:noCompletion private inline function get_preloader():Preloader
-	{
+	@:noCompletion private inline function get_preloader():Preloader {
 		return __preloader;
 	}
 
-	@:noCompletion private inline function get_window():Window
-	{
+	@:noCompletion private inline function get_window():Window {
 		return __window;
 	}
 
-	@:noCompletion private inline function get_windows():Array<Window>
-	{
+	@:noCompletion private inline function get_windows():Array<Window> {
 		return __windows;
 	}
 }

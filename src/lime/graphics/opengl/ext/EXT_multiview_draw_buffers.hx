@@ -1,8 +1,7 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class EXT_multiview_draw_buffers
-{
+@:noCompletion class EXT_multiview_draw_buffers {
 	public var COLOR_ATTACHMENT_EXT = 0x90F0;
 	public var MULTIVIEW_EXT = 0x90F1;
 	public var DRAW_BUFFER_EXT = 0x0C01;

@@ -1,6 +1,7 @@
 package lime.text;
 
 import haxe.io.Bytes;
+
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Future;
 import lime.app.Promise;
@@ -12,12 +13,14 @@ import lime.system.System;
 import lime.utils.Assets;
 import lime.utils.Log;
 import lime.utils.UInt8Array;
+
 #if (js && html5)
 import js.html.CanvasElement;
 import js.html.CanvasRenderingContext2D;
 import js.html.SpanElement;
 import js.Browser;
 #end
+
 #if (lime_cffi && !macro)
 import haxe.io.Path;
 #end
@@ -31,8 +34,7 @@ import haxe.io.Path;
 #end
 @:access(lime._internal.backend.native.NativeCFFI)
 @:access(lime.text.Glyph)
-class Font
-{
+class Font {
 	public var ascender:Int;
 	public var descender:Int;
 	public var height:Int;
@@ -50,15 +52,12 @@ class Font
 	#end
 	@:noCompletion private var __init:Bool;
 
-	public function new(name:String = null)
-	{
-		if (name != null)
-		{
+	public function new(name:String = null) {
+		if (name != null) {
 			this.name = name;
 		}
 
-		if (!__init)
-		{
+		if (!__init) {
 			#if js if (ascender == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined")) #end ascender = 0;
 			#if js
 			if (descender == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined"))
@@ -85,28 +84,23 @@ class Font
 			#end
 			unitsPerEM = 0;
 
-			if (__fontID != null)
-			{
-				if (Assets.isLocal(__fontID))
-				{
+			if (__fontID != null) {
+				if (Assets.isLocal(__fontID)) {
 					__fromBytes(Assets.getBytes(__fontID));
 				}
-			}
-			else if (__fontPath != null)
-			{
+			} else if (__fontPath != null) {
 				__fromFile(__fontPath);
 			}
 		}
 	}
 
-	public function decompose():NativeFontData
-	{
+	public function decompose():NativeFontData {
 		#if (lime_cffi && !macro)
-		if (src == null) throw "Uninitialized font handle.";
+		if (src == null)
+			throw "Uninitialized font handle.";
 		var data:Dynamic = NativeCFFI.lime_font_outline_decompose(src, 1024 * 20);
 		#if hl
-		if (data != null)
-		{
+		if (data != null) {
 			data.family_name = @:privateAccess String.fromUCS2(data.family_name);
 			data.style_name = @:privateAccess String.fromUTF8(data.style_name);
 		}
@@ -117,9 +111,9 @@ class Font
 		#end
 	}
 
-	public static function fromBytes(bytes:Bytes):Font
-	{
-		if (bytes == null) return null;
+	public static function fromBytes(bytes:Bytes):Font {
+		if (bytes == null)
+			return null;
 
 		var font = new Font();
 		font.__fromBytes(bytes);
@@ -131,9 +125,9 @@ class Font
 		#end
 	}
 
-	public static function fromFile(path:String):Font
-	{
-		if (path == null) return null;
+	public static function fromFile(path:String):Font {
+		if (path == null)
+			return null;
 
 		var font = new Font();
 		font.__fromFile(path);
@@ -145,29 +139,22 @@ class Font
 		#end
 	}
 
-	public static function loadFromBytes(bytes:Bytes):Future<Font>
-	{
+	public static function loadFromBytes(bytes:Bytes):Future<Font> {
 		return Future.withValue(fromBytes(bytes));
 	}
 
-	public static function loadFromFile(path:String):Future<Font>
-	{
+	public static function loadFromFile(path:String):Future<Font> {
 		var request = new HTTPRequest<Font>();
-		return request.load(path).then(function(font)
-		{
-			if (font != null)
-			{
+		return request.load(path).then(function(font) {
+			if (font != null) {
 				return Future.withValue(font);
-			}
-			else
-			{
+			} else {
 				return cast Future.withError("");
 			}
 		});
 	}
 
-	public static function loadFromName(path:String):Future<Font>
-	{
+	public static function loadFromName(path:String):Future<Font> {
 		#if (js && html5)
 		var font = new Font();
 		return font.__loadFromName(path);
@@ -176,8 +163,7 @@ class Font
 		#end
 	}
 
-	public function getGlyph(character:String):Glyph
-	{
+	public function getGlyph(character:String):Glyph {
 		#if (lime_cffi && !macro)
 		return NativeCFFI.lime_font_get_glyph_index(src, character);
 		#else
@@ -185,8 +171,7 @@ class Font
 		#end
 	}
 
-	public function getGlyphs(characters:String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. "):Array<Glyph>
-	{
+	public function getGlyphs(characters:String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. "):Array<Glyph> {
 		#if (lime_cffi && !macro)
 		var glyphs:Dynamic = NativeCFFI.lime_font_get_glyph_indices(src, characters);
 		// lime_font_get_glyph_indices returns Array<Int>
@@ -197,8 +182,7 @@ class Font
 		#end
 	}
 
-	public function getGlyphMetrics(glyph:Glyph):GlyphMetrics
-	{
+	public function getGlyphMetrics(glyph:Glyph):GlyphMetrics {
 		#if (lime_cffi && !macro)
 		var value:Dynamic = NativeCFFI.lime_font_get_glyph_metrics(src, glyph);
 		var metrics = new GlyphMetrics();
@@ -214,8 +198,7 @@ class Font
 		#end
 	}
 
-	public function renderGlyph(glyph:Glyph, fontSize:Int):Image
-	{
+	public function renderGlyph(glyph:Glyph, fontSize:Int):Image {
 		#if (lime_cffi && !macro)
 		__setSize(fontSize);
 
@@ -225,8 +208,7 @@ class Font
 		var dataPosition = 0;
 		bytes = NativeCFFI.lime_font_render_glyph(src, glyph, bytes);
 
-		if (bytes != null && bytes.length > 0)
-		{
+		if (bytes != null && bytes.length > 0) {
 			var index = bytes.getInt32(dataPosition);
 			dataPosition += 4;
 			var width = bytes.getInt32(dataPosition);
@@ -253,28 +235,24 @@ class Font
 		return null;
 	}
 
-	public function renderGlyphs(glyphs:Array<Glyph>, fontSize:Int):Map<Glyph, Image>
-	{
+	public function renderGlyphs(glyphs:Array<Glyph>, fontSize:Int):Map<Glyph, Image> {
 		#if (lime_cffi && !macro)
 		var uniqueGlyphs = new Map<Int, Bool>();
 
-		for (glyph in glyphs)
-		{
+		for (glyph in glyphs) {
 			uniqueGlyphs.set(glyph, true);
 		}
 
 		var glyphList = [];
 
-		for (key in uniqueGlyphs.keys())
-		{
+		for (key in uniqueGlyphs.keys()) {
 			glyphList.push(key);
 		}
 
 		#if hl
 		var _glyphList = new hl.NativeArray<Glyph>(glyphList.length);
 
-		for (i in 0...glyphList.length)
-		{
+		for (i in 0...glyphList.length) {
 			_glyphList[i] = glyphList[i];
 		}
 
@@ -286,8 +264,7 @@ class Font
 		var bytes = Bytes.alloc(0);
 		bytes = NativeCFFI.lime_font_render_glyphs(src, glyphList, bytes);
 
-		if (bytes != null && bytes.length > 0)
-		{
+		if (bytes != null && bytes.length > 0) {
 			var bytesPosition = 0;
 			var count = bytes.getInt32(bytesPosition);
 			bytesPosition += 4;
@@ -301,8 +278,7 @@ class Font
 			var width, height;
 			var i = 0;
 
-			while (i < count)
-			{
+			while (i < count) {
 				bytesPosition += 4;
 				width = bytes.getInt32(bytesPosition);
 				bytesPosition += 4;
@@ -311,21 +287,16 @@ class Font
 
 				bytesPosition += (4 * 2) + width * height;
 
-				if (offsetX + width > bufferWidth)
-				{
+				if (offsetX + width > bufferWidth) {
 					offsetY += maxRows + 1;
 					offsetX = 0;
 					maxRows = 0;
 				}
 
-				if (offsetY + height > bufferHeight)
-				{
-					if (bufferWidth < bufferHeight)
-					{
+				if (offsetY + height > bufferHeight) {
+					if (bufferWidth < bufferHeight) {
 						bufferWidth *= 2;
-					}
-					else
-					{
+					} else {
 						bufferHeight *= 2;
 					}
 
@@ -342,8 +313,7 @@ class Font
 
 				offsetX += width + 1;
 
-				if (height > maxRows)
-				{
+				if (height > maxRows) {
 					maxRows = height;
 				}
 
@@ -362,8 +332,7 @@ class Font
 
 			var index, x, y, image;
 
-			for (i in 0...count)
-			{
+			for (i in 0...count) {
 				index = bytes.getInt32(bytesPosition);
 				bytesPosition += 4;
 				width = bytes.getInt32(bytesPosition);
@@ -375,15 +344,13 @@ class Font
 				y = bytes.getInt32(bytesPosition);
 				bytesPosition += 4;
 
-				if (offsetX + width > bufferWidth)
-				{
+				if (offsetX + width > bufferWidth) {
 					offsetY += maxRows + 1;
 					offsetX = 0;
 					maxRows = 0;
 				}
 
-				for (i in 0...height)
-				{
+				for (i in 0...height) {
 					dataPosition = ((i + offsetY) * bufferWidth) + offsetX;
 					data.blit(dataPosition, bytes, bytesPosition, width);
 					bytesPosition += width;
@@ -397,8 +364,7 @@ class Font
 
 				offsetX += width + 1;
 
-				if (height > maxRows)
-				{
+				if (height > maxRows) {
 					maxRows = height;
 				}
 			}
@@ -416,10 +382,8 @@ class Font
 		return null;
 	}
 
-	@:noCompletion private function __copyFrom(other:Font):Void
-	{
-		if (other != null)
-		{
+	@:noCompletion private function __copyFrom(other:Font):Void {
+		if (other != null) {
 			ascender = other.ascender;
 			descender = other.descender;
 			height = other.height;
@@ -441,8 +405,7 @@ class Font
 		}
 	}
 
-	@:noCompletion private function __fromBytes(bytes:Bytes):Void
-	{
+	@:noCompletion private function __fromBytes(bytes:Bytes):Void {
 		__fontPath = null;
 
 		#if (lime_cffi && !macro)
@@ -454,8 +417,7 @@ class Font
 		#end
 	}
 
-	@:noCompletion private function __fromFile(path:String):Void
-	{
+	@:noCompletion private function __fromFile(path:String):Void {
 		__fontPath = path;
 
 		#if (lime_cffi && !macro)
@@ -467,13 +429,10 @@ class Font
 		#end
 	}
 
-	@:noCompletion private function __initializeSource():Void
-	{
+	@:noCompletion private function __initializeSource():Void {
 		#if (lime_cffi && !macro)
-		if (src != null)
-		{
-			if (name == null)
-			{
+		if (src != null) {
+			if (name == null) {
 				#if hl
 				name = @:privateAccess String.fromUTF8(NativeCFFI.lime_font_get_family_name(src));
 				#else
@@ -494,8 +453,7 @@ class Font
 		__init = true;
 	}
 
-	@:noCompletion private function __loadFromName(name:String):Future<Font>
-	{
+	@:noCompletion private function __loadFromName(name:String):Future<Font> {
 		var promise = new Promise<Font>();
 
 		#if (js && html5)
@@ -505,19 +463,14 @@ class Font
 		var isSafari = (userAgent.indexOf(" safari/") >= 0 && userAgent.indexOf(" chrome/") < 0);
 		var isUIWebView = ~/(iPhone|iPod|iPad).*AppleWebKit(?!.*Version)/i.match(userAgent);
 
-		if (!isSafari && !isUIWebView && untyped (Browser.document).fonts && untyped (Browser.document).fonts.load)
-		{
-			untyped (Browser.document).fonts.load("1em '" + name + "'").then(function(_)
-			{
+		if (!isSafari && !isUIWebView && untyped (Browser.document).fonts && untyped (Browser.document).fonts.load) {
+			untyped (Browser.document).fonts.load("1em '" + name + "'").then(function(_) {
 				promise.complete(this);
-			}, function(_)
-			{
+			}, function(_) {
 				Log.warn("Could not load web font \"" + name + "\"");
 				promise.complete(this);
 			});
-		}
-		else
-		{
+		} else {
 			var node1 = __measureFontNode("'" + name + "', sans-serif");
 			var node2 = __measureFontNode("'" + name + "', serif");
 
@@ -530,23 +483,20 @@ class Font
 			var intervalCount = 0;
 			var loaded, timeExpired;
 
-			var checkFont = function()
-			{
+			var checkFont = function() {
 				intervalCount++;
 
 				loaded = (node1.offsetWidth != width1 || node2.offsetWidth != width2);
 				timeExpired = (intervalCount * intervalLength >= timeout);
 
-				if (loaded || timeExpired)
-				{
+				if (loaded || timeExpired) {
 					Browser.window.clearInterval(interval);
 					node1.parentNode.removeChild(node1);
 					node2.parentNode.removeChild(node2);
 					node1 = null;
 					node2 = null;
 
-					if (timeExpired)
-					{
+					if (timeExpired) {
 						Log.warn("Could not load web font \"" + name + "\"");
 					}
 
@@ -564,8 +514,7 @@ class Font
 	}
 
 	#if (js && html5)
-	private static function __measureFontNode(fontFamily:String):SpanElement
-	{
+	private static function __measureFontNode(fontFamily:String):SpanElement {
 		var node:SpanElement = cast Browser.document.createElement("span");
 		node.setAttribute("aria-hidden", "true");
 		var text = Browser.document.createTextNode("BESbswy");
@@ -589,16 +538,14 @@ class Font
 	}
 	#end
 
-	@:noCompletion private function __setSize(size:Int):Void
-	{
+	@:noCompletion private function __setSize(size:Int):Void {
 		#if (lime_cffi && !macro)
 		NativeCFFI.lime_font_set_size(src, size);
 		#end
 	}
 }
 
-typedef NativeFontData =
-{
+typedef NativeFontData = {
 	var has_kerning:Bool;
 	var is_fixed_width:Bool;
 	var has_glyph_names:Bool;
@@ -615,8 +562,7 @@ typedef NativeFontData =
 	var kerning:Array<NativeKerningData>;
 }
 
-typedef NativeGlyphData =
-{
+typedef NativeGlyphData = {
 	var char_code:Int;
 	var advance:Int;
 	var min_x:Int;
@@ -626,8 +572,7 @@ typedef NativeGlyphData =
 	var points:Array<Int>;
 }
 
-typedef NativeKerningData =
-{
+typedef NativeKerningData = {
 	var left_glyph:Int;
 	var right_glyph:Int;
 	var x:Int;
