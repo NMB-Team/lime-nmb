@@ -4,7 +4,8 @@ package lime.utils;
 typedef ArrayBufferView = #if haxe4 js.lib.ArrayBufferView #else js.html.ArrayBufferView #end;
 #else #if !lime_debug @:fileXml('tags="haxe,release"')
 @:noDebug #end
-class ArrayBufferView {
+class ArrayBufferView
+{
 	public var type = TypedArrayType.None;
 	public var buffer:ArrayBuffer;
 	public var byteOffset:Int;
@@ -18,15 +19,16 @@ class ArrayBufferView {
 	#if !no_typedarray_inline
 	inline
 	#end
-	function new(elements:Null<Int> = null, in_type:TypedArrayType) {
+	function new(elements:Null<Int> = null, in_type:TypedArrayType)
+	{
 		type = in_type;
 		bytesPerElement = bytesForType(type);
 
 		// other constructor types use
 		// the init calls below
-		if (elements != null && elements != 0) {
-			if (elements < 0)
-				elements = 0;
+		if (elements != null && elements != 0)
+		{
+			if (elements < 0) elements = 0;
 			// :note:spec: also has, platform specific max int?
 			// elements = min(elements,maxint);
 
@@ -38,12 +40,12 @@ class ArrayBufferView {
 	} // new
 
 	// Constructor helpers
-
 	@:allow(lime.utils)
 	#if !no_typedarray_inline
 	inline
 	#end
-	function initTypedArray(view:ArrayBufferView) {
+	function initTypedArray(view:ArrayBufferView)
+	{
 		var srcData = view.buffer;
 		var srcLength = view.length;
 		var srcByteOffset = view.byteOffset;
@@ -52,9 +54,12 @@ class ArrayBufferView {
 
 		// same species, so just blit the data
 		// in other words, it shares the same bytes per element etc
-		if (view.type == type) {
+		if (view.type == type)
+		{
 			cloneBuffer(srcData, srcByteOffset);
-		} else {
+		}
+		else
+		{
 			// see :note:1: below use FPHelper!
 			throw("unimplemented");
 		}
@@ -70,29 +75,28 @@ class ArrayBufferView {
 	#if !no_typedarray_inline
 	inline
 	#end
-	function initBuffer(in_buffer:ArrayBuffer, in_byteOffset:Int = 0, len:Null<Int> = null) {
-		if (in_byteOffset < 0)
-			throw TAError.RangeError;
-		if (in_byteOffset % bytesPerElement != 0)
-			throw TAError.RangeError;
+	function initBuffer(in_buffer:ArrayBuffer, in_byteOffset:Int = 0, len:Null<Int> = null)
+	{
+		if (in_byteOffset < 0) throw TAError.RangeError;
+		if (in_byteOffset % bytesPerElement != 0) throw TAError.RangeError;
 
 		var bufferByteLength = in_buffer.length;
 		var elementSize = bytesPerElement;
 		var newByteLength = bufferByteLength;
 
-		if (len == null) {
+		if (len == null)
+		{
 			newByteLength = bufferByteLength - in_byteOffset;
 
-			if (bufferByteLength % bytesPerElement != 0)
-				throw TAError.RangeError;
-			if (newByteLength < 0)
-				throw TAError.RangeError;
-		} else {
+			if (bufferByteLength % bytesPerElement != 0) throw TAError.RangeError;
+			if (newByteLength < 0) throw TAError.RangeError;
+		}
+		else
+		{
 			newByteLength = len * bytesPerElement;
 
 			var newRange = in_byteOffset + newByteLength;
-			if (newRange > bufferByteLength)
-				throw TAError.RangeError;
+			if (newRange > bufferByteLength) throw TAError.RangeError;
 		}
 
 		buffer = in_buffer;
@@ -107,7 +111,8 @@ class ArrayBufferView {
 	#if !no_typedarray_inline
 	inline
 	#end
-	function initArray<T>(array:Array<T>) {
+	function initArray<T>(array:Array<T>)
+	{
 		byteOffset = 0;
 		length = array.length;
 		byteLength = toByteLength(length);
@@ -123,12 +128,18 @@ class ArrayBufferView {
 	#if !no_typedarray_inline
 	inline
 	#end
-	public function set<T>(view:ArrayBufferView = null, array:Array<T> = null, offset:Int = 0):Void {
-		if (view != null && array == null) {
+	public function set<T>(view:ArrayBufferView = null, array:Array<T> = null, offset:Int = 0):Void
+	{
+		if (view != null && array == null)
+		{
 			buffer.blit(toByteLength(offset), view.buffer, view.byteOffset, view.byteLength);
-		} else if (array != null && view == null) {
+		}
+		else if (array != null && view == null)
+		{
 			copyFromArray(cast array, offset);
-		} else {
+		}
+		else
+		{
 			throw "Invalid .set call. either view, or array must be not-null.";
 		}
 	}
@@ -137,7 +148,8 @@ class ArrayBufferView {
 	#if !no_typedarray_inline
 	inline
 	#end
-	function cloneBuffer(src:ArrayBuffer, srcByteOffset:Int = 0) {
+	function cloneBuffer(src:ArrayBuffer, srcByteOffset:Int = 0)
+	{
 		var srcLength = src.length;
 		var cloneLength = srcLength - srcByteOffset;
 
@@ -150,13 +162,14 @@ class ArrayBufferView {
 	#if !no_typedarray_inline
 	inline
 	#end
-	function subarray<T_subarray>(begin:Int, end:Null<Int> = null):T_subarray {
-		if (end == null)
-			end = length;
+	function subarray<T_subarray>(begin:Int, end:Null<Int> = null):T_subarray
+	{
+		if (end == null) end = length;
 		var len = end - begin;
 		var byte_offset = toByteLength(begin) + byteOffset;
 
-		var view:ArrayBufferView = switch (type) {
+		var view:ArrayBufferView = switch (type)
+		{
 			case Int8:
 				new Int8Array(buffer, byte_offset, len);
 
@@ -194,8 +207,10 @@ class ArrayBufferView {
 	#if !no_typedarray_inline
 	inline
 	#end
-	function bytesForType(type:TypedArrayType):Int {
-		return switch (type) {
+	function bytesForType(type:TypedArrayType):Int
+	{
+		return switch (type)
+		{
 			case Int8:
 				Int8Array.BYTES_PER_ELEMENT;
 
@@ -230,8 +245,10 @@ class ArrayBufferView {
 	#if !no_typedarray_inline
 	inline
 	#end
-	function toString() {
-		var name = switch (type) {
+	function toString()
+	{
+		var name = switch (type)
+		{
 			case Int8: 'Int8Array';
 			case Uint8: 'UInt8Array';
 			case Uint8Clamped: 'UInt8ClampedArray';
@@ -250,25 +267,28 @@ class ArrayBufferView {
 	#if !no_typedarray_inline
 	inline
 	#end
-	function toByteLength(elemCount:Int):Int {
+	function toByteLength(elemCount:Int):Int
+	{
 		return elemCount * bytesPerElement;
 	}
 
 	// Non-spec
 	#if !no_typedarray_inline
 	#end
-	function copyFromArray(array:Array< #if hl Dynamic #else Float #end>, offset:Int = 0) {
+	function copyFromArray(array:Array<#if hl Dynamic #else Float #end>, offset:Int = 0)
+	{
 		// Ideally, native semantics could be used, like cpp.NativeArray.blit
 		var i = 0, len = array.length;
 
-		switch (type) {
+		switch (type)
+		{
 			case Int8:
-				while (i < len) {
+				while (i < len)
+				{
 					var pos = (offset + i) * bytesPerElement;
 					#if neko
 					var value = array[i];
-					if (value == null)
-						value = 0;
+					if (value == null) value = 0;
 					ArrayBufferIO.setInt8(buffer, pos, Std.int(value));
 					#else
 					ArrayBufferIO.setInt8(buffer, pos, Std.int(array[i]));
@@ -276,12 +296,12 @@ class ArrayBufferView {
 					++i;
 				}
 			case Int16:
-				while (i < len) {
+				while (i < len)
+				{
 					var pos = (offset + i) * bytesPerElement;
 					#if neko
 					var value = array[i];
-					if (value == null)
-						value = 0;
+					if (value == null) value = 0;
 					ArrayBufferIO.setInt16(buffer, pos, Std.int(value));
 					#else
 					ArrayBufferIO.setInt16(buffer, pos, Std.int(array[i]));
@@ -289,12 +309,12 @@ class ArrayBufferView {
 					++i;
 				}
 			case Int32:
-				while (i < len) {
+				while (i < len)
+				{
 					var pos = (offset + i) * bytesPerElement;
 					#if neko
 					var value = array[i];
-					if (value == null)
-						value = 0;
+					if (value == null) value = 0;
 					ArrayBufferIO.setInt32(buffer, pos, Std.int(value));
 					#else
 					ArrayBufferIO.setInt32(buffer, pos, Std.int(array[i]));
@@ -302,12 +322,12 @@ class ArrayBufferView {
 					++i;
 				}
 			case Uint8:
-				while (i < len) {
+				while (i < len)
+				{
 					var pos = (offset + i) * bytesPerElement;
 					#if neko
 					var value = array[i];
-					if (value == null)
-						value = 0;
+					if (value == null) value = 0;
 					ArrayBufferIO.setUint8(buffer, pos, Std.int(value));
 					#else
 					ArrayBufferIO.setUint8(buffer, pos, Std.int(array[i]));
@@ -315,12 +335,12 @@ class ArrayBufferView {
 					++i;
 				}
 			case Uint16:
-				while (i < len) {
+				while (i < len)
+				{
 					var pos = (offset + i) * bytesPerElement;
 					#if neko
 					var value = array[i];
-					if (value == null)
-						value = 0;
+					if (value == null) value = 0;
 					ArrayBufferIO.setUint16(buffer, pos, Std.int(value));
 					#else
 					ArrayBufferIO.setUint16(buffer, pos, Std.int(array[i]));
@@ -328,12 +348,12 @@ class ArrayBufferView {
 					++i;
 				}
 			case Uint32:
-				while (i < len) {
+				while (i < len)
+				{
 					var pos = (offset + i) * bytesPerElement;
 					#if neko
 					var value = array[i];
-					if (value == null)
-						value = 0;
+					if (value == null) value = 0;
 					ArrayBufferIO.setUint32(buffer, pos, Std.int(value));
 					#else
 					ArrayBufferIO.setUint32(buffer, pos, Std.int(array[i]));
@@ -341,12 +361,12 @@ class ArrayBufferView {
 					++i;
 				}
 			case Uint8Clamped:
-				while (i < len) {
+				while (i < len)
+				{
 					var pos = (offset + i) * bytesPerElement;
 					#if neko
 					var value = array[i];
-					if (value == null)
-						value = 0;
+					if (value == null) value = 0;
 					ArrayBufferIO.setUint8Clamped(buffer, pos, Std.int(value));
 					#else
 					ArrayBufferIO.setUint8Clamped(buffer, pos, Std.int(array[i]));
@@ -354,13 +374,15 @@ class ArrayBufferView {
 					++i;
 				}
 			case Float32:
-				while (i < len) {
+				while (i < len)
+				{
 					var pos = (offset + i) * bytesPerElement;
 					ArrayBufferIO.setFloat32(buffer, pos, array[i]);
 					++i;
 				}
 			case Float64:
-				while (i < len) {
+				while (i < len)
+				{
 					var pos = (offset + i) * bytesPerElement;
 					ArrayBufferIO.setFloat64(buffer, pos, array[i]);
 					++i;
@@ -373,12 +395,14 @@ class ArrayBufferView {
 } // ArrayBufferView
 
 #end // !js
-@:noCompletion @:dox(hide) enum TAError {
+@:noCompletion @:dox(hide) enum TAError
+{
 	RangeError;
 }
 
 @:noCompletion @:dox(hide) #if (haxe_ver >= 4.0) enum #else @:enum #end
-abstract TypedArrayType(Int) from Int to Int {
+abstract TypedArrayType(Int) from Int to Int
+{
 	var None = 0;
 	var Int8 = 1;
 	var Int16 = 2;
@@ -392,13 +416,15 @@ abstract TypedArrayType(Int) from Int to Int {
 }
 
 #if (!js || doc_gen)
-@:noCompletion @:dox(hide) class ArrayBufferIO {
+@:noCompletion @:dox(hide) class ArrayBufferIO
+{
 	// 8
 	#if !no_typedarray_inline
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function getInt8(buffer:ArrayBuffer, byteOffset:Int):Int {
+	public static function getInt8(buffer:ArrayBuffer, byteOffset:Int):Int
+	{
 		#if cpp
 		return untyped __global__.__hxcpp_memory_get_byte(buffer.getData(), byteOffset);
 		#else
@@ -411,12 +437,12 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function setInt8(buffer:ArrayBuffer, byteOffset:Int, value:Int) {
+	public static function setInt8(buffer:ArrayBuffer, byteOffset:Int, value:Int)
+	{
 		#if cpp
 		untyped __global__.__hxcpp_memory_set_byte(buffer.getData(), byteOffset, value);
 		#elseif neko
-		if (value == null)
-			value = 0;
+		if (value == null) value = 0;
 		untyped __dollar__sset(buffer.b, byteOffset, value & 0xff);
 		#else
 		buffer.set(byteOffset, value);
@@ -427,7 +453,8 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function getUint8(buffer:ArrayBuffer, byteOffset:Int):Null<UInt> {
+	public static function getUint8(buffer:ArrayBuffer, byteOffset:Int):Null<UInt>
+	{
 		#if cpp
 		return untyped __global__.__hxcpp_memory_get_byte(buffer.getData(), byteOffset) & 0xff;
 		#else
@@ -439,7 +466,8 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function setUint8Clamped(buffer:ArrayBuffer, byteOffset:Int, value:UInt) {
+	public static function setUint8Clamped(buffer:ArrayBuffer, byteOffset:Int, value:UInt)
+	{
 		setUint8(buffer, byteOffset, _clamp(value));
 	}
 
@@ -447,20 +475,21 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function setUint8(buffer:ArrayBuffer, byteOffset:Int, value:UInt) {
+	public static function setUint8(buffer:ArrayBuffer, byteOffset:Int, value:UInt)
+	{
 		#if cpp
 		untyped __global__.__hxcpp_memory_set_byte(buffer.getData(), byteOffset, value);
 		#else
 		#if neko
-		if (value == null)
-			value = 0;
+		if (value == null) value = 0;
 		#end
 		buffer.set(byteOffset, value);
 		#end
 	}
 
 	// 16
-	public static function getInt16(buffer:ArrayBuffer, byteOffset:Int):Int {
+	public static function getInt16(buffer:ArrayBuffer, byteOffset:Int):Int
+	{
 		#if cpp
 		untyped return __global__.__hxcpp_memory_get_i16(buffer.getData(), byteOffset);
 		#else
@@ -473,7 +502,8 @@ abstract TypedArrayType(Int) from Int to Int {
 		#end
 	}
 
-	public static function getInt16_BE(buffer:ArrayBuffer, byteOffset:Int):Int {
+	public static function getInt16_BE(buffer:ArrayBuffer, byteOffset:Int):Int
+	{
 		#if cpp
 		untyped return __global__.__hxcpp_memory_get_i16(buffer.getData(), byteOffset);
 		#else
@@ -486,12 +516,12 @@ abstract TypedArrayType(Int) from Int to Int {
 		#end
 	}
 
-	public static function setInt16(buffer:ArrayBuffer, byteOffset:Int, value:Int) {
+	public static function setInt16(buffer:ArrayBuffer, byteOffset:Int, value:Int)
+	{
 		#if cpp
 		untyped __global__.__hxcpp_memory_set_i16(buffer.getData(), byteOffset, value);
 		#elseif neko
-		if (value == null)
-			value = 0;
+		if (value == null) value = 0;
 		untyped var b = buffer.b;
 		untyped __dollar__sset(b, byteOffset, (value) & 0xff);
 		untyped __dollar__sset(b, byteOffset + 1, (value >> 8) & 0xff);
@@ -501,12 +531,12 @@ abstract TypedArrayType(Int) from Int to Int {
 		#end
 	}
 
-	public static function setInt16_BE(buffer:ArrayBuffer, byteOffset:Int, value:Int) {
+	public static function setInt16_BE(buffer:ArrayBuffer, byteOffset:Int, value:Int)
+	{
 		#if cpp
 		untyped __global__.__hxcpp_memory_set_i16(buffer.getData(), byteOffset, value);
 		#elseif neko
-		if (value == null)
-			value = 0;
+		if (value == null) value = 0;
 		untyped var b = buffer.b;
 		untyped __dollar__sset(b, byteOffset, (value >> 8) & 0xff);
 		untyped __dollar__sset(b, byteOffset + 1, (value) & 0xff);
@@ -520,7 +550,8 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function getUint16(buffer:ArrayBuffer, byteOffset:Int):Null<UInt> {
+	public static function getUint16(buffer:ArrayBuffer, byteOffset:Int):Null<UInt>
+	{
 		#if cpp
 		untyped return __global__.__hxcpp_memory_get_ui16(buffer.getData(), byteOffset) & 0xffff;
 		#else
@@ -535,7 +566,8 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function getUint16_BE(buffer:ArrayBuffer, byteOffset:Int):Null<UInt> {
+	public static function getUint16_BE(buffer:ArrayBuffer, byteOffset:Int):Null<UInt>
+	{
 		#if cpp
 		untyped return __global__.__hxcpp_memory_get_ui16(buffer.getData(), byteOffset) & 0xffff;
 		#else
@@ -550,7 +582,8 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function setUint16(buffer:ArrayBuffer, byteOffset:Int, value:UInt) {
+	public static function setUint16(buffer:ArrayBuffer, byteOffset:Int, value:UInt)
+	{
 		#if cpp
 		untyped __global__.__hxcpp_memory_set_ui16(buffer.getData(), byteOffset, value);
 		#else
@@ -562,7 +595,8 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function setUint16_BE(buffer:ArrayBuffer, byteOffset:Int, value:UInt) {
+	public static function setUint16_BE(buffer:ArrayBuffer, byteOffset:Int, value:UInt)
+	{
 		#if cpp
 		// :todo: Big endian ui16
 		untyped __global__.__hxcpp_memory_set_ui16(buffer.getData(), byteOffset, value);
@@ -576,7 +610,8 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function getInt32(buffer:ArrayBuffer, byteOffset:Int):Int {
+	public static function getInt32(buffer:ArrayBuffer, byteOffset:Int):Int
+	{
 		#if cpp
 		untyped return __global__.__hxcpp_memory_get_i32(buffer.getData(), byteOffset);
 		#else
@@ -588,7 +623,8 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function getInt32_BE(buffer:ArrayBuffer, byteOffset:Int):Int {
+	public static function getInt32_BE(buffer:ArrayBuffer, byteOffset:Int):Int
+	{
 		#if cpp
 		untyped return __global__.__hxcpp_memory_get_i32(buffer.getData(), byteOffset);
 		#else
@@ -600,13 +636,13 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function setInt32(buffer:ArrayBuffer, byteOffset:Int, value:Int) {
+	public static function setInt32(buffer:ArrayBuffer, byteOffset:Int, value:Int)
+	{
 		#if cpp
 		untyped __global__.__hxcpp_memory_set_i32(buffer.getData(), byteOffset, value);
 		#else
 		#if neko
-		if (value == null)
-			value = 0;
+		if (value == null) value = 0;
 		#end
 
 		buffer.setInt32(byteOffset, value);
@@ -617,13 +653,13 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function setInt32_BE(buffer:ArrayBuffer, byteOffset:Int, value:Int) {
+	public static function setInt32_BE(buffer:ArrayBuffer, byteOffset:Int, value:Int)
+	{
 		#if cpp
 		untyped __global__.__hxcpp_memory_set_i32(buffer.getData(), byteOffset, value);
 		#else
 		#if neko
-		if (value == null)
-			value = 0;
+		if (value == null) value = 0;
 		#end
 
 		buffer.setInt32(byteOffset, value);
@@ -634,7 +670,8 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function getUint32(buffer:ArrayBuffer, byteOffset:Int):Null<UInt> {
+	public static function getUint32(buffer:ArrayBuffer, byteOffset:Int):Null<UInt>
+	{
 		#if cpp
 		untyped return __global__.__hxcpp_memory_get_ui32(buffer.getData(), byteOffset);
 		#else
@@ -646,7 +683,8 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function getUint32_BE(buffer:ArrayBuffer, byteOffset:Int):Null<UInt> {
+	public static function getUint32_BE(buffer:ArrayBuffer, byteOffset:Int):Null<UInt>
+	{
 		#if cpp
 		untyped return __global__.__hxcpp_memory_get_ui32(buffer.getData(), byteOffset);
 		#else
@@ -658,7 +696,8 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function setUint32(buffer:ArrayBuffer, byteOffset:Int, value:UInt) {
+	public static function setUint32(buffer:ArrayBuffer, byteOffset:Int, value:UInt)
+	{
 		#if cpp
 		untyped __global__.__hxcpp_memory_set_ui32(buffer.getData(), byteOffset, value);
 		#else
@@ -670,7 +709,8 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function setUint32_BE(buffer:ArrayBuffer, byteOffset:Int, value:UInt) {
+	public static function setUint32_BE(buffer:ArrayBuffer, byteOffset:Int, value:UInt)
+	{
 		#if cpp
 		untyped __global__.__hxcpp_memory_set_ui32(buffer.getData(), byteOffset, value);
 		#else
@@ -683,7 +723,8 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function getFloat32(buffer:ArrayBuffer, byteOffset:Int):Float {
+	public static function getFloat32(buffer:ArrayBuffer, byteOffset:Int):Float
+	{
 		#if cpp
 		untyped return __global__.__hxcpp_memory_get_float(buffer.getData(), byteOffset);
 		#else
@@ -695,7 +736,8 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function getFloat32_BE(buffer:ArrayBuffer, byteOffset:Int):Float {
+	public static function getFloat32_BE(buffer:ArrayBuffer, byteOffset:Int):Float
+	{
 		#if cpp
 		untyped return __global__.__hxcpp_memory_get_float(buffer.getData(), byteOffset);
 		#else
@@ -707,13 +749,13 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function setFloat32(buffer:ArrayBuffer, byteOffset:Int, value:Float) {
+	public static function setFloat32(buffer:ArrayBuffer, byteOffset:Int, value:Float)
+	{
 		#if cpp
 		untyped __global__.__hxcpp_memory_set_float(buffer.getData(), byteOffset, value);
 		#else
 		#if neko
-		if (value == null)
-			value = 0;
+		if (value == null) value = 0;
 		#end
 		buffer.setFloat(byteOffset, value);
 		#end
@@ -723,13 +765,13 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function setFloat32_BE(buffer:ArrayBuffer, byteOffset:Int, value:Float) {
+	public static function setFloat32_BE(buffer:ArrayBuffer, byteOffset:Int, value:Float)
+	{
 		#if cpp
 		untyped __global__.__hxcpp_memory_set_float(buffer.getData(), byteOffset, value);
 		#else
 		#if neko
-		if (value == null)
-			value = 0;
+		if (value == null) value = 0;
 		#end
 		buffer.setFloat(byteOffset, value);
 		#end
@@ -739,7 +781,8 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function getFloat64(buffer:ArrayBuffer, byteOffset:Int):Float {
+	public static function getFloat64(buffer:ArrayBuffer, byteOffset:Int):Float
+	{
 		#if cpp
 		untyped return __global__.__hxcpp_memory_get_double(buffer.getData(), byteOffset);
 		#else
@@ -751,7 +794,8 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function getFloat64_BE(buffer:ArrayBuffer, byteOffset:Int):Float {
+	public static function getFloat64_BE(buffer:ArrayBuffer, byteOffset:Int):Float
+	{
 		#if cpp
 		untyped return __global__.__hxcpp_memory_get_double(buffer.getData(), byteOffset);
 		#else
@@ -763,13 +807,13 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function setFloat64(buffer:ArrayBuffer, byteOffset:Int, value:Float) {
+	public static function setFloat64(buffer:ArrayBuffer, byteOffset:Int, value:Float)
+	{
 		#if cpp
 		untyped __global__.__hxcpp_memory_set_double(buffer.getData(), byteOffset, value);
 		#else
 		#if neko
-		if (value == null)
-			value = 0;
+		if (value == null) value = 0;
 		#end
 		buffer.setDouble(byteOffset, value);
 		#end
@@ -779,13 +823,13 @@ abstract TypedArrayType(Int) from Int to Int {
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function setFloat64_BE(buffer:ArrayBuffer, byteOffset:Int, value:Float) {
+	public static function setFloat64_BE(buffer:ArrayBuffer, byteOffset:Int, value:Float)
+	{
 		#if cpp
 		untyped __global__.__hxcpp_memory_set_double(buffer.getData(), byteOffset, value);
 		#else
 		#if neko
-		if (value == null)
-			value = 0;
+		if (value == null) value = 0;
 		#end
 		buffer.setDouble(byteOffset, value);
 		#end
@@ -797,7 +841,8 @@ abstract TypedArrayType(Int) from Int to Int {
 	inline
 	#end
 	// clamp a Int to a 0-255 Uint8 (for Uint8Clamped array)
-	static function _clamp(_in:Float):Int {
+	static function _clamp(_in:Float):Int
+	{
 		var _out = Std.int(_in);
 		_out = _out > 255 ? 255 : _out;
 		return _out < 0 ? 0 : _out;

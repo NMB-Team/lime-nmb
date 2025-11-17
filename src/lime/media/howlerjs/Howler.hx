@@ -2,7 +2,8 @@ package lime.media.howlerjs;
 
 #if (!lime_doc_gen || lime_howlerjs)
 #if (!lime_howlerjs || display)
-class Howler {
+class Howler
+{
 	public static var autoSuspend:Bool;
 	public static var ctx:WebAudioContext;
 	public static var masterGain:Dynamic;
@@ -15,7 +16,8 @@ class Howler {
 	 * @param	ext		Audio file extention.
 	 * @return
 	 */
-	public static function codecs(ext:String):Bool {
+	public static function codecs(ext:String):Bool
+	{
 		return false;
 	}
 
@@ -23,7 +25,8 @@ class Howler {
 	 * Handle muting and unmuting globally.
 	 * @param	muted		Is muted or not.
 	 */
-	public static function mute(muted:Bool):Class<Howler> {
+	public static function mute(muted:Bool):Class<Howler>
+	{
 		return Howler;
 	}
 
@@ -31,7 +34,8 @@ class Howler {
 	 * Unload and destroy all currently loaded Howl objects.
 	 * @return
 	 */
-	public static function unload():Class<Howler> {
+	public static function unload():Class<Howler>
+	{
 		return Howler;
 	}
 
@@ -40,17 +44,15 @@ class Howler {
 	 * @param	vol		Volume from 0.0 to 1.0.
 	 * @return	Returns self or current volume.
 	 */
-	public static function volume(?vol:Float):Dynamic {
-		if (vol != null)
-			return Howler;
+	public static function volume(?vol:Float):Dynamic
+	{
+		if (vol != null) return Howler;
 		return vol;
 	}
 }
 #else
 import haxe.extern.EitherType;
-
 import js.html.audio.GainNode;
-
 import lime.media.WebAudioContext;
 
 #if commonjs
@@ -58,7 +60,8 @@ import lime.media.WebAudioContext;
 #else
 @:native("Howler")
 #end
-extern class Howler {
+extern class Howler
+{
 	public static var autoSuspend:Bool;
 	public static var ctx:WebAudioContext;
 	public static var masterGain:GainNode;

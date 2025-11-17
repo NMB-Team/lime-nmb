@@ -4,9 +4,7 @@ import hxp.HXML;
 import hxp.Log;
 import hxp.Path;
 import hxp.System;
-
 import haxe.Template;
-
 #if lime
 import lime.text.Font;
 #end
@@ -22,73 +20,78 @@ import lime.tools.ModuleHelper;
 import lime.tools.Orientation;
 import lime.tools.ProjectHelper;
 import lime.tools.PlatformTarget;
-
 import sys.io.File;
 import sys.FileSystem;
 
-class HTML5Platform extends PlatformTarget {
+class HTML5Platform extends PlatformTarget
+{
 	private var dependencyPath:String;
 	private var npm:Bool;
 	private var outputFile:String;
 
-	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>) {
+	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
+	{
 		super(command, _project, targetFlags);
 
 		var defaults = new HXProject();
 
-		defaults.meta = {
-			title: "MyApplication",
-			description: "",
-			packageName: "com.example.myapp",
-			version: "1.0.0",
-			company: "",
-			companyUrl: "",
-			buildNumber: null,
-			companyId: ""
-		};
+		defaults.meta =
+			{
+				title: "MyApplication",
+				description: "",
+				packageName: "com.example.myapp",
+				version: "1.0.0",
+				company: "",
+				companyUrl: "",
+				buildNumber: null,
+				companyId: ""
+			};
 
-		defaults.app = {
-			main: "Main",
-			file: "MyApplication",
-			path: "bin",
-			preloader: "",
-			swfVersion: 17,
-			url: "",
-			init: null
-		};
+		defaults.app =
+			{
+				main: "Main",
+				file: "MyApplication",
+				path: "bin",
+				preloader: "",
+				swfVersion: 17,
+				url: "",
+				init: null
+			};
 
-		defaults.window = {
-			width: 800,
-			height: 600,
-			parameters: "{}",
-			background: 0xFFFFFF,
-			fps: 30,
-			hardware: true,
-			display: 0,
-			resizable: true,
-			borderless: false,
-			orientation: Orientation.AUTO,
-			vsync: false,
-			fullscreen: false,
-			allowHighDPI: true,
-			alwaysOnTop: false,
-			antialiasing: 0,
-			allowShaders: true,
-			requireShaders: false,
-			depthBuffer: true,
-			stencilBuffer: true,
-			colorDepth: 32,
-			maximized: false,
-			minimized: false,
-			hidden: false,
-			title: ""
-		};
+		defaults.window =
+			{
+				width: 800,
+				height: 600,
+				parameters: "{}",
+				background: 0xFFFFFF,
+				fps: 30,
+				hardware: true,
+				display: 0,
+				resizable: true,
+				borderless: false,
+				orientation: Orientation.AUTO,
+				vsync: false,
+				fullscreen: false,
+				allowHighDPI: true,
+				alwaysOnTop: false,
+				antialiasing: 0,
+				allowShaders: true,
+				requireShaders: false,
+				depthBuffer: true,
+				stencilBuffer: true,
+				colorDepth: 32,
+				maximized: false,
+				minimized: false,
+				hidden: false,
+				title: ""
+			};
 
 		defaults.window.width = 0;
 		defaults.window.height = 0;
 		defaults.window.fps = 60;
 
-		for (i in 1...project.windows.length) {
+		for (i in 1...project.windows.length)
+		{
 			defaults.windows.push(defaults.window);
 		}
 
@@ -98,50 +101,63 @@ class HTML5Platform extends PlatformTarget {
 		initialize(command, project);
 	}
 
-	override public function build():Void {
-		if (npm) {
-			if (command == "build") {
+	public override function build():Void
+	{
+		if (npm)
+		{
+			if (command == "build")
+			{
 				var buildCommand = "build:" + (project.targetFlags.exists("final") ? "prod" : "dev");
 				System.runCommand(targetDirectory + "/bin", "npm", ["run", buildCommand, "-s"]);
-			} else {
+			}
+			else
+			{
 				return;
 			}
 		}
 
 		ModuleHelper.buildModules(project, targetDirectory + "/obj", targetDirectory + "/bin");
 
-		if (project.app.main != null) {
+		if (project.app.main != null)
+		{
 			var type = "release";
 
-			if (project.debug) {
+			if (project.debug)
+			{
 				type = "debug";
-			} else if (project.targetFlags.exists("final")) {
+			}
+			else if (project.targetFlags.exists("final"))
+			{
 				type = "final";
 			}
 
 			var hxml = targetDirectory + "/haxe/" + type + ".hxml";
 			System.runCommand("", "haxe", [hxml]);
 
-			if (noOutput)
-				return;
+			if (noOutput) return;
 
 			HTML5Helper.encodeSourceMappingURL(targetDirectory + "/bin/" + project.app.file + ".js");
 
-			if (project.targetFlags.exists("webgl")) {
+			if (project.targetFlags.exists("webgl"))
+			{
 				System.copyFile(targetDirectory + "/obj/ApplicationMain.js", outputFile);
 			}
 
-			if (project.modules.iterator().hasNext()) {
+			if (project.modules.iterator().hasNext())
+			{
 				ModuleHelper.patchFile(outputFile);
 			}
 
-			if (FileSystem.exists(outputFile)) {
+			if (FileSystem.exists(outputFile))
+			{
 				var context = project.templateContext;
 				context.SOURCE_FILE = File.getContent(outputFile);
 				context.embeddedLibraries = [];
 
-				for (dependency in project.dependencies) {
-					if (dependency.embed && StringTools.endsWith(dependency.path, ".js") && FileSystem.exists(dependency.path)) {
+				for (dependency in project.dependencies)
+				{
+					if (dependency.embed && StringTools.endsWith(dependency.path, ".js") && FileSystem.exists(dependency.path))
+					{
 						var script = File.getContent(dependency.path);
 						context.embeddedLibraries.push(script);
 					}
@@ -150,48 +166,62 @@ class HTML5Platform extends PlatformTarget {
 				System.copyFileTemplate(project.templatePaths, "html5/output.js", outputFile, context);
 			}
 
-			if (project.targetFlags.exists("minify") || type == "final") {
+			if (project.targetFlags.exists("minify") || type == "final")
+			{
 				HTML5Helper.minify(project, targetDirectory + "/bin/" + project.app.file + ".js");
 			}
 		}
 	}
 
-	override public function clean():Void {
-		if (FileSystem.exists(targetDirectory)) {
+	public override function clean():Void
+	{
+		if (FileSystem.exists(targetDirectory))
+		{
 			System.removeDirectory(targetDirectory);
 		}
 	}
 
-	override public function deploy():Void {
+	public override function deploy():Void
+	{
 		var name = "HTML5";
 
-		if (targetFlags.exists("electron")) {
+		if (targetFlags.exists("electron"))
+		{
 			name = "Electron";
 		}
 
 		DeploymentHelper.deploy(project, targetFlags, targetDirectory, name);
 	}
 
-	override public function display():Void {
-		if (project.targetFlags.exists("output-file")) {
+	public override function display():Void
+	{
+		if (project.targetFlags.exists("output-file"))
+		{
 			Sys.println(outputFile);
-		} else {
+		}
+		else
+		{
 			Sys.println(getDisplayHXML().toString());
 		}
 	}
 
-	private function getDisplayHXML():HXML {
+	private function getDisplayHXML():HXML
+	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
-		if (FileSystem.exists(path)) {
+		if (FileSystem.exists(path))
+		{
 			return File.getContent(path);
-		} else {
+		}
+		else
+		{
 			var context = project.templateContext;
 			var hxml = HXML.fromString(context.HAXE_FLAGS);
 			hxml.addClassName(context.APP_MAIN);
 			hxml.js = "_";
 			hxml.define("html");
-			if (targetFlags.exists("electron")) {
+			if (targetFlags.exists("electron"))
+			{
 				hxml.define("electron");
 			}
 			hxml.noOutput = true;
@@ -199,64 +229,82 @@ class HTML5Platform extends PlatformTarget {
 		}
 	}
 
-	private function initialize(command:String, project:HXProject):Void {
-		if (targetFlags.exists("electron")) {
+	private function initialize(command:String, project:HXProject):Void
+	{
+		if (targetFlags.exists("electron"))
+		{
 			targetDirectory = Path.combine(project.app.path, project.config.getString("electron.output-directory", "electron"));
-		} else {
+		}
+		else
+		{
 			targetDirectory = Path.combine(project.app.path, project.config.getString("html5.output-directory", "html5"));
 		}
 
 		dependencyPath = project.config.getString("html5.dependency-path", "lib");
 		outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
 
-		try {
-			if (targetFlags.exists("npm")
-				|| (FileSystem.exists(targetDirectory + "/bin/package.json") && !targetFlags.exists("electron"))) {
+		try
+		{
+			if (targetFlags.exists("npm") || (FileSystem.exists(targetDirectory + "/bin/package.json") && !targetFlags.exists("electron")))
+			{
 				npm = true;
 				outputFile = project.app.file + ".js";
 			}
-		} catch (e:Dynamic) {}
+		}
+		catch (e:Dynamic) {}
 	}
 
-	override public function run():Void {
-		if (npm) {
+	public override function run():Void
+	{
+		if (npm)
+		{
 			var runCommand = "start:" + (project.targetFlags.exists("final") ? "prod" : "dev");
 			System.runCommand(targetDirectory + "/bin", "npm", ["run", runCommand, "-s"]);
-		} else if (targetFlags.exists("electron")) {
+		}
+		else if (targetFlags.exists("electron"))
+		{
 			var npx = targetFlags.exists("npx");
 			ElectronHelper.launch(project, targetDirectory + "/bin", npx);
-		} else {
+		}
+		else
+		{
 			HTML5Helper.launch(project, targetDirectory + "/bin");
 		}
 	}
 
-	override public function update():Void {
+	public override function update():Void
+	{
 		AssetHelper.processLibraries(project, targetDirectory);
 
 		// project = project.clone ();
 
 		var destination = targetDirectory + "/bin/";
-		if (npm)
-			destination += "dist/";
+		if (npm) destination += "dist/";
 		System.mkdir(destination);
 
 		var webfontDirectory = targetDirectory + "/obj/webfont";
 		var useWebfonts = true;
 
-		for (haxelib in project.haxelibs) {
-			if (haxelib.name == "openfl-html5-dom" || haxelib.name == "openfl-bitfive") {
+		for (haxelib in project.haxelibs)
+		{
+			if (haxelib.name == "openfl-html5-dom" || haxelib.name == "openfl-bitfive")
+			{
 				useWebfonts = false;
 			}
 		}
 
 		var fontPath;
 
-		for (asset in project.assets) {
-			if (asset.type == AssetType.FONT && asset.targetPath != null) {
-				if (useWebfonts) {
+		for (asset in project.assets)
+		{
+			if (asset.type == AssetType.FONT && asset.targetPath != null)
+			{
+				if (useWebfonts)
+				{
 					fontPath = Path.combine(webfontDirectory, Path.withoutDirectory(asset.targetPath));
 
-					if (!FileSystem.exists(fontPath)) {
+					if (!FileSystem.exists(fontPath))
+					{
 						System.mkdir(webfontDirectory);
 						System.copyFile(asset.sourcePath, fontPath);
 
@@ -269,9 +317,12 @@ class HTML5Platform extends PlatformTarget {
 						var source = Path.withoutExtension(asset.sourcePath);
 						var extensions = [ext, ".eot", ".woff", ".svg"];
 
-						for (extension in extensions) {
-							if (!FileSystem.exists(source + extension)) {
-								if (extension != ".eot" && extension != ".svg") {
+						for (extension in extensions)
+						{
+							if (!FileSystem.exists(source + extension))
+							{
+								if (extension != ".eot" && extension != ".svg")
+								{
 									Log.warn("Could not generate *" + extension + " web font for \"" + originalPath + "\"");
 								}
 							}
@@ -280,17 +331,21 @@ class HTML5Platform extends PlatformTarget {
 
 					asset.sourcePath = fontPath;
 					asset.targetPath = Path.withoutExtension(asset.targetPath);
-				} else {
+				}
+				else
+				{
 					// project.haxeflags.push (HTML5Helper.generateFontData (project, asset));
 				}
 			}
 		}
 
-		if (project.targetFlags.exists("xml")) {
+		if (project.targetFlags.exists("xml"))
+		{
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
 		}
 
-		if (Log.verbose) {
+		if (Log.verbose)
+		{
 			project.haxedefs.set("verbose", 1);
 		}
 
@@ -298,17 +353,22 @@ class HTML5Platform extends PlatformTarget {
 
 		var libraryNames = new Map<String, Bool>();
 
-		for (asset in project.assets) {
-			if (asset.library != null && !libraryNames.exists(asset.library)) {
+		for (asset in project.assets)
+		{
+			if (asset.library != null && !libraryNames.exists(asset.library))
+			{
 				libraryNames[asset.library] = true;
 			}
 		}
 
-		if (npm) {
+		if (npm)
+		{
 			var path;
-			for (i in 0...project.sources.length) {
+			for (i in 0...project.sources.length)
+			{
 				path = project.sources[i];
-				if (StringTools.startsWith(path, targetDirectory) && !FileSystem.exists(Path.directory(path))) {
+				if (StringTools.startsWith(path, targetDirectory) && !FileSystem.exists(Path.directory(path)))
+				{
 					System.mkdir(Path.directory(path));
 				}
 				project.sources[i] = Path.tryFullPath(path);
@@ -329,7 +389,8 @@ class HTML5Platform extends PlatformTarget {
 		context.OUTPUT_DIR = npm ? Path.tryFullPath(targetDirectory) : targetDirectory;
 		context.OUTPUT_FILE = outputFile;
 
-		if (project.targetFlags.exists("webgl")) {
+		if (project.targetFlags.exists("webgl"))
+		{
 			context.CPP_DIR = targetDirectory + "/obj";
 		}
 
@@ -337,7 +398,8 @@ class HTML5Platform extends PlatformTarget {
 
 		var icons = project.icons;
 
-		if (icons.length == 0) {
+		if (icons.length == 0)
+		{
 			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}
 
@@ -347,17 +409,23 @@ class HTML5Platform extends PlatformTarget {
 		//
 		// }
 
-		if (IconHelper.createIcon(icons, 192, 192, Path.combine(destination, "favicon.png"))) {
+		if (IconHelper.createIcon(icons, 192, 192, Path.combine(destination, "favicon.png")))
+		{
 			context.favicons.push({rel: "shortcut icon", type: "image/png", href: "./favicon.png"});
 		}
 
 		context.linkedLibraries = [];
 
-		for (dependency in project.dependencies) {
-			if (!dependency.embed || npm) {
-				if (StringTools.endsWith(dependency.name, ".js")) {
+		for (dependency in project.dependencies)
+		{
+			if (!dependency.embed || npm)
+			{
+				if (StringTools.endsWith(dependency.name, ".js"))
+				{
 					context.linkedLibraries.push(dependency.name);
-				} else if (StringTools.endsWith(dependency.path, ".js") && FileSystem.exists(dependency.path)) {
+				}
+				else if (StringTools.endsWith(dependency.path, ".js") && FileSystem.exists(dependency.path))
+				{
 					var name = Path.withoutDirectory(dependency.path);
 
 					context.linkedLibraries.push("./" + dependencyPath + "/" + name);
@@ -369,18 +437,24 @@ class HTML5Platform extends PlatformTarget {
 		var createdDirectories = new Map<String, Bool>();
 		var dir = null;
 
-		for (asset in project.assets) {
+		for (asset in project.assets)
+		{
 			var path = Path.combine(destination, asset.targetPath);
 
-			if (asset.type != AssetType.TEMPLATE) {
-				if (/*asset.embed != true &&*/ asset.type != AssetType.FONT) {
+			if (asset.type != AssetType.TEMPLATE)
+			{
+				if (/*asset.embed != true &&*/ asset.type != AssetType.FONT)
+				{
 					dir = Path.directory(path);
-					if (!createdDirectories.exists(dir)) {
+					if (!createdDirectories.exists(dir))
+					{
 						System.mkdir(dir);
 						createdDirectories.set(dir, true);
 					}
 					AssetHelper.copyAssetIfNewer(asset, path);
-				} else if (asset.type == AssetType.FONT && useWebfonts) {
+				}
+				else if (asset.type == AssetType.FONT && useWebfonts)
+				{
 					System.mkdir(Path.directory(path));
 					var ext = "." + Path.extension(asset.sourcePath);
 					var source = Path.withoutExtension(asset.sourcePath);
@@ -389,10 +463,12 @@ class HTML5Platform extends PlatformTarget {
 					var extensions = [ext, ".eot", ".svg", ".woff"];
 					var extension;
 
-					for (i in 0...extensions.length) {
+					for (i in 0...extensions.length)
+					{
 						extension = extensions[i];
 
-						if (FileSystem.exists(source + extension)) {
+						if (FileSystem.exists(source + extension))
+						{
 							System.copyIfNewer(source + extension, path + extension);
 							hasFormat[i] = true;
 						}
@@ -400,14 +476,16 @@ class HTML5Platform extends PlatformTarget {
 
 					var shouldEmbedFont = false;
 
-					for (embedded in hasFormat) {
-						if (embedded)
-							shouldEmbedFont = true;
+					for (embedded in hasFormat)
+					{
+						if (embedded) shouldEmbedFont = true;
 					}
 
 					var embeddedAssets:Array<Dynamic> = cast context.assets;
-					for (embeddedAsset in embeddedAssets) {
-						if (embeddedAsset.type == "font" && embeddedAsset.sourcePath == asset.sourcePath) {
+					for (embeddedAsset in embeddedAssets)
+					{
+						if (embeddedAsset.type == "font" && embeddedAsset.sourcePath == asset.sourcePath)
+						{
 							#if lime
 							var font = Font.fromFile(asset.sourcePath);
 
@@ -419,15 +497,14 @@ class HTML5Platform extends PlatformTarget {
 							embeddedAsset.underlineThickness = font.underlineThickness;
 							embeddedAsset.unitsPerEM = font.unitsPerEM;
 
-							if (shouldEmbedFont) {
+							if (shouldEmbedFont)
+							{
 								var urls = [];
-								if (hasFormat[1])
-									urls.push("url('" + embeddedAsset.targetPath + ".eot?#iefix') format('embedded-opentype')");
-								if (hasFormat[3])
-									urls.push("url('" + embeddedAsset.targetPath + ".woff') format('woff')");
+								if (hasFormat[1]) urls.push("url('" + embeddedAsset.targetPath + ".eot?#iefix') format('embedded-opentype')");
+								if (hasFormat[3]) urls.push("url('" + embeddedAsset.targetPath + ".woff') format('woff')");
 								urls.push("url('" + embeddedAsset.targetPath + ext + "') format('truetype')");
-								if (hasFormat[2])
-									urls.push("url('" + embeddedAsset.targetPath + ".svg#" + StringTools.urlEncode(embeddedAsset.fontName) + "') format('svg')");
+								if (hasFormat[2]) urls.push("url('" + embeddedAsset.targetPath + ".svg#" + StringTools.urlEncode(embeddedAsset.fontName)
+									+ "') format('svg')");
 
 								var fontFace = "\t\t@font-face {\n";
 								fontFace += "\t\t\tfont-family: '" + embeddedAsset.fontName + "';\n";
@@ -449,46 +526,55 @@ class HTML5Platform extends PlatformTarget {
 
 		ProjectHelper.recursiveSmartCopyTemplate(project, "html5/template", destination, context);
 
-		if (project.app.main != null) {
+		if (project.app.main != null)
+		{
 			ProjectHelper.recursiveSmartCopyTemplate(project, "haxe", targetDirectory + "/haxe", context);
 			ProjectHelper.recursiveSmartCopyTemplate(project, "html5/haxe", targetDirectory + "/haxe", context, true, false);
 			ProjectHelper.recursiveSmartCopyTemplate(project, "html5/hxml", targetDirectory + "/haxe", context);
 		}
 
-		if (npm) {
+		if (npm)
+		{
 			ProjectHelper.recursiveSmartCopyTemplate(project, "html5/npm", targetDirectory + "/bin", context);
-			if (!FileSystem.exists(targetDirectory + "/bin/node_modules")) {
+			if (!FileSystem.exists(targetDirectory + "/bin/node_modules"))
+			{
 				System.runCommand(targetDirectory + "/bin", "npm", ["install", "-s"]);
 			}
 		}
 
-		if (targetFlags.exists("electron")) {
+		if (targetFlags.exists("electron"))
+		{
 			ProjectHelper.recursiveSmartCopyTemplate(project, "electron/template", destination, context);
 
-			if (project.app.main != null) {
+			if (project.app.main != null)
+			{
 				ProjectHelper.recursiveSmartCopyTemplate(project, "electron/haxe", targetDirectory + "/haxe", context, true, false);
 				ProjectHelper.recursiveSmartCopyTemplate(project, "electron/hxml", targetDirectory + "/haxe", context);
 			}
 		}
 
-		for (asset in project.assets) {
+		for (asset in project.assets)
+		{
 			var path = Path.combine(destination, asset.targetPath);
 
-			if (asset.type == AssetType.TEMPLATE) {
+			if (asset.type == AssetType.TEMPLATE)
+			{
 				System.mkdir(Path.directory(path));
 				AssetHelper.copyAsset(asset, path, context);
 			}
 		}
 	}
 
-	override public function watch():Void {
+	public override function watch():Void
+	{
 		// TODO: Use a custom live reload HTTP server for test/run instead
 
 		var hxml = getDisplayHXML();
 		var dirs = hxml.getClassPaths(true);
 
 		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
-		dirs = dirs.filter(function(dir) {
+		dirs = dirs.filter(function(dir)
+		{
 			return (!Path.startsWith(dir, outputPath));
 		});
 
@@ -496,11 +582,11 @@ class HTML5Platform extends PlatformTarget {
 		System.watch(command, dirs);
 	}
 
-	@ignore override public function install():Void {}
+	@ignore public override function install():Void {}
 
-	@ignore override public function rebuild():Void {}
+	@ignore public override function rebuild():Void {}
 
-	@ignore override public function trace():Void {}
+	@ignore public override function trace():Void {}
 
-	@ignore override public function uninstall():Void {}
+	@ignore public override function uninstall():Void {}
 }

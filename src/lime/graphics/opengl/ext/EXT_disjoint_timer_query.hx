@@ -3,7 +3,8 @@ package lime.graphics.opengl.ext;
 #if (js && html5)
 @:keep
 @:native("EXT_disjoint_timer_query")
-@:noCompletion extern class EXT_disjoint_timer_query {
+@:noCompletion extern class EXT_disjoint_timer_query
+{
 	public var QUERY_COUNTER_BITS_EXT:Int;
 	public var CURRENT_QUERY_EXT:Int;
 	public var QUERY_RESULT_EXT:Int;

@@ -1,7 +1,8 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class ANGLE_framebuffer_blit {
+@:noCompletion class ANGLE_framebuffer_blit
+{
 	public var READ_FRAMEBUFFER_ANGLE = 0x8CA8;
 	public var DRAW_FRAMEBUFFER_ANGLE = 0x8CA9;
 	public var DRAW_FRAMEBUFFER_BINDING_ANGLE = 0x8CA6;

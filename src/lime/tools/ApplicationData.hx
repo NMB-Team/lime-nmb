@@ -9,7 +9,8 @@ abstract ApplicationData({
 	@:optional var preloader:String;
 	@:optional var swfVersion:Float;
 	@:optional var url:String;
-}) from Dynamic {
+}) from Dynamic
+{
 	@:noCompletion
 	public static var expectedFields:ApplicationData = {
 		file: "",

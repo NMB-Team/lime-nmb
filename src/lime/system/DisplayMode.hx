@@ -6,7 +6,8 @@ import lime.graphics.PixelFormat;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class DisplayMode {
+class DisplayMode
+{
 	/**
 	 * vertical resolution
 	**/
@@ -27,7 +28,8 @@ class DisplayMode {
 	**/
 	public var width(default, null):Int;
 
-	@:noCompletion private function new(width:Int, height:Int, refreshRate:Int, pixelFormat:PixelFormat) {
+	@:noCompletion private function new(width:Int, height:Int, refreshRate:Int, pixelFormat:PixelFormat)
+	{
 		this.width = width;
 		this.height = height;
 		this.refreshRate = refreshRate;

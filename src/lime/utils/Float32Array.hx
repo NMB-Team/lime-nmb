@@ -8,40 +8,56 @@ import js.lib.Uint8Array as JSUInt8Array;
 import js.html.Float32Array as JSFloat32Array;
 import js.html.Uint8Array as JSUInt8Array;
 #end
-
 @:forward
 @:arrayAccess
 @:transitive
-abstract Float32Array(JSFloat32Array) from JSFloat32Array to JSFloat32Array {
+abstract Float32Array(JSFloat32Array) from JSFloat32Array to JSFloat32Array
+{
 	@:to function toArrayBufferView():ArrayBufferView
 		return this;
 
-	public static inline var BYTES_PER_ELEMENT:Int = 4;
+	public inline static var BYTES_PER_ELEMENT:Int = 4;
 
 	@:generic
-	public inline function new<T>(?elements:Int, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Float>, #end ?view:ArrayBufferView, ?buffer:ArrayBuffer, ?byteoffset:Int = 0, ?len:Null<Int>) {
-		if (elements != null) {
+	public inline function new<T>(?elements:Int, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Float>, #end ?view:ArrayBufferView, ?buffer:ArrayBuffer,
+			?byteoffset:Int = 0, ?len:Null<Int>)
+	{
+		if (elements != null)
+		{
 			this = new JSFloat32Array(elements);
-		} else if (array != null) {
+		}
+		else if (array != null)
+		{
 			this = new JSFloat32Array(untyped array);
 		#if (openfl && commonjs)
 		}
-		else if (vector != null) {
+		else if (vector != null)
+		{
 			this = new JSFloat32Array(untyped (vector));
 		#elseif openfl
 		}
-		else if (vector != null) {
+		else if (vector != null)
+		{
 			this = new JSFloat32Array(untyped untyped (vector).__array);
 		#end
-		} else if (view != null) {
+		}
+		else if (view != null)
+		{
 			this = new JSFloat32Array(untyped view);
-		} else if (buffer != null) {
-			if (len == null) {
+		}
+		else if (buffer != null)
+		{
+			if (len == null)
+			{
 				this = new JSFloat32Array(buffer, byteoffset);
-			} else {
+			}
+			else
+			{
 				this = new JSFloat32Array(buffer, byteoffset, len);
 			}
-		} else {
+		}
+		else
+		{
 			this = null;
 		}
 	}
@@ -53,15 +69,15 @@ abstract Float32Array(JSFloat32Array) from JSFloat32Array to JSFloat32Array {
 		return this[idx];
 
 	// non spec haxe conversions
-	public static inline function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):Float32Array {
-		if (byteOffset == null)
-			return new JSFloat32Array(cast bytes.getData());
-		if (len == null)
-			return new JSFloat32Array(cast bytes.getData(), byteOffset);
+	inline public static function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):Float32Array
+	{
+		if (byteOffset == null) return new JSFloat32Array(cast bytes.getData());
+		if (len == null) return new JSFloat32Array(cast bytes.getData(), byteOffset);
 		return new JSFloat32Array(cast bytes.getData(), byteOffset, len);
 	}
 
-	public inline function toBytes():haxe.io.Bytes {
+	inline public function toBytes():haxe.io.Bytes
+	{
 		return @:privateAccess new haxe.io.Bytes(cast new JSUInt8Array(this.buffer));
 	}
 
@@ -74,29 +90,42 @@ import lime.utils.ArrayBufferView;
 
 @:transitive
 @:forward
-abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
-	public static inline var BYTES_PER_ELEMENT:Int = 4;
+abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
+{
+	public inline static var BYTES_PER_ELEMENT:Int = 4;
 
 	public var length(get, never):Int;
 
 	#if (haxe_ver < 4.2)
 	@:generic
 	#end
-	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Float>, #end ?view:ArrayBufferView, ?byteoffset:Int = 0, ?len:Null<Int>) {
-		if (elements != null) {
+	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Float>, #end ?view:ArrayBufferView,
+			?byteoffset:Int = 0, ?len:Null<Int>)
+	{
+		if (elements != null)
+		{
 			this = new ArrayBufferView(elements, Float32);
-		} else if (array != null) {
+		}
+		else if (array != null)
+		{
 			this = new ArrayBufferView(0, Float32).initArray(array);
 		#if openfl
 		}
-		else if (vector != null) {
+		else if (vector != null)
+		{
 			this = new ArrayBufferView(0, Float32).initArray(untyped (vector).__array);
 		#end
-		} else if (view != null) {
+		}
+		else if (view != null)
+		{
 			this = new ArrayBufferView(0, Float32).initTypedArray(view);
-		} else if (buffer != null) {
+		}
+		else if (buffer != null)
+		{
 			this = new ArrayBufferView(0, Float32).initBuffer(buffer, byteoffset, len);
-		} else {
+		}
+		else
+		{
 			throw "Invalid constructor arguments for Float32Array";
 		}
 	}
@@ -106,11 +135,13 @@ abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
 		return this.subarray(begin, end);
 
 	// non spec haxe conversions
-	public static inline function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):Float32Array {
+	inline public static function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):Float32Array
+	{
 		return new Float32Array(bytes, byteOffset, len);
 	}
 
-	public inline function toBytes():haxe.io.Bytes {
+	inline public function toBytes():haxe.io.Bytes
+	{
 		return this.buffer;
 	}
 
@@ -123,13 +154,15 @@ abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
 
 	@:noCompletion
 	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
-	public inline function __get(idx:Int):Float {
+	public inline function __get(idx:Int):Float
+	{
 		return ArrayBufferIO.getFloat32(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT));
 	}
 
 	@:noCompletion
 	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
-	public inline function __set(idx:Int, val:Float):Float {
+	public inline function __set(idx:Int, val:Float):Float
+	{
 		ArrayBufferIO.setFloat32(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT), val);
 		return val;
 	}

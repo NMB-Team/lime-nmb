@@ -3,7 +3,8 @@ package lime.media.howlerjs;
 #if (!lime_doc_gen || lime_howlerjs)
 #if (!lime_howlerjs || display)
 import haxe.Constraints.Function;
-class Howl {
+class Howl
+{
 	public function new(options:HowlOptions) {}
 
 	/**
@@ -11,7 +12,8 @@ class Howl {
 	 * @param	id		The sound id to check. If none is passed, return full source duration.
 	 * @return	Audio duration in seconds.
 	 */
-	public function duration(?id:Int):Int {
+	public function duration(?id:Int):Int
+	{
 		return 0;
 	}
 
@@ -23,7 +25,8 @@ class Howl {
 	 * @param	id		The sound id (omit to fade all sounds).
 	 * @return
 	 */
-	public function fade(from:Float, to:Float, len:Int, ?id:Int):Howl {
+	public function fade(from:Float, to:Float, len:Int, ?id:Int):Howl
+	{
 		return this;
 	}
 
@@ -31,7 +34,8 @@ class Howl {
 	 * Load the audio file.
 	 * @return
 	 */
-	public function load():Howl {
+	public function load():Howl
+	{
 		return this;
 	}
 
@@ -43,7 +47,8 @@ class Howl {
 	 * 	loop(loop, id) -> Sets the loop value of passed sound id.
 	 * @return	Returns self or current loop value.
 	 */
-	public function loop(?loop:Dynamic, ?id:Int):Dynamic {
+	public function loop(?loop:Dynamic, ?id:Int):Dynamic
+	{
 		return null;
 	}
 
@@ -53,7 +58,8 @@ class Howl {
 	 * @param	id		The sound ID to update (omit to mute/unmute all).
 	 * @return
 	 */
-	public function mute(muted:Bool, ?id:Int):Howl {
+	public function mute(muted:Bool, ?id:Int):Howl
+	{
 		return this;
 	}
 
@@ -64,7 +70,8 @@ class Howl {
 	 * @param	id		(optional) Only remove events for this sound.
 	 * @return
 	 */
-	public function off(event:String, fn:Function, ?id:Int):Howl {
+	public function off(event:String, fn:Function, ?id:Int):Howl
+	{
 		return this;
 	}
 
@@ -75,7 +82,8 @@ class Howl {
 	 * @param	id		(optional) Only listen to events for this sound.
 	 * @return
 	 */
-	public function on(event:String, fn:Function, ?id:Int):Howl {
+	public function on(event:String, fn:Function, ?id:Int):Howl
+	{
 		return this;
 	}
 
@@ -86,7 +94,8 @@ class Howl {
 	 * @param	id		(optional) Only listen to events for this sound.
 	 * @return
 	 */
-	public function once(event:String, fn:Function, ?id:Int):Howl {
+	public function once(event:String, fn:Function, ?id:Int):Howl
+	{
 		return this;
 	}
 
@@ -95,7 +104,8 @@ class Howl {
 	 * @param	id		The sound ID (empty to pause all in group).
 	 * @return
 	 */
-	public function pause(?id:Int):Howl {
+	public function pause(?id:Int):Howl
+	{
 		return this;
 	}
 
@@ -104,7 +114,8 @@ class Howl {
 	 * @param	sprite		Sprite name for sprite playback or sound id to continue previous.
 	 * @return	Sound ID.
 	 */
-	public function play(?sprite:Dynamic):Int {
+	public function play(?sprite:Dynamic):Int
+	{
 		return 0;
 	}
 
@@ -113,7 +124,8 @@ class Howl {
 	 * @param	id		The sound id to check. If none is passed, the whole sound group is checked.
 	 * @return	True if playing and false if not.
 	 */
-	public function playing(?id:Int):Bool {
+	public function playing(?id:Int):Bool
+	{
 		return false;
 	}
 
@@ -125,7 +137,8 @@ class Howl {
 	 * 	rate(rate, id) -> Sets the playback rate of passed sound id.
 	 * @return	Returns self or the current playback rate.
 	 */
-	public function rate(?rate:Float, ?id:Int):Dynamic {
+	public function rate(?rate:Float, ?id:Int):Dynamic
+	{
 		return null;
 	}
 
@@ -137,7 +150,8 @@ class Howl {
 	 * 	seek(seek, id) -> Sets the seek position of passed sound id.
 	 * @return	Returns self or the current seek position.
 	 */
-	public function seek(?seek:Float, ?id:Int):Dynamic {
+	public function seek(?seek:Float, ?id:Int):Dynamic
+	{
 		return null;
 	}
 
@@ -145,7 +159,8 @@ class Howl {
 	 * Returns the current loaded state of this Howl.
 	 * @return	'unloaded', 'loading', 'loaded'
 	 */
-	public function state():String {
+	public function state():String
+	{
 		return null;
 	}
 
@@ -154,7 +169,8 @@ class Howl {
 	 * @param	id		The sound ID (empty to stop all in group).
 	 * @return
 	 */
-	public function stop(?id:Int):Howl {
+	public function stop(?id:Int):Howl
+	{
 		return this;
 	}
 
@@ -172,7 +188,8 @@ class Howl {
 	 * 	volume(vol, id) -> Sets the volume of passed sound id.
 	 * @return	Returns self or current volume.
 	 */
-	public function volume(?vol:Float, ?id:Int):Dynamic {
+	public function volume(?vol:Float, ?id:Int):Dynamic
+	{
 		return null;
 	}
 
@@ -184,7 +201,8 @@ class Howl {
 	 * @param  id The sound ID. If none is passed, all in group will be updated.
 	 * @return Returns self or the current 3D spatial position: [x, y, z].
 	 */
-	public function pos(?x:Float, ?y:Float, ?z:Float, ?id:Int):Dynamic {
+	public function pos(?x:Float, ?y:Float, ?z:Float, ?id:Int):Dynamic
+	{
 		return null;
 	}
 
@@ -194,7 +212,8 @@ class Howl {
 	 * @param  id (optional) The sound ID. If none is passed, all in group will be updated.
 	 * @return Returns self or the current stereo panning value.
 	 */
-	public function stereo(?pan:Float, ?id:Int):Dynamic {
+	public function stereo(?pan:Float, ?id:Int):Dynamic
+	{
 		return null;
 	}
 
@@ -227,7 +246,8 @@ class Howl {
 	 *
 	 * @return Returns self or current panner attributes.
 	 */
-	public function pannerAttr(args:PannerAttr, ?id:Int):Howl {
+	public function pannerAttr(args:PannerAttr, ?id:Int):Howl
+	{
 		return this;
 	}
 }
@@ -240,7 +260,8 @@ import haxe.extern.EitherType;
 #else
 @:native("Howl")
 #end
-extern class Howl {
+extern class Howl
+{
 	public function new(options:HowlOptions);
 	public function duration(?id:Int):Int;
 	public function fade(from:Float, to:Float, len:Int, ?id:Int):Howl;
@@ -284,7 +305,8 @@ extern class Howl {
 }
 #end
 
-typedef HowlOptions = {
+typedef HowlOptions =
+{
 	src:Array<String>,
 	?volume:Float,
 	?html5:Bool,
@@ -309,7 +331,8 @@ typedef HowlOptions = {
 	?onfade:Function
 }
 
-typedef PannerAttr = {
+typedef PannerAttr =
+{
 	?coneInnerAngle:Float,
 	?coneOuterAngle:Float,
 	?coneOuterGain:Float,

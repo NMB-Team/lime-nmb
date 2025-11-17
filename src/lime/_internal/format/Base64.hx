@@ -3,23 +3,29 @@ package lime._internal.format;
 import haxe.crypto.Base64 as HaxeBase64;
 import haxe.io.Bytes;
 
-class Base64 {
+class Base64
+{
 	private static var DICTIONARY:Array<String> = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".split("");
-	private static var EXTENDED_DICTIONARY:Array<String> = {
-		var result = new Array<String>();
-		for (a in DICTIONARY) {
-			for (b in DICTIONARY) {
-				result.push(a + b);
+	private static var EXTENDED_DICTIONARY:Array<String> =
+		{
+			var result = new Array<String>();
+			for (a in DICTIONARY)
+			{
+				for (b in DICTIONARY)
+				{
+					result.push(a + b);
+				}
 			}
-		}
-		result;
-	};
+			result;
+		};
 
-	public static function decode(source:String):Bytes {
+	public static function decode(source:String):Bytes
+	{
 		return HaxeBase64.decode(source);
 	}
 
-	public static function encode(source:Bytes):String {
+	public static function encode(source:Bytes):String
+	{
 		var result = new Array<String>();
 
 		var dictionary = DICTIONARY;
@@ -39,7 +45,8 @@ class Base64 {
 		var numChunksWritten = 0;
 		var inputTriplet;
 
-		while (numChunksWritten < numChunksToWrite) {
+		while (numChunksWritten < numChunksToWrite)
+		{
 			inputTriplet = (source.get(numBytesRead) << 16) | (source.get(numBytesRead + 1) << 8) | source.get(numBytesRead + 2);
 			result[numChunksWritten] = extendedDictionary[(inputTriplet >> 12) & 0xfff];
 			result[numChunksWritten + 1] = extendedDictionary[(inputTriplet) & 0xfff];
@@ -48,7 +55,8 @@ class Base64 {
 			numChunksWritten += 2;
 		}
 
-		switch (numBytes - numInputTriplets * 3) {
+		switch (numBytes - numInputTriplets * 3)
+		{
 			case 1:
 				inputTriplet = (source.get(numBytesRead) << 16);
 				result[numChunksWritten] = extendedDictionary[(inputTriplet >> 12) & 0xfff];

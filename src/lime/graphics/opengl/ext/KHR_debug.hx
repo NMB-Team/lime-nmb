@@ -1,7 +1,8 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class KHR_debug {
+@:noCompletion class KHR_debug
+{
 	public var DEBUG_OUTPUT_SYNCHRONOUS = 0x8242;
 	public var DEBUG_NEXT_LOGGED_MESSAGE_LENGTH = 0x8243;
 	public var DEBUG_CALLBACK_FUNCTION = 0x8244;

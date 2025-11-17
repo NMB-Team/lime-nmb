@@ -1,6 +1,7 @@
 package lime.tools;
 
-enum Command {
+enum Command
+{
 	BUILD;
 	CLEAN;
 	CONFIG;

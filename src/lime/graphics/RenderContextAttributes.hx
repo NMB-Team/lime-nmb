@@ -3,7 +3,8 @@ package lime.graphics;
 /**
 	Additional options possible for a render context
 **/
-typedef RenderContextAttributes = {
+typedef RenderContextAttributes =
+{
 	/**
 		Whether to enable anti-aliasing, `0` is disabled, `2` enables
 		2x2 anti-aliasing or `4` enables 4x4 anti-aliasing.

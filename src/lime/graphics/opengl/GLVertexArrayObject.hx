@@ -5,8 +5,10 @@ package lime.graphics.opengl;
 import lime.graphics.opengl.GL;
 
 @:forward(id)
-abstract GLVertexArrayObject(GLObject) from GLObject to GLObject {
-	@:from private static inline function fromInt(id:Int):GLVertexArrayObject {
+abstract GLVertexArrayObject(GLObject) from GLObject to GLObject
+{
+	@:from private static inline function fromInt(id:Int):GLVertexArrayObject
+	{
 		return GLObject.fromInt(VERTEX_ARRAY_OBJECT, id);
 	}
 }

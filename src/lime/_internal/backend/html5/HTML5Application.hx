@@ -3,7 +3,6 @@ package lime._internal.backend.html5;
 import js.html.DeviceMotionEvent;
 import js.html.KeyboardEvent;
 import js.Browser;
-
 import lime.app.Application;
 import lime.media.AudioManager;
 import lime.system.Sensor;
@@ -22,7 +21,8 @@ import lime.ui.Window;
 @:access(lime.ui.Gamepad)
 @:access(lime.ui.Joystick)
 @:access(lime.ui.Window)
-class HTML5Application {
+class HTML5Application
+{
 	private var accelerometer:Sensor;
 	private var currentUpdate:Float;
 	private var deltaTime:Float;
@@ -36,7 +36,8 @@ class HTML5Application {
 	private var stats:Dynamic;
 	#end
 
-	public inline function new(parent:Application) {
+	public inline function new(parent:Application)
+	{
 		this.parent = parent;
 
 		currentUpdate = 0;
@@ -48,12 +49,15 @@ class HTML5Application {
 		accelerometer = Sensor.registerSensor(SensorType.ACCELEROMETER, 0);
 	}
 
-	private function convertKeyCode(keyCode:Int):KeyCode {
-		if (keyCode >= 65 && keyCode <= 90) {
+	private function convertKeyCode(keyCode:Int):KeyCode
+	{
+		if (keyCode >= 65 && keyCode <= 90)
+		{
 			return keyCode + 32;
 		}
 
-		switch (keyCode) {
+		switch (keyCode)
+		{
 			case 12:
 				return KeyCode.CLEAR;
 			case 16:
@@ -265,7 +269,8 @@ class HTML5Application {
 		return keyCode;
 	}
 
-	public function exec():Int {
+	public function exec():Int
+	{
 		Browser.window.addEventListener("keydown", handleKeyEvent, false);
 		Browser.window.addEventListener("keyup", handleKeyEvent, false);
 		Browser.window.addEventListener("focus", handleWindowEvent, false);
@@ -273,7 +278,8 @@ class HTML5Application {
 		Browser.window.addEventListener("resize", handleWindowEvent, false);
 		Browser.window.addEventListener("beforeunload", handleWindowEvent, false);
 
-		if (Reflect.hasField(Browser.window, "Accelerometer")) {
+		if (Reflect.hasField(Browser.window, "Accelerometer"))
+		{
 			Browser.window.addEventListener("devicemotion", handleSensorEvent, false);
 		}
 
@@ -344,10 +350,12 @@ class HTML5Application {
 
 	public function exit():Void {}
 
-	private function handleApplicationEvent(time:Float):Void {
+	private function handleApplicationEvent(time:Float):Void
+	{
 		// TODO: Support independent window frame rates
 
-		for (window in parent.__windows) {
+		for (window in parent.__windows)
+		{
 			window.__backend.updateSize();
 		}
 
@@ -355,26 +363,30 @@ class HTML5Application {
 
 		currentUpdate = time;
 
-		if (currentUpdate >= nextUpdate) {
+		if (currentUpdate >= nextUpdate)
+		{
 			#if stats
 			stats.begin();
 			#end
 
 			deltaTime = currentUpdate - lastUpdate;
 
-			for (window in parent.__windows) {
+			for (window in parent.__windows)
+			{
 				parent.onUpdate.dispatch(deltaTime);
-				if (window.context != null)
-					window.onRender.dispatch(window.context);
+				if (window.context != null) window.onRender.dispatch(window.context);
 			}
 
 			#if stats
 			stats.end();
 			#end
 
-			if (framePeriod > 0) {
+			if (framePeriod > 0)
+			{
 				nextUpdate = currentUpdate - (currentUpdate % framePeriod) + framePeriod;
-			} else {
+			}
+			else
+			{
 				nextUpdate = currentUpdate;
 			}
 
@@ -384,8 +396,10 @@ class HTML5Application {
 		Browser.window.requestAnimationFrame(cast handleApplicationEvent);
 	}
 
-	private function handleKeyEvent(event:KeyboardEvent):Void {
-		if (parent.window != null) {
+	private function handleKeyEvent(event:KeyboardEvent):Void
+	{
+		if (parent.window != null)
+		{
 			// space and arrow keys
 
 			// switch (event.keyCode) {
@@ -399,52 +413,68 @@ class HTML5Application {
 			var keyCode = cast convertKeyCode(event.keyCode != null ? event.keyCode : event.which);
 			var modifier = (event.shiftKey ? (KeyModifier.SHIFT) : 0) | (event.ctrlKey ? (KeyModifier.CTRL) : 0) | (event.altKey ? (KeyModifier.ALT) : 0) | (event.metaKey ? (KeyModifier.META) : 0);
 
-			if (event.type == "keydown") {
+			if (event.type == "keydown")
+			{
 				parent.window.onKeyDown.dispatch(keyCode, modifier);
 
-				if (parent.window.onKeyDown.canceled && event.cancelable) {
+				if (parent.window.onKeyDown.canceled && event.cancelable)
+				{
 					event.preventDefault();
 				}
-			} else {
+			}
+			else
+			{
 				parent.window.onKeyUp.dispatch(keyCode, modifier);
 
-				if (parent.window.onKeyUp.canceled && event.cancelable) {
+				if (parent.window.onKeyUp.canceled && event.cancelable)
+				{
 					event.preventDefault();
 				}
 			}
 		}
 	}
 
-	private function handleSensorEvent(event:DeviceMotionEvent):Void {
+	private function handleSensorEvent(event:DeviceMotionEvent):Void
+	{
 		accelerometer.onUpdate.dispatch(event.accelerationIncludingGravity.x, event.accelerationIncludingGravity.y, event.accelerationIncludingGravity.z);
 	}
 
-	private function handleWindowEvent(event:js.html.Event):Void {
-		if (parent.window != null) {
-			switch (event.type) {
+	private function handleWindowEvent(event:js.html.Event):Void
+	{
+		if (parent.window != null)
+		{
+			switch (event.type)
+			{
 				case "focus":
-					if (hidden) {
+					if (hidden)
+					{
 						parent.window.onFocusIn.dispatch();
 						parent.window.onActivate.dispatch();
 						hidden = false;
 					}
 
 				case "blur":
-					if (!hidden) {
+					if (!hidden)
+					{
 						parent.window.onFocusOut.dispatch();
 						parent.window.onDeactivate.dispatch();
 						hidden = true;
 					}
 
 				case "visibilitychange":
-					if (Browser.document.hidden) {
-						if (!hidden) {
+					if (Browser.document.hidden)
+					{
+						if (!hidden)
+						{
 							parent.window.onFocusOut.dispatch();
 							parent.window.onDeactivate.dispatch();
 							hidden = true;
 						}
-					} else {
-						if (hidden) {
+					}
+					else
+					{
+						if (hidden)
+						{
 							parent.window.onFocusIn.dispatch();
 							parent.window.onActivate.dispatch();
 							hidden = false;
@@ -478,43 +508,49 @@ class HTML5Application {
 		}
 	}
 
-	private function updateGameDevices():Void {
+	private function updateGameDevices():Void
+	{
 		var devices = Joystick.__getDeviceData();
-		if (devices == null)
-			return;
+		if (devices == null) return;
 
 		var id, gamepad, joystick, data:Dynamic, cache;
 
-		for (i in 0...devices.length) {
+		for (i in 0...devices.length)
+		{
 			id = i;
 			data = devices[id];
 
-			if (data == null)
-				continue;
+			if (data == null) continue;
 
-			if (!gameDeviceCache.exists(id)) {
+			if (!gameDeviceCache.exists(id))
+			{
 				cache = new GameDeviceData();
 				cache.id = id;
 				cache.connected = data.connected;
 
-				for (i in 0...data.buttons.length) {
+				for (i in 0...data.buttons.length)
+				{
 					cache.buttons.push(data.buttons[i].value);
 				}
 
-				for (i in 0...data.axes.length) {
+				for (i in 0...data.axes.length)
+				{
 					cache.axes.push(data.axes[i]);
 				}
 
-				if (data.mapping == "standard") {
+				if (data.mapping == "standard")
+				{
 					cache.isGamepad = true;
 				}
 
 				gameDeviceCache.set(id, cache);
 
-				if (data.connected) {
+				if (data.connected)
+				{
 					Joystick.__connect(id);
 
-					if (cache.isGamepad) {
+					if (cache.isGamepad)
+					{
 						Gamepad.__connect(id);
 					}
 				}
@@ -525,31 +561,42 @@ class HTML5Application {
 			joystick = Joystick.devices.get(id);
 			gamepad = Gamepad.devices.get(id);
 
-			if (data.connected) {
+			if (data.connected)
+			{
 				var button:GamepadButton;
 				var value:Float;
 
-				for (i in 0...data.buttons.length) {
+				for (i in 0...data.buttons.length)
+				{
 					value = data.buttons[i].value;
 
-					if (value != cache.buttons[i]) {
-						if (i == 6) {
+					if (value != cache.buttons[i])
+					{
+						if (i == 6)
+						{
 							joystick.onAxisMove.dispatch(data.axes.length, value);
-							if (gamepad != null)
-								gamepad.onAxisMove.dispatch(GamepadAxis.TRIGGER_LEFT, value);
-						} else if (i == 7) {
+							if (gamepad != null) gamepad.onAxisMove.dispatch(GamepadAxis.TRIGGER_LEFT, value);
+						}
+						else if (i == 7)
+						{
 							joystick.onAxisMove.dispatch(data.axes.length + 1, value);
-							if (gamepad != null)
-								gamepad.onAxisMove.dispatch(GamepadAxis.TRIGGER_RIGHT, value);
-						} else {
-							if (value > 0) {
+							if (gamepad != null) gamepad.onAxisMove.dispatch(GamepadAxis.TRIGGER_RIGHT, value);
+						}
+						else
+						{
+							if (value > 0)
+							{
 								joystick.onButtonDown.dispatch(i);
-							} else {
+							}
+							else
+							{
 								joystick.onButtonUp.dispatch(i);
 							}
 
-							if (gamepad != null) {
-								button = switch (i) {
+							if (gamepad != null)
+							{
+								button = switch (i)
+								{
 									case 0: GamepadButton.A;
 									case 1: GamepadButton.B;
 									case 2: GamepadButton.X;
@@ -568,9 +615,12 @@ class HTML5Application {
 									default: continue;
 								}
 
-								if (value > 0) {
+								if (value > 0)
+								{
 									gamepad.onButtonDown.dispatch(button);
-								} else {
+								}
+								else
+								{
 									gamepad.onButtonUp.dispatch(button);
 								}
 							}
@@ -580,15 +630,18 @@ class HTML5Application {
 					}
 				}
 
-				for (i in 0...data.axes.length) {
-					if (data.axes[i] != cache.axes[i]) {
+				for (i in 0...data.axes.length)
+				{
+					if (data.axes[i] != cache.axes[i])
+					{
 						joystick.onAxisMove.dispatch(i, data.axes[i]);
-						if (gamepad != null)
-							gamepad.onAxisMove.dispatch(i, data.axes[i]);
+						if (gamepad != null) gamepad.onAxisMove.dispatch(i, data.axes[i]);
 						cache.axes[i] = data.axes[i];
 					}
 				}
-			} else if (cache.connected) {
+			}
+			else if (cache.connected)
+			{
 				cache.connected = false;
 
 				Joystick.__disconnect(id);
@@ -598,14 +651,16 @@ class HTML5Application {
 	}
 }
 
-class GameDeviceData {
+class GameDeviceData
+{
 	public var connected:Bool;
 	public var id:Int;
 	public var isGamepad:Bool;
 	public var buttons:Array<Float>;
 	public var axes:Array<Float>;
 
-	public function new() {
+	public function new()
+	{
 		connected = true;
 		buttons = [];
 		axes = [];

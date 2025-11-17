@@ -5,8 +5,10 @@ package lime.graphics.opengl;
 import lime.graphics.opengl.GL;
 
 @:forward(id)
-abstract GLSampler(GLObject) from GLObject to GLObject {
-	@:from private static inline function fromInt(id:Int):GLSampler {
+abstract GLSampler(GLObject) from GLObject to GLObject
+{
+	@:from private static inline function fromInt(id:Int):GLSampler
+	{
 		return GLObject.fromInt(SAMPLER, id);
 	}
 }

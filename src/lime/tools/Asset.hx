@@ -1,13 +1,12 @@
 package lime.tools;
 
 import hxp.*;
-
 import lime.tools.AssetType;
-
 import sys.FileSystem;
 
 @:access(lime.tools.AssetHelper)
-class Asset {
+class Asset
+{
 	public var data:Dynamic;
 	public var embed:Null<Bool>;
 	public var encoding:AssetEncoding;
@@ -23,16 +22,19 @@ class Asset {
 	public var targetPath:String;
 	public var type:AssetType;
 
-	public function new(path:String = "", rename:String = "", type:AssetType = null, embed:Null<Bool> = null, setDefaults:Bool = true) {
-		if (!setDefaults)
-			return;
+	public function new(path:String = "", rename:String = "", type:AssetType = null, embed:Null<Bool> = null, setDefaults:Bool = true)
+	{
+		if (!setDefaults) return;
 
 		this.embed = embed;
 		sourcePath = Path.standardize(path);
 
-		if (rename == "") {
+		if (rename == "")
+		{
 			targetPath = path;
-		} else {
+		}
+		else
+		{
 			targetPath = rename;
 		}
 
@@ -42,46 +44,62 @@ class Asset {
 		format = Path.extension(path).toLowerCase();
 		glyphs = "32-255";
 
-		if (type == null) {
+		if (type == null)
+		{
 			var extension = Path.extension(path);
-			if (extension != null)
-				extension = extension.toLowerCase();
+			if (extension != null) extension = extension.toLowerCase();
 
-			if (AssetHelper.knownExtensions.exists(extension)) {
+			if (AssetHelper.knownExtensions.exists(extension))
+			{
 				this.type = AssetHelper.knownExtensions.get(extension);
-			} else {
-				switch (extension) {
+			}
+			else
+			{
+				switch (extension)
+				{
 					case "bundle":
 						this.type = AssetType.MANIFEST;
 
 					case "ogg", "m4a":
-						if (FileSystem.exists(path)) {
+						if (FileSystem.exists(path))
+						{
 							var stat = FileSystem.stat(path);
 
 							// if (stat.size > 1024 * 128) {
-							if (stat.size > 1024 * 1024) {
+							if (stat.size > 1024 * 1024)
+							{
 								this.type = AssetType.MUSIC;
-							} else {
+							}
+							else
+							{
 								this.type = AssetType.SOUND;
 							}
-						} else {
+						}
+						else
+						{
 							this.type = AssetType.SOUND;
 						}
 
 					default:
-						if (path != "" && System.isText(path)) {
+						if (path != "" && System.isText(path))
+						{
 							this.type = AssetType.TEXT;
-						} else {
+						}
+						else
+						{
 							this.type = AssetType.BINARY;
 						}
 				}
 			}
-		} else {
+		}
+		else
+		{
 			this.type = type;
 		}
 	}
 
-	public function clone():Asset {
+	public function clone():Asset
+	{
 		var asset = new Asset("", "", null, null, false);
 
 		asset.data = data;

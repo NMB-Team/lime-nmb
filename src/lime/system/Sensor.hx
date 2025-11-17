@@ -6,27 +6,35 @@ import lime.app.Event;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class Sensor {
+class Sensor
+{
 	private static var sensorByID = new Map<Int, Sensor>();
 	private static var sensors = new Array<Sensor>();
 
 	public var id:Int;
-	public var onUpdate = new Event<Float -> Float -> Float -> Void>();
+	public var onUpdate = new Event<Float->Float->Float->Void>();
 	public var type:SensorType;
 
-	@:noCompletion private function new(type:SensorType, id:Int) {
+	@:noCompletion private function new(type:SensorType, id:Int)
+	{
 		this.type = type;
 		this.id = id;
 	}
 
-	public static function getSensors(type:SensorType = null):Array<Sensor> {
-		if (type == null) {
+	public static function getSensors(type:SensorType = null):Array<Sensor>
+	{
+		if (type == null)
+		{
 			return sensors.copy();
-		} else {
+		}
+		else
+		{
 			var result = [];
 
-			for (sensor in sensors) {
-				if (sensor.type == type) {
+			for (sensor in sensors)
+			{
+				if (sensor.type == type)
+				{
 					result.push(sensor);
 				}
 			}
@@ -35,7 +43,8 @@ class Sensor {
 		}
 	}
 
-	private static function registerSensor(type:SensorType, id:Int):Sensor {
+	private static function registerSensor(type:SensorType, id:Int):Sensor
+	{
 		var sensor = new Sensor(type, id);
 
 		sensors.push(sensor);

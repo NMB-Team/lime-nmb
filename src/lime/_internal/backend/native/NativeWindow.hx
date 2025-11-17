@@ -1,7 +1,6 @@
 package lime._internal.backend.native;
 
 import haxe.io.Bytes;
-
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Application;
 import lime.graphics.cairo.Cairo;
@@ -38,7 +37,8 @@ import lime.utils.UInt8Array;
 @:access(lime.system.DisplayMode)
 @:access(lime.ui.MouseCursorData)
 @:access(lime.ui.Window)
-class NativeWindow {
+class NativeWindow
+{
 	public var handle:Dynamic;
 
 	private var closing:Bool;
@@ -55,7 +55,8 @@ class NativeWindow {
 	private var primarySurface:CairoSurface;
 	#end
 
-	public function new(parent:Window) {
+	public function new(parent:Window)
+	{
 		this.parent = parent;
 
 		cursor = DEFAULT;
@@ -66,60 +67,42 @@ class NativeWindow {
 		var title = Reflect.hasField(attributes, "title") ? attributes.title : "Lime Application";
 		var flags = 0;
 
-		if (!Reflect.hasField(contextAttributes, "antialiasing"))
-			contextAttributes.antialiasing = 0;
-		if (!Reflect.hasField(contextAttributes, "background"))
-			contextAttributes.background = 0;
-		if (!Reflect.hasField(contextAttributes, "colorDepth"))
-			contextAttributes.colorDepth = 24;
-		if (!Reflect.hasField(contextAttributes, "depth"))
-			contextAttributes.depth = true;
-		if (!Reflect.hasField(contextAttributes, "hardware"))
-			contextAttributes.hardware = true;
-		if (!Reflect.hasField(contextAttributes, "stencil"))
-			contextAttributes.stencil = true;
-		if (!Reflect.hasField(contextAttributes, "vsync"))
-			contextAttributes.vsync = false;
+		if (!Reflect.hasField(contextAttributes, "antialiasing")) contextAttributes.antialiasing = 0;
+		if (!Reflect.hasField(contextAttributes, "background")) contextAttributes.background = 0;
+		if (!Reflect.hasField(contextAttributes, "colorDepth")) contextAttributes.colorDepth = 24;
+		if (!Reflect.hasField(contextAttributes, "depth")) contextAttributes.depth = true;
+		if (!Reflect.hasField(contextAttributes, "hardware")) contextAttributes.hardware = true;
+		if (!Reflect.hasField(contextAttributes, "stencil")) contextAttributes.stencil = true;
+		if (!Reflect.hasField(contextAttributes, "vsync")) contextAttributes.vsync = false;
 
 		#if (cairo || (!lime_opengl && !lime_opengles))
 		contextAttributes.type = CAIRO;
 		#end
-		if (Reflect.hasField(contextAttributes, "type") && contextAttributes.type == CAIRO)
-			contextAttributes.hardware = false;
+		if (Reflect.hasField(contextAttributes, "type") && contextAttributes.type == CAIRO) contextAttributes.hardware = false;
 
-		if (Reflect.hasField(attributes, "allowHighDPI") && attributes.allowHighDPI)
-			flags |= cast WindowFlags.WINDOW_FLAG_ALLOW_HIGHDPI;
-		if (Reflect.hasField(attributes, "alwaysOnTop") && attributes.alwaysOnTop)
-			flags |= cast WindowFlags.WINDOW_FLAG_ALWAYS_ON_TOP;
-		if (Reflect.hasField(attributes, "borderless") && attributes.borderless)
-			flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
-		if (Reflect.hasField(attributes, "fullscreen") && attributes.fullscreen)
-			flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
-		if (Reflect.hasField(attributes, "hidden") && attributes.hidden)
-			flags |= cast WindowFlags.WINDOW_FLAG_HIDDEN;
-		if (Reflect.hasField(attributes, "maximized") && attributes.maximized)
-			flags |= cast WindowFlags.WINDOW_FLAG_MAXIMIZED;
-		if (Reflect.hasField(attributes, "minimized") && attributes.minimized)
-			flags |= cast WindowFlags.WINDOW_FLAG_MINIMIZED;
-		if (Reflect.hasField(attributes, "resizable") && attributes.resizable)
-			flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
+		if (Reflect.hasField(attributes, "allowHighDPI") && attributes.allowHighDPI) flags |= cast WindowFlags.WINDOW_FLAG_ALLOW_HIGHDPI;
+		if (Reflect.hasField(attributes, "alwaysOnTop") && attributes.alwaysOnTop) flags |= cast WindowFlags.WINDOW_FLAG_ALWAYS_ON_TOP;
+		if (Reflect.hasField(attributes, "borderless") && attributes.borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
+		if (Reflect.hasField(attributes, "fullscreen") && attributes.fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
+		if (Reflect.hasField(attributes, "hidden") && attributes.hidden) flags |= cast WindowFlags.WINDOW_FLAG_HIDDEN;
+		if (Reflect.hasField(attributes, "maximized") && attributes.maximized) flags |= cast WindowFlags.WINDOW_FLAG_MAXIMIZED;
+		if (Reflect.hasField(attributes, "minimized") && attributes.minimized) flags |= cast WindowFlags.WINDOW_FLAG_MINIMIZED;
+		if (Reflect.hasField(attributes, "resizable") && attributes.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
 
-		if (contextAttributes.antialiasing >= 4) {
+		if (contextAttributes.antialiasing >= 4)
+		{
 			flags |= cast WindowFlags.WINDOW_FLAG_HW_AA_HIRES;
-		} else if (contextAttributes.antialiasing >= 2) {
+		}
+		else if (contextAttributes.antialiasing >= 2)
+		{
 			flags |= cast WindowFlags.WINDOW_FLAG_HW_AA;
 		}
 
-		if (contextAttributes.colorDepth == 32)
-			flags |= cast WindowFlags.WINDOW_FLAG_COLOR_DEPTH_32_BIT;
-		if (contextAttributes.depth)
-			flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
-		if (contextAttributes.hardware)
-			flags |= cast WindowFlags.WINDOW_FLAG_HARDWARE;
-		if (contextAttributes.stencil)
-			flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
-		if (contextAttributes.vsync)
-			flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
+		if (contextAttributes.colorDepth == 32) flags |= cast WindowFlags.WINDOW_FLAG_COLOR_DEPTH_32_BIT;
+		if (contextAttributes.depth) flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
+		if (contextAttributes.hardware) flags |= cast WindowFlags.WINDOW_FLAG_HARDWARE;
+		if (contextAttributes.stencil) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
+		if (contextAttributes.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
 
 		var width = Reflect.hasField(attributes, "width") ? attributes.width : #if desktop 800 #else 0 #end;
 		var height = Reflect.hasField(attributes, "height") ? attributes.height : #if desktop 600 #else 0 #end;
@@ -127,7 +110,8 @@ class NativeWindow {
 		#if (!macro && lime_cffi)
 		handle = NativeCFFI.lime_window_create(parent.application.__backend.handle, width, height, flags, title);
 
-		if (handle != null) {
+		if (handle != null)
+		{
 			parent.__width = NativeCFFI.lime_window_get_width(handle);
 			parent.__height = NativeCFFI.lime_window_get_height(handle);
 			parent.__x = NativeCFFI.lime_window_get_x(handle);
@@ -147,7 +131,8 @@ class NativeWindow {
 		var contextType:String = NativeCFFI.lime_window_get_context_type(handle);
 		#end
 
-		switch (contextType) {
+		switch (contextType)
+		{
 			case "opengl":
 				var gl = new NativeOpenGLRenderContext();
 
@@ -163,12 +148,14 @@ class NativeWindow {
 				context.type = gl.type;
 				context.version = Std.string(gl.version);
 
-				if (gl.type == OPENGLES && gl.version >= 3) {
+				if (gl.type == OPENGLES && gl.version >= 3)
+				{
 					context.gles3 = gl;
 					context.webgl2 = gl;
 				}
 
-				if (GL.context == null) {
+				if (GL.context == null)
+				{
 					GL.context = gl;
 				}
 
@@ -195,37 +182,48 @@ class NativeWindow {
 		#end
 	}
 
-	public function alert(message:String, title:String):Void {
-		if (handle != null) {
+	public function alert(message:String, title:String):Void
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_alert(handle, message, title);
 			#end
 		}
 	}
 
-	public function close():Void {
-		if (!closing) {
+	public function close():Void
+	{
+		if (!closing)
+		{
 			closing = true;
 			parent.onClose.dispatch();
 
-			if (!parent.onClose.canceled) {
-				if (handle != null) {
+			if (!parent.onClose.canceled)
+			{
+				if (handle != null)
+				{
 					#if (!macro && lime_cffi)
 					NativeCFFI.lime_window_close(handle);
 					#end
 					handle = null;
 				}
-			} else {
+			}
+			else
+			{
 				closing = false;
 			}
 		}
 	}
 
-	public function contextFlip():Void {
+	public function contextFlip():Void
+	{
 		#if (!macro && lime_cffi)
-		if (!useHardware) {
+		if (!useHardware)
+		{
 			#if lime_cairo
-			if (cairo != null) {
+			if (cairo != null)
+			{
 				primarySurface.flush();
 			}
 			#end
@@ -236,24 +234,30 @@ class NativeWindow {
 		#end
 	}
 
-	public function focus():Void {
-		if (handle != null) {
+	public function focus():Void
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_focus(handle);
 			#end
 		}
 	}
 
-	public function getCursor():MouseCursor {
+	public function getCursor():MouseCursor
+	{
 		return cursor;
 	}
 
-	public function getDisplay():Display {
-		if (handle != null) {
+	public function getDisplay():Display
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			var index = NativeCFFI.lime_window_get_display(handle);
 
-			if (index > -1) {
+			if (index > -1)
+			{
 				return System.getDisplay(index);
 			}
 			#end
@@ -262,9 +266,11 @@ class NativeWindow {
 		return null;
 	}
 
-	public function getNativeHandle():Dynamic {
+	public function getNativeHandle():Dynamic
+	{
 		#if (!macro && lime_cffi)
-		if (handle != null) {
+		if (handle != null)
+		{
 			return NativeCFFI.lime_window_get_handle(handle);
 		}
 		#end
@@ -272,8 +278,10 @@ class NativeWindow {
 		return null;
 	}
 
-	public function getDisplayMode():DisplayMode {
-		if (handle != null) {
+	public function getDisplayMode():DisplayMode
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			#if hl
 			NativeCFFI.lime_window_get_display_mode(handle, displayMode);
@@ -290,12 +298,15 @@ class NativeWindow {
 		return displayMode;
 	}
 
-	public function getFrameRate():Float {
+	public function getFrameRate():Float
+	{
 		return frameRate;
 	}
 
-	public function getMouseLock():Bool {
-		if (handle != null) {
+	public function getMouseLock():Bool
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			mouseLock = NativeCFFI.lime_window_get_mouse_lock(handle);
 			#end
@@ -304,8 +315,10 @@ class NativeWindow {
 		return mouseLock;
 	}
 
-	public function getOpacity():Float {
-		if (handle != null) {
+	public function getOpacity():Float
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			return NativeCFFI.lime_window_get_opacity(handle);
 			#end
@@ -314,8 +327,10 @@ class NativeWindow {
 		return 1.0;
 	}
 
-	public function getTextInputEnabled():Bool {
-		if (handle != null) {
+	public function getTextInputEnabled():Bool
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			return NativeCFFI.lime_window_get_text_input_enabled(handle);
 			#end
@@ -324,18 +339,22 @@ class NativeWindow {
 		return false;
 	}
 
-	public function move(x:Int, y:Int):Void {
-		if (handle != null) {
+	public function move(x:Int, y:Int):Void
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_move(handle, x, y);
 			#end
 		}
 	}
 
-	public function readPixels(rect:Rectangle):Image {
+	public function readPixels(rect:Rectangle):Image
+	{
 		var imageBuffer:ImageBuffer = null;
 
-		switch (parent.context.type) {
+		switch (parent.context.type)
+		{
 			case OPENGL, OPENGLES, WEBGL:
 				var gl = parent.context.webgl;
 				var windowWidth = Std.int(parent.__width * parent.__scale);
@@ -343,12 +362,15 @@ class NativeWindow {
 
 				var x, y, width, height;
 
-				if (rect != null) {
+				if (rect != null)
+				{
 					x = Std.int(rect.x);
 					y = Std.int((windowHeight - rect.y) - rect.height);
 					width = Std.int(rect.width);
 					height = Std.int(rect.height);
-				} else {
+				}
+				else
+				{
 					x = 0;
 					y = 0;
 					width = windowWidth;
@@ -369,7 +391,8 @@ class NativeWindow {
 				var buffer = data.buffer;
 				var rows = Std.int(height / 2);
 
-				while (rows-- > 0) {
+				while (rows-- > 0)
+				{
 					temp.blit(0, buffer, destPosition, rowLength);
 					buffer.blit(destPosition, buffer, srcPosition, rowLength);
 					buffer.blit(srcPosition, temp, 0, rowLength);
@@ -387,39 +410,49 @@ class NativeWindow {
 				imageBuffer = NativeCFFI.lime_window_read_pixels(handle, rect, new ImageBuffer(new UInt8Array(Bytes.alloc(0))));
 				#else
 				var data:Dynamic = NativeCFFI.lime_window_read_pixels(handle, rect, null);
-				if (data != null) {
-					imageBuffer = new ImageBuffer(new UInt8Array(@:privateAccess new Bytes(data.data.length, data.data.b)), data.width, data.height, data.bitsPerPixel);
+				if (data != null)
+				{
+					imageBuffer = new ImageBuffer(new UInt8Array(@:privateAccess new Bytes(data.data.length, data.data.b)), data.width, data.height,
+						data.bitsPerPixel);
 				}
 				#end
 				#end
 
-				if (imageBuffer != null) {
+				if (imageBuffer != null)
+				{
 					imageBuffer.format = RGBA32;
 				}
 		}
 
-		if (imageBuffer != null) {
+		if (imageBuffer != null)
+		{
 			return new Image(imageBuffer);
 		}
 
 		return null;
 	}
 
-	public function render():Void {
+	public function render():Void
+	{
 		#if (!macro && lime_cffi)
 		NativeCFFI.lime_window_context_make_current(handle);
 
-		if (!useHardware) {
+		if (!useHardware)
+		{
 			#if lime_cairo
 			var lock:Dynamic = NativeCFFI.lime_window_context_lock(handle);
 
 			if (lock != null
-				&& (cacheLock == null || cacheLock.pixels != lock.pixels || cacheLock.width != lock.width || cacheLock.height != lock.height)) {
+				&& (cacheLock == null || cacheLock.pixels != lock.pixels || cacheLock.width != lock.width || cacheLock.height != lock.height))
+			{
 				primarySurface = CairoImageSurface.create(lock.pixels, CairoFormat.ARGB32, lock.width, lock.height, lock.pitch);
 
-				if (cairo != null) {
+				if (cairo != null)
+				{
 					cairo.recreate(primarySurface);
-				} else {
+				}
+				else
+				{
 					cairo = new Cairo(primarySurface);
 				}
 
@@ -434,32 +467,40 @@ class NativeWindow {
 		#end
 	}
 
-	public function resize(width:Int, height:Int):Void {
-		if (handle != null) {
+	public function resize(width:Int, height:Int):Void
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_resize(handle, width, height);
 			#end
 		}
 	}
 
-	public function setMinSize(width:Int, height:Int):Void {
-		if (handle != null) {
+	public function setMinSize(width:Int, height:Int):Void
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_set_minimum_size(handle, width, height);
 			#end
 		}
 	}
 
-	public function setMaxSize(width:Int, height:Int):Void {
-		if (handle != null) {
+	public function setMaxSize(width:Int, height:Int):Void
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_set_maximum_size(handle, width, height);
 			#end
 		}
 	}
 
-	public function setBorderless(value:Bool):Bool {
-		if (handle != null) {
+	public function setBorderless(value:Bool):Bool
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_set_borderless(handle, value);
 			#end
@@ -468,10 +509,13 @@ class NativeWindow {
 		return value;
 	}
 
-	public function setCursor(value:MouseCursor):MouseCursor {
-		if (handle != null && !Type.enumEq(cursor, value)) {
+	public function setCursor(value:MouseCursor):MouseCursor
+	{
+		if (handle != null && !Type.enumEq(cursor, value))
+		{
 			#if (!macro && lime_cffi)
-			switch (value) {
+			switch (value)
+			{
 				case CUSTOM(data):
 					data.__update();
 					NativeCFFI.lime_window_set_cursor_directly(handle, data.__handle);
@@ -480,7 +524,8 @@ class NativeWindow {
 					NativeCFFI.lime_window_set_cursor(handle, 0);
 
 				default:
-					var type:MouseCursorType = switch (value) {
+					var type:MouseCursorType = switch (value)
+					{
 						case ARROW: ARROW;
 						case CROSSHAIR: CROSSHAIR;
 						case MOVE: MOVE;
@@ -505,8 +550,10 @@ class NativeWindow {
 		return cursor;
 	}
 
-	public function setDisplayMode(value:DisplayMode):DisplayMode {
-		if (handle != null) {
+	public function setDisplayMode(value:DisplayMode):DisplayMode
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			#if hl
 			NativeCFFI.lime_window_set_display_mode(handle, value, displayMode);
@@ -523,8 +570,10 @@ class NativeWindow {
 		return displayMode;
 	}
 
-	public function setMouseLock(value:Bool):Bool {
-		if (mouseLock != value) {
+	public function setMouseLock(value:Bool):Bool
+	{
+		if (mouseLock != value)
+		{
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_set_mouse_lock(handle, value);
 			#end
@@ -535,8 +584,10 @@ class NativeWindow {
 		return mouseLock;
 	}
 
-	public function setTextInputEnabled(value:Bool):Bool {
-		if (handle != null) {
+	public function setTextInputEnabled(value:Bool):Bool
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_set_text_input_enabled(handle, value);
 			#end
@@ -545,8 +596,10 @@ class NativeWindow {
 		return value;
 	}
 
-	public function setTextInputRect(value:Rectangle):Rectangle {
-		if (handle != null) {
+	public function setTextInputRect(value:Rectangle):Rectangle
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_set_text_input_rect(handle, value);
 			#end
@@ -555,10 +608,12 @@ class NativeWindow {
 		return value;
 	}
 
-	public function setFrameRate(value:Float):Float {
+	public function setFrameRate(value:Float):Float
+	{
 		// TODO: Support multiple independent frame rates per window
 
-		if (handle != null) {
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_application_set_frame_rate(parent.application.__backend.handle, value);
 			#end
@@ -567,18 +622,25 @@ class NativeWindow {
 		return frameRate = value;
 	}
 
-	public function getMousePosition():Vector2 {
+	public function getMousePosition():Vector2
+	{
 		#if (!macro && lime_cffi)
-		if (handle != null) {
-			return new Vector2(NativeCFFI.lime_window_get_mouse_position_x(handle), NativeCFFI.lime_window_get_mouse_position_y(handle));
+		if (handle != null)
+		{
+			return new Vector2(
+				NativeCFFI.lime_window_get_mouse_position_x(handle),
+				NativeCFFI.lime_window_get_mouse_position_y(handle)
+			);
 		}
 		#end
 
 		return null;
 	}
 
-	public function setFullscreen(value:Bool):Bool {
-		if (handle != null) {
+	public function setFullscreen(value:Bool):Bool
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			value = NativeCFFI.lime_window_set_fullscreen(handle, value);
 
@@ -588,7 +650,8 @@ class NativeWindow {
 			parent.__y = NativeCFFI.lime_window_get_y(handle);
 			#end
 
-			if (value) {
+			if (value)
+			{
 				parent.onFullscreen.dispatch();
 			}
 		}
@@ -596,16 +659,20 @@ class NativeWindow {
 		return value;
 	}
 
-	public function setIcon(image:Image):Void {
-		if (handle != null) {
+	public function setIcon(image:Image):Void
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_set_icon(handle, image.buffer);
 			#end
 		}
 	}
 
-	public function setMaximized(value:Bool):Bool {
-		if (handle != null) {
+	public function setMaximized(value:Bool):Bool
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			return NativeCFFI.lime_window_set_maximized(handle, value);
 			#end
@@ -614,8 +681,10 @@ class NativeWindow {
 		return value;
 	}
 
-	public function setMinimized(value:Bool):Bool {
-		if (handle != null) {
+	public function setMinimized(value:Bool):Bool
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			return NativeCFFI.lime_window_set_minimized(handle, value);
 			#end
@@ -624,16 +693,20 @@ class NativeWindow {
 		return value;
 	}
 
-	public function setOpacity(value:Float):Void {
-		if (handle != null) {
+	public function setOpacity(value:Float):Void
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_set_opacity(handle, value);
 			#end
 		}
 	}
 
-	public function setResizable(value:Bool):Bool {
-		if (handle != null) {
+	public function setResizable(value:Bool):Bool
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_set_resizable(handle, value);
 
@@ -647,8 +720,10 @@ class NativeWindow {
 		return value;
 	}
 
-	public function setTitle(value:String):String {
-		if (handle != null) {
+	public function setTitle(value:String):String
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			return NativeCFFI.lime_window_set_title(handle, value);
 			#end
@@ -657,8 +732,10 @@ class NativeWindow {
 		return value;
 	}
 
-	public function setVisible(value:Bool):Bool {
-		if (handle != null) {
+	public function setVisible(value:Bool):Bool
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_set_visible(handle, value);
 			#end
@@ -667,8 +744,10 @@ class NativeWindow {
 		return value;
 	}
 
-	public function setVSync(value:Bool):Bool {
-		if (handle != null) {
+	public function setVSync(value:Bool):Bool
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			return NativeCFFI.lime_window_set_vsync(handle, value);
 			#end
@@ -677,8 +756,10 @@ class NativeWindow {
 		return value;
 	}
 
-	public function setAlwaysOnTop(value:Bool):Bool {
-		if (handle != null) {
+	public function setAlwaysOnTop(value:Bool):Bool
+	{
+		if (handle != null)
+		{
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_set_always_on_top(handle, value);
 			#end
@@ -687,14 +768,16 @@ class NativeWindow {
 		return value;
 	}
 
-	public function warpMouse(x:Int, y:Int):Void {
+	public function warpMouse(x:Int, y:Int):Void
+	{
 		#if (!macro && lime_cffi)
 		NativeCFFI.lime_window_warp_mouse(handle, x, y);
 		#end
 	}
 }
 
-#if (haxe_ver >= 4.0) enum #else @:enum #end abstract MouseCursorType(Int) from Int to Int {
+#if (haxe_ver >= 4.0) enum #else @:enum #end abstract MouseCursorType(Int) from Int to Int
+{
 	var HIDDEN = 0;
 	var ARROW = 1;
 	var CROSSHAIR = 2;
@@ -710,7 +793,8 @@ class NativeWindow {
 	var WAIT_ARROW = 12;
 }
 
-#if (haxe_ver >= 4.0) enum #else @:enum #end abstract WindowFlags(Int) {
+#if (haxe_ver >= 4.0) enum #else @:enum #end abstract WindowFlags(Int)
+{
 	var WINDOW_FLAG_FULLSCREEN = 0x00000001;
 	var WINDOW_FLAG_BORDERLESS = 0x00000002;
 	var WINDOW_FLAG_RESIZABLE = 0x00000004;

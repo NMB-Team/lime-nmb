@@ -12,11 +12,12 @@ import lime.utils.Preloader;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class Module implements IModule {
+class Module implements IModule
+{
 	/**
 		Exit events are dispatched when the application is exiting
 	**/
-	public var onExit = new Event<Int -> Void>();
+	public var onExit = new Event<Int->Void>();
 
 	/**
 		Creates a new `Module` instance

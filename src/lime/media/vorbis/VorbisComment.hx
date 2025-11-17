@@ -1,7 +1,8 @@
 package lime.media.vorbis;
 
 #if (!lime_doc_gen || lime_vorbis)
-class VorbisComment {
+class VorbisComment
+{
 	public var userComments:Array<String>;
 	public var vendor:String;
 

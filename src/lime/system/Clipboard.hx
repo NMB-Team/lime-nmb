@@ -16,11 +16,12 @@ import lime._internal.backend.html5.HTML5Window;
 #end
 @:access(lime._internal.backend.native.NativeCFFI)
 @:access(lime.ui.Window)
-class Clipboard {
+class Clipboard
+{
 	/**
 		Dispatched when the clipboard text changes.
 	**/
-	public static var onUpdate = new Event<Void -> Void>();
+	public static var onUpdate = new Event<Void->Void>();
 
 	/**
 		The text currently stored in the clipboard.
@@ -30,33 +31,38 @@ class Clipboard {
 	private static var _text:String;
 	@:noCompletion private static var __updated = false;
 
-	private static function __update():Void {
+	private static function __update():Void
+	{
 		var cacheText = _text;
 		_text = null;
 
 		#if (lime_cffi && !macro)
 		#if hl
 		var utf = NativeCFFI.lime_clipboard_get_text();
-		if (utf != null) {
+		if (utf != null)
+		{
 			_text = @:privateAccess String.fromUTF8(utf);
 		}
 		#else
 		_text = NativeCFFI.lime_clipboard_get_text();
 		#end
 		#elseif flash
-		if (FlashClipboard.generalClipboard.hasFormat(TEXT_FORMAT)) {
+		if (FlashClipboard.generalClipboard.hasFormat(TEXT_FORMAT))
+		{
 			_text = FlashClipboard.generalClipboard.getData(TEXT_FORMAT);
 		}
 		#end
 		__updated = true;
 
-		if (_text != cacheText) {
+		if (_text != cacheText)
+		{
 			onUpdate.dispatch();
 		}
 	}
 
 	// Get & Set Methods
-	private static function get_text():String {
+	private static function get_text():String
+	{
 		// Native clipboard (except Xorg) calls __update when clipboard changes.
 
 		#if (flash || js || html5)
@@ -65,7 +71,8 @@ class Clipboard {
 		// Xorg won't call __update until we call set_text at least once.
 		// Details: SDL_x11clipboard.c calls X11_XSetSelectionOwner,
 		// registering this app to receive clipboard events.
-		if (_text == null) {
+		if (_text == null)
+		{
 			__update();
 
 			// Call set_text while changing as little as possible. (Rich text
@@ -73,7 +80,8 @@ class Clipboard {
 			set_text(_text);
 		}
 		#elseif (windows || mac)
-		if (!__updated) {
+		if (!__updated)
+		{
 			// Lime listens for clipboard updates automatically, but if the
 			// clipboard has never been updated since before the app started,
 			// we need to populate the initial contents manually
@@ -84,7 +92,8 @@ class Clipboard {
 		return _text;
 	}
 
-	private static function set_text(value:String):String {
+	private static function set_text(value:String):String
+	{
 		var cacheText = _text;
 		_text = value;
 
@@ -94,12 +103,14 @@ class Clipboard {
 		FlashClipboard.generalClipboard.setData(TEXT_FORMAT, value);
 		#elseif (js && html5)
 		var window = Application.current.window;
-		if (window != null) {
+		if (window != null)
+		{
 			window.__backend.setClipboard(value);
 		}
 		#end
 
-		if (_text != cacheText) {
+		if (_text != cacheText)
+		{
 			onUpdate.dispatch();
 		}
 

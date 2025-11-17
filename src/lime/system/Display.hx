@@ -6,7 +6,8 @@ import lime.math.Rectangle;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class Display {
+class Display
+{
 	/**
 	 * The desktop area represented by this display, with the upper-leftmost display at 0,0
 	**/

@@ -10,7 +10,8 @@ abstract MetaData({
 	@:optional var packageName:String;
 	@:optional var title:String;
 	@:optional var version:String;
-}) from Dynamic {
+}) from Dynamic
+{
 	@:noCompletion
 	public static var expectedFields:MetaData = {
 		buildNumber: "",

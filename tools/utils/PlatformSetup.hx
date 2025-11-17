@@ -3,19 +3,17 @@ package utils;
 import haxe.Http;
 import haxe.io.Eof;
 import haxe.zip.Reader;
-
 import hxp.*;
-
 import lime.tools.CLIHelper;
 import lime.tools.ConfigHelper;
 import lime.tools.Platform;
 import lime.tools.HXProject;
-
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
 
-class PlatformSetup {
+class PlatformSetup
+{
 	private static var appleXcodeURL = "https://developer.apple.com/xcode/download/";
 	private static var linuxAptPackages = "gcc-multilib g++-multilib";
 	private static var linuxUbuntuSaucyPackages = "gcc-multilib g++-multilib libxext-dev";
@@ -32,30 +30,41 @@ class PlatformSetup {
 	private static var targetFlags:Map<String, Dynamic>;
 	private static var setupHaxelibs = new Map<String, Bool>();
 
-	private static function createPath(path:String, defaultPath:String = ""):String {
-		try {
-			if (path == "") {
+	private static function createPath(path:String, defaultPath:String = ""):String
+	{
+		try
+		{
+			if (path == "")
+			{
 				System.mkdir(defaultPath);
 				return defaultPath;
-			} else {
+			}
+			else
+			{
 				System.mkdir(path);
 				return path;
 			}
-		} catch (e:Dynamic) {
+		}
+		catch (e:Dynamic)
+		{
 			throwPermissionsError();
 			return "";
 		}
 	}
 
-	private static function downloadFile(remotePath:String, localPath:String = "", followingLocation:Bool = false):Void {
-		if (localPath == "") {
+	private static function downloadFile(remotePath:String, localPath:String = "", followingLocation:Bool = false):Void
+	{
+		if (localPath == "")
+		{
 			localPath = Path.withoutDirectory(remotePath);
 		}
 
-		if (!followingLocation && FileSystem.exists(localPath)) {
+		if (!followingLocation && FileSystem.exists(localPath))
+		{
 			var answer = CLIHelper.ask("File found. Install existing file?");
 
-			if (answer != NO) {
+			if (answer != NO)
+			{
 				return;
 			}
 		}
@@ -66,41 +75,52 @@ class PlatformSetup {
 
 		h.cnxTimeout = 30;
 
-		h.onError = function(e) {
+		h.onError = function(e)
+		{
 			progress.close();
 			FileSystem.deleteFile(localPath);
 			throw e;
 		};
 
-		if (!followingLocation) {
+		if (!followingLocation)
+		{
 			Log.println("Downloading " + localPath + "...");
 		}
 
 		h.customRequest(false, progress);
 
-		if (h.responseHeaders != null && h.responseHeaders.exists("Location")) {
+		if (h.responseHeaders != null && h.responseHeaders.exists("Location"))
+		{
 			var location = h.responseHeaders.get("Location");
 
-			if (location != remotePath) {
+			if (location != remotePath)
+			{
 				downloadFile(location, localPath, true);
 			}
 		}
 	}
 
-	private static function extractFile(sourceZIP:String, targetPath:String, ignoreRootFolder:String = ""):Void {
+	private static function extractFile(sourceZIP:String, targetPath:String, ignoreRootFolder:String = ""):Void
+	{
 		var extension = Path.extension(sourceZIP);
 
-		if (extension != "zip") {
+		if (extension != "zip")
+		{
 			var arguments = "xvzf";
 
-			if (extension == "bz2" || extension == "tbz2") {
+			if (extension == "bz2" || extension == "tbz2")
+			{
 				arguments = "xvjf";
 			}
 
-			if (ignoreRootFolder != "") {
-				if (ignoreRootFolder == "*") {
-					for (file in FileSystem.readDirectory(targetPath)) {
-						if (FileSystem.isDirectory(targetPath + "/" + file)) {
+			if (ignoreRootFolder != "")
+			{
+				if (ignoreRootFolder == "*")
+				{
+					for (file in FileSystem.readDirectory(targetPath))
+					{
+						if (FileSystem.isDirectory(targetPath + "/" + file))
+						{
 							ignoreRootFolder = file;
 						}
 					}
@@ -109,41 +129,50 @@ class PlatformSetup {
 				System.runCommand("", "tar", [arguments, sourceZIP], false);
 				System.runCommand("", "cp", ["-R", ignoreRootFolder + "/.", targetPath], false);
 				Sys.command("rm", ["-r", ignoreRootFolder]);
-			} else {
+			}
+			else
+			{
 				System.runCommand("", "tar", [arguments, sourceZIP, "-C", targetPath], false);
 
 				// InstallTool.runCommand (targetPath, "tar", [ arguments, FileSystem.fullPath (sourceZIP) ]);
 			}
 
 			Sys.command("chmod", ["-R", "755", targetPath]);
-		} else {
+		}
+		else
+		{
 			var file = File.read(sourceZIP, true);
 			var entries = Reader.readZip(file);
 			file.close();
 
-			for (entry in entries) {
+			for (entry in entries)
+			{
 				var fileName = entry.fileName;
 
-				if (fileName.charAt(0) != "/" && fileName.charAt(0) != "\\" && fileName.split("..").length <= 1) {
+				if (fileName.charAt(0) != "/" && fileName.charAt(0) != "\\" && fileName.split("..").length <= 1)
+				{
 					var dirs = ~/[\/\\]/g.split(fileName);
 
-					if ((ignoreRootFolder != "" && dirs.length > 1) || ignoreRootFolder == "") {
-						if (ignoreRootFolder != "") {
+					if ((ignoreRootFolder != "" && dirs.length > 1) || ignoreRootFolder == "")
+					{
+						if (ignoreRootFolder != "")
+						{
 							dirs.shift();
 						}
 
 						var path = "";
 						var file = dirs.pop();
 
-						for (d in dirs) {
+						for (d in dirs)
+						{
 							path += d;
 							System.mkdir(targetPath + "/" + path);
 							path += "/";
 						}
 
-						if (file == "") {
-							if (path != "")
-								Log.println("  Created " + path);
+						if (file == "")
+						{
+							if (path != "") Log.println("  Created " + path);
 							continue; // was just a directory
 						}
 
@@ -162,18 +191,23 @@ class PlatformSetup {
 		Log.println("Done");
 	}
 
-	public static function getDefineValue(name:String, description:String):Void {
+	public static function getDefineValue(name:String, description:String):Void
+	{
 		var value = ConfigHelper.getConfigValue(name);
 
-		if (value == null && Sys.getEnv(name) != null) {
+		if (value == null && Sys.getEnv(name) != null)
+		{
 			value = Sys.getEnv(name);
 		}
 
 		var inputValue = unescapePath(CLIHelper.param(Log.accentColor + description + "\x1b[0m \x1b[37;3m[" + (value != null ? value : "") + "]\x1b[0m"));
 
-		if (inputValue != "" && inputValue != value) {
+		if (inputValue != "" && inputValue != value)
+		{
 			ConfigHelper.writeConfigValue(name, inputValue);
-		} else if (inputValue == Sys.getEnv(inputValue)) {
+		}
+		else if (inputValue == Sys.getEnv(inputValue))
+		{
 			ConfigHelper.removeConfigValue(name);
 		}
 	}
@@ -231,11 +265,13 @@ class PlatformSetup {
 	// }
 	// return defines;
 	// }
-	public static function installHaxelib(haxelib:Haxelib):Void {
+	public static function installHaxelib(haxelib:Haxelib):Void
+	{
 		var name = haxelib.name;
 		var version = haxelib.version;
 
-		if (version != null && version.indexOf("*") > -1) {
+		if (version != null && version.indexOf("*") > -1)
+		{
 			var regexp = new EReg("^.+[0-9]+-[0-9]+-[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +([a-z0-9.-]+) +", "gi");
 			var output = Haxelib.runProcess("", ["info", haxelib.name]);
 			var lines = output.split("\n");
@@ -243,55 +279,74 @@ class PlatformSetup {
 			var versions = new Array<Version>();
 			var ver:Version;
 
-			for (line in lines) {
-				if (regexp.match(line)) {
-					try {
+			for (line in lines)
+			{
+				if (regexp.match(line))
+				{
+					try
+					{
 						ver = regexp.matched(1);
 						versions.push(ver);
-					} catch (e:Dynamic) {}
+					}
+					catch (e:Dynamic) {}
 				}
 			}
 
 			var match = Haxelib.findMatch(haxelib, versions);
 
-			if (match != null) {
+			if (match != null)
+			{
 				version = match;
-			} else {
+			}
+			else
+			{
 				Log.error("Could not find version \"" + haxelib.version + "\" for haxelib \"" + haxelib.name + "\"");
 			}
 		}
 
 		var args = ["install", name];
 
-		if (version != null && version != "" && version.indexOf("*") == -1) {
+		if (version != null && version != "" && version.indexOf("*") == -1)
+		{
 			args.push(version);
 		}
 
 		Haxelib.runCommand("", args);
 	}
 
-	private static function link(dir:String, file:String, dest:String):Void {
+	private static function link(dir:String, file:String, dest:String):Void
+	{
 		Sys.command("rm -rf " + dest + "/" + file);
 		Sys.command("ln -s " + "/usr/lib" + "/" + dir + "/" + file + " " + dest + "/" + file);
 	}
 
-	private static function openURL(url:String):Void {
-		if (System.hostPlatform == WINDOWS) {
+	private static function openURL(url:String):Void
+	{
+		if (System.hostPlatform == WINDOWS)
+		{
 			Sys.command("explorer", [url]);
-		} else if (System.hostPlatform == LINUX) {
+		}
+		else if (System.hostPlatform == LINUX)
+		{
 			System.runCommand("", "xdg-open", [url], false);
-		} else {
+		}
+		else
+		{
 			System.runCommand("", "open", [url], false);
 		}
 	}
 
-	public static function run(target:String = "", userDefines:Map<String, Dynamic> = null, targetFlags:Map<String, Dynamic> = null) {
+	public static function run(target:String = "", userDefines:Map<String, Dynamic> = null, targetFlags:Map<String, Dynamic> = null)
+	{
 		PlatformSetup.userDefines = userDefines;
 		PlatformSetup.targetFlags = targetFlags;
 
-		try {
-			if (target == "cpp") {
-				switch (System.hostPlatform) {
+		try
+		{
+			if (target == "cpp")
+			{
+				switch (System.hostPlatform)
+				{
 					case WINDOWS:
 						target = "windows";
 					case MAC:
@@ -302,7 +357,8 @@ class PlatformSetup {
 				}
 			}
 
-			switch (target) {
+			switch (target)
+			{
 				case "air":
 					setupAIR();
 
@@ -310,41 +366,48 @@ class PlatformSetup {
 					setupAndroid();
 
 				case "blackberry":
-					// setupBlackBerry ();
+
+				// setupBlackBerry ();
 
 				case "html5":
 					Log.println("\x1b[0;3mNo additional configuration is required.\x1b[0m");
 				// setupHTML5 ();
 
 				case "ios", "iphoneos", "iphonesim":
-					if (System.hostPlatform == MAC) {
+					if (System.hostPlatform == MAC)
+					{
 						setupIOS();
 					}
 
 				case "linux":
-					if (System.hostPlatform == LINUX) {
+					if (System.hostPlatform == LINUX)
+					{
 						setupLinux();
 					}
 
 				case "mac", "macos":
-					if (System.hostPlatform == MAC) {
+					if (System.hostPlatform == MAC)
+					{
 						setupMac();
 					}
 
 				case "tizen":
-					// setupTizen ();
+
+				// setupTizen ();
 
 				case "webassembly", "wasm", "emscripten":
 					setupWebAssembly();
 
 				case "webos":
-					// setupWebOS ();
+
+				// setupWebOS ();
 
 				case "electron":
 					setupElectron();
 
 				case "windows", "winrt":
-					if (System.hostPlatform == WINDOWS) {
+					if (System.hostPlatform == WINDOWS)
+					{
 						setupWindows();
 					}
 
@@ -361,12 +424,14 @@ class PlatformSetup {
 					setupOpenFL();
 
 				case "tvos", "tvsim":
-					if (System.hostPlatform == MAC) {
+					if (System.hostPlatform == MAC)
+					{
 						setupIOS();
 					}
 
 				case "":
-					switch (CommandLineTools.defaultLibrary) {
+					switch (CommandLineTools.defaultLibrary)
+					{
 						case "lime": setupLime();
 						case "openfl": setupOpenFL();
 						default: setupHaxelib(new Haxelib(CommandLineTools.defaultLibrary));
@@ -375,38 +440,56 @@ class PlatformSetup {
 				default:
 					setupHaxelib(new Haxelib(target));
 			}
-		} catch (e:Eof) {}
+		}
+		catch (e:Eof) {}
 	}
 
-	private static function runInstaller(path:String, message:String = "Waiting for process to complete..."):Void {
-		if (System.hostPlatform == WINDOWS) {
-			try {
+	private static function runInstaller(path:String, message:String = "Waiting for process to complete..."):Void
+	{
+		if (System.hostPlatform == WINDOWS)
+		{
+			try
+			{
 				Log.println(message);
 				System.runCommand("", "call", [path], false);
 				Log.println("Done");
-			} catch (e:Dynamic) {}
-		} else if (System.hostPlatform == LINUX) {
-			if (Path.extension(path) == "deb") {
+			}
+			catch (e:Dynamic) {}
+		}
+		else if (System.hostPlatform == LINUX)
+		{
+			if (Path.extension(path) == "deb")
+			{
 				System.runCommand("", "sudo", ["dpkg", "-i", "--force-architecture", path], false);
-			} else {
+			}
+			else
+			{
 				Log.println(message);
 				Sys.command("chmod", ["755", path]);
 
-				if (path.substr(0, 1) == "/") {
+				if (path.substr(0, 1) == "/")
+				{
 					System.runCommand("", path, [], false);
-				} else {
+				}
+				else
+				{
 					System.runCommand("", "./" + path, [], false);
 				}
 
 				Log.println("Done");
 			}
-		} else {
-			if (Path.extension(path) == "") {
+		}
+		else
+		{
+			if (Path.extension(path) == "")
+			{
 				Log.println(message);
 				Sys.command("chmod", ["755", path]);
 				System.runCommand("", path, [], false);
 				Log.println("Done");
-			} else if (Path.extension(path) == "dmg") {
+			}
+			else if (Path.extension(path) == "dmg")
+			{
 				var process = new Process("hdiutil", ["mount", path]);
 				var ret = process.stdout.readAll().toString();
 				process.exitCode(); // you need this to wait till the process is closed!
@@ -414,19 +497,23 @@ class PlatformSetup {
 
 				var volumePath = "";
 
-				if (ret != null && ret != "") {
+				if (ret != null && ret != "")
+				{
 					volumePath = StringTools.trim(ret.substr(ret.indexOf("/Volumes")));
 				}
 
-				if (volumePath != "" && FileSystem.exists(volumePath)) {
+				if (volumePath != "" && FileSystem.exists(volumePath))
+				{
 					var apps = [];
 					var packages = [];
 					var executables = [];
 
 					var files:Array<String> = FileSystem.readDirectory(volumePath);
 
-					for (file in files) {
-						switch (Path.extension(file)) {
+					for (file in files)
+					{
+						switch (Path.extension(file))
+						{
 							case "app":
 								apps.push(file);
 
@@ -440,39 +527,53 @@ class PlatformSetup {
 
 					var file = "";
 
-					if (apps.length == 1) {
+					if (apps.length == 1)
+					{
 						file = apps[0];
-					} else if (packages.length == 1) {
+					}
+					else if (packages.length == 1)
+					{
 						file = packages[0];
-					} else if (executables.length == 1) {
+					}
+					else if (executables.length == 1)
+					{
 						file = executables[0];
 					}
 
-					if (file != "") {
+					if (file != "")
+					{
 						Log.println(message);
 						System.runCommand("", "open", ["-W", volumePath + "/" + file], false);
 						Log.println("Done");
 					}
 
-					try {
+					try
+					{
 						var process = new Process("hdiutil", ["unmount", path]);
 						process.exitCode(); // you need this to wait till the process is closed!
 						process.close();
-					} catch (e:Dynamic) {}
+					}
+					catch (e:Dynamic) {}
 
-					if (file == "") {
+					if (file == "")
+					{
 						System.runCommand("", "open", [path], false);
 					}
-				} else {
+				}
+				else
+				{
 					System.runCommand("", "open", [path], false);
 				}
-			} else {
+			}
+			else
+			{
 				System.runCommand("", "open", [path], false);
 			}
 		}
 	}
 
-	public static function setupAIR():Void {
+	public static function setupAIR():Void
+	{
 		Log.println("\x1b[1mIn order to package SWF applications using Adobe AIR, you must");
 		Log.println("download and extract the Adobe AIR SDK.");
 		Log.println("");
@@ -483,7 +584,8 @@ class PlatformSetup {
 		Log.println("Setup complete.");
 	}
 
-	public static function setupAndroid():Void {
+	public static function setupAndroid():Void
+	{
 		Log.println("\x1b[1mIn order to build applications for Android, you must have recent");
 		Log.println("versions of the Android SDK, Android NDK and Java JDK installed.");
 		Log.println("");
@@ -494,11 +596,13 @@ class PlatformSetup {
 		getDefineValue("ANDROID_SDK", "Path to Android SDK");
 		getDefineValue("ANDROID_NDK_ROOT", "Path to Android NDK");
 
-		if (System.hostPlatform != MAC) {
+		if (System.hostPlatform != MAC)
+		{
 			getDefineValue("JAVA_HOME", "Path to Java JDK");
 		}
 
-		if (ConfigHelper.getConfigValue("ANDROID_SETUP") == null) {
+		if (ConfigHelper.getConfigValue("ANDROID_SETUP") == null)
+		{
 			ConfigHelper.writeConfigValue("ANDROID_SETUP", "true");
 		}
 
@@ -506,7 +610,8 @@ class PlatformSetup {
 		Log.println("Setup complete.");
 	}
 
-	public static function setupElectron():Void {
+	public static function setupElectron():Void
+	{
 		Log.println("\x1b[1mIn order to run Electron applications, you must download");
 		Log.println("and extract the Electron runtime on your system.");
 		Log.println("");
@@ -520,37 +625,44 @@ class PlatformSetup {
 		Log.println("Setup complete.");
 	}
 
-	public static function setupHaxelib(haxelib:Haxelib, dependency:Bool = false):Void {
+	public static function setupHaxelib(haxelib:Haxelib, dependency:Bool = false):Void
+	{
 		setupHaxelibs.set(haxelib.name, true);
 
 		var defines = new Map<String, Dynamic>();
 		defines.set("setup", 1);
 
 		var basePath = Haxelib.runProcess("", ["config"]);
-		if (basePath != null) {
+		if (basePath != null)
+		{
 			basePath = StringTools.trim(basePath.split("\n")[0]);
 		}
 		var lib = Haxelib.getPath(haxelib, false, true);
-		if (lib != null && !StringTools.startsWith(Path.standardize(lib), Path.standardize(basePath))) {
+		if (lib != null && !StringTools.startsWith(Path.standardize(lib), Path.standardize(basePath)))
+		{
 			defines.set("dev", 1);
 		}
 
 		var project = HXProject.fromHaxelib(haxelib, defines, true);
 
-		if (project != null && project.haxelibs.length > 0) {
-			for (lib in project.haxelibs) {
-				if (setupHaxelibs.exists(lib.name))
-					continue;
+		if (project != null && project.haxelibs.length > 0)
+		{
+			for (lib in project.haxelibs)
+			{
+				if (setupHaxelibs.exists(lib.name)) continue;
 
 				var path = Haxelib.getPath(lib, false, true);
 
-				if (path == null || path == "" || (lib.version != null && lib.version != "")) {
-					if (defines.exists("dev")) {
+				if (path == null || path == "" || (lib.version != null && lib.version != ""))
+				{
+					if (defines.exists("dev"))
+					{
 						Log.error("Could not find dependency \"" + lib.name + "\" for library \"" + haxelib.name + "\"");
 					}
 
 					installHaxelib(lib);
-				} else
+				}
+				else
 					/*if (userDefines.exists ("upgrade"))*/
 				{
 					updateHaxelib(lib);
@@ -558,12 +670,15 @@ class PlatformSetup {
 
 				setupHaxelib(lib, true);
 			}
-		} else if (!dependency) {
+		}
+		else if (!dependency)
+		{
 			// Log.warn ("No setup is required for " + haxelib.name + ", or it is not a valid target");
 		}
 	}
 
-	public static function setupHTML5():Void {
+	public static function setupHTML5():Void
+	{
 		// var setApacheCordova = false;
 
 		// var defines = getDefines ();
@@ -678,7 +793,8 @@ class PlatformSetup {
 		// Haxelib.runCommand ("", [ "install", "cordova" ], true, true);
 	}
 
-	public static function setupIOS():Void {
+	public static function setupIOS():Void
+	{
 		Log.println("\x1b[1mIn order to build applications for iOS and tvOS, you must have");
 		Log.println("Xcode installed. Xcode is available from Apple as a free download.\x1b[0m");
 		Log.println("");
@@ -687,66 +803,89 @@ class PlatformSetup {
 
 		var answer = CLIHelper.ask("Would you like to visit the download page now?");
 
-		if (answer == YES || answer == ALWAYS) {
+		if (answer == YES || answer == ALWAYS)
+		{
 			System.openURL(appleXcodeURL);
 		}
 	}
 
-	public static function setupLime():Void {
-		if (!targetFlags.exists("alias") && !targetFlags.exists("cli")) {
+	public static function setupLime():Void
+	{
+		if (!targetFlags.exists("alias") && !targetFlags.exists("cli"))
+		{
 			setupHaxelib(new Haxelib("lime"));
 		}
 
 		var haxePathEnv = Sys.getEnv("HAXEPATH");
 		var haxePath = haxePathEnv;
 
-		if (System.hostPlatform == WINDOWS) {
+		if (System.hostPlatform == WINDOWS)
+		{
 			var usingDefaultHaxePath = false;
-			if (haxePath == null || haxePath == "") {
+			if (haxePath == null || haxePath == "")
+			{
 				usingDefaultHaxePath = true;
 				haxePath = "C:\\HaxeToolkit\\haxe\\";
 			}
 
 			var copyFailure = false;
 			var exeDestPath = haxePath + "\\lime.exe";
-			try {
+			try
+			{
 				File.copy(Haxelib.getPath(new Haxelib("lime")) + "\\templates\\\\bin\\lime.exe", exeDestPath);
-			} catch (e:Dynamic) {
+			}
+			catch (e:Dynamic)
+			{
 				copyFailure = true;
-				if (Log.verbose) {
+				if (Log.verbose)
+				{
 					Log.warn("Failed to copy lime.exe alias to destination: " + exeDestPath);
 				}
 			}
 			var shDestPath = haxePath + "\\lime";
-			try {
+			try
+			{
 				File.copy(Haxelib.getPath(new Haxelib("lime")) + "\\templates\\\\bin\\lime.sh", shDestPath);
-			} catch (e:Dynamic) {
+			}
+			catch (e:Dynamic)
+			{
 				copyFailure = true;
-				if (Log.verbose) {
+				if (Log.verbose)
+				{
 					Log.warn("Failed to copy lime.sh alias to destination: " + shDestPath);
 				}
 			}
-			if (Log.verbose && copyFailure && usingDefaultHaxePath && !FileSystem.exists(haxePath)) {
+			if (Log.verbose && copyFailure && usingDefaultHaxePath && !FileSystem.exists(haxePath))
+			{
 				Log.warn("Did you install Haxe to a custom location? Set the HAXEPATH environment variable, and run Lime setup again.");
 			}
-		} else {
-			if (haxePath == null || haxePath == "") {
+		}
+		else
+		{
+			if (haxePath == null || haxePath == "")
+			{
 				haxePath = "/usr/lib/haxe";
 			}
 
 			var installedCommand = false;
 			var answer = YES;
 
-			if (targetFlags.exists("y")) {
+			if (targetFlags.exists("y"))
+			{
 				Sys.println("Do you want to install the \"lime\" command? [y/n/a] y");
-			} else {
+			}
+			else
+			{
 				answer = CLIHelper.ask("Do you want to install the \"lime\" command?");
 			}
 
-			if (answer == YES || answer == ALWAYS) {
-				if (System.hostPlatform == MAC) {
+			if (answer == YES || answer == ALWAYS)
+			{
+				if (System.hostPlatform == MAC)
+				{
 					var aliasDestPath = "/usr/local/bin/lime";
-					try {
+					try
+					{
 						System.runCommand("", "cp", [
 							"-f",
 							Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
@@ -754,14 +893,20 @@ class PlatformSetup {
 						], false);
 						System.runCommand("", "chmod", ["755", aliasDestPath], false);
 						installedCommand = true;
-					} catch (e:Dynamic) {
-						if (Log.verbose) {
+					}
+					catch (e:Dynamic)
+					{
+						if (Log.verbose)
+						{
 							Log.warn("Failed to copy Lime alias to destination: " + aliasDestPath);
 						}
 					}
-				} else {
+				}
+				else
+				{
 					var aliasDestPath = "/usr/local/bin/lime";
-					try {
+					try
+					{
 						System.runCommand("", "sudo", [
 							"cp",
 							"-f",
@@ -770,15 +915,19 @@ class PlatformSetup {
 						], false);
 						System.runCommand("", "sudo", ["chmod", "755", aliasDestPath], false);
 						installedCommand = true;
-					} catch (e:Dynamic) {
-						if (Log.verbose) {
+					}
+					catch (e:Dynamic)
+					{
+						if (Log.verbose)
+						{
 							Log.warn("Failed to copy Lime alias to destination: " + aliasDestPath);
 						}
 					}
 				}
 			}
 
-			if (!installedCommand) {
+			if (!installedCommand)
+			{
 				Sys.println("");
 				Sys.println("To finish setup, we recommend you either...");
 				Sys.println("");
@@ -791,16 +940,19 @@ class PlatformSetup {
 			}
 		}
 
-		if (System.hostPlatform == MAC) {
+		if (System.hostPlatform == MAC)
+		{
 			ConfigHelper.writeConfigValue("MAC_USE_CURRENT_SDK", "1");
 		}
 	}
 
-	public static function setupLinux():Void {
+	public static function setupLinux():Void
+	{
 		var whichAptGet = System.runProcess("", "which", ["apt-get"], true, true, true);
 		var hasApt = whichAptGet != null && whichAptGet != "";
 
-		if (hasApt) {
+		if (hasApt)
+		{
 			// check if this is ubuntu saucy 64bit, which uses different packages.
 			var lsbId = System.runProcess("", "lsb_release", ["-si"], true, true, true);
 			var lsbRelease = System.runProcess("", "lsb_release", ["-sr"], true, true, true);
@@ -820,7 +972,8 @@ class PlatformSetup {
 		var whichYum = System.runProcess("", "which", ["yum"], true, true, true);
 		var hasYum = whichYum != null && whichYum != "";
 
-		if (hasYum) {
+		if (hasYum)
+		{
 			var parameters = ["yum", "install"].concat(linuxYumPackages.split(" "));
 			System.runCommand("", "sudo", parameters, false);
 
@@ -832,7 +985,8 @@ class PlatformSetup {
 		var whichDnf = System.runProcess("", "which", ["dnf"], true, true, true);
 		var hasDnf = whichDnf != null && whichDnf != "";
 
-		if (hasDnf) {
+		if (hasDnf)
+		{
 			var parameters = ["dnf", "install"].concat(linuxDnfPackages.split(" "));
 			System.runCommand("", "sudo", parameters, false);
 
@@ -844,7 +998,8 @@ class PlatformSetup {
 		var whichEquo = System.runProcess("", "which", ["equo"], true, true, true);
 		var hasEquo = whichEquo != null && whichEquo != "";
 
-		if (hasEquo) {
+		if (hasEquo)
+		{
 			// Sabayon docs recommend not using sudo with equo, and instead using a root login shell
 			var parameters = ["-l", "-c", "equo", "i", "-av"].concat(linuxEquoPackages.split(" "));
 			System.runCommand("", "su", parameters, false);
@@ -857,7 +1012,8 @@ class PlatformSetup {
 		var whichEmerge = System.runProcess("", "which", ["emerge"], true, true, true);
 		var hasEmerge = whichEmerge != null && whichEmerge != "";
 
-		if (hasEmerge) {
+		if (hasEmerge)
+		{
 			var parameters = ["emerge", "-av"].concat(linuxEmergePackages.split(" "));
 			System.runCommand("", "sudo", parameters, false);
 
@@ -869,12 +1025,16 @@ class PlatformSetup {
 		var whichPacman = System.runProcess("", "which", ["pacman"], true, true, true);
 		var hasPacman = whichPacman != null && whichPacman != "";
 
-		if (hasPacman) {
+		if (hasPacman)
+		{
 			var parameters = ["pacman", "-S", "--needed"];
 
-			if (System.hostArchitecture == X64) {
+			if (System.hostArchitecture == X64)
+			{
 				parameters = parameters.concat(linuxPacman64Packages.split(" "));
-			} else {
+			}
+			else
+			{
 				parameters = parameters.concat(linuxPacman32Packages.split(" "));
 			}
 
@@ -891,7 +1051,8 @@ class PlatformSetup {
 		Sys.exit(1);
 	}
 
-	public static function setupMac():Void {
+	public static function setupMac():Void
+	{
 		Log.println("\x1b[1mIn order to build native executables for macOS, you must have");
 		Log.println("Xcode installed. Xcode is available from Apple as a free download.\x1b[0m");
 		Log.println("");
@@ -900,56 +1061,78 @@ class PlatformSetup {
 
 		var answer = CLIHelper.ask("Would you like to visit the download page now?");
 
-		if (answer == YES || answer == ALWAYS) {
+		if (answer == YES || answer == ALWAYS)
+		{
 			System.openURL(appleXcodeURL);
 		}
 	}
 
-	public static function setupOpenFL():Void {
-		if (!targetFlags.exists("alias") && !targetFlags.exists("cli")) {
+	public static function setupOpenFL():Void
+	{
+		if (!targetFlags.exists("alias") && !targetFlags.exists("cli"))
+		{
 			setupHaxelib(new Haxelib("openfl"));
 		}
 
 		var haxePath = Sys.getEnv("HAXEPATH");
 		var project = null;
 
-		try {
+		try
+		{
 			project = HXProject.fromHaxelib(new Haxelib("openfl"));
-		} catch (e:Dynamic) {}
+		}
+		catch (e:Dynamic) {}
 
-		if (System.hostPlatform == WINDOWS) {
-			if (haxePath == null || haxePath == "") {
+		if (System.hostPlatform == WINDOWS)
+		{
+			if (haxePath == null || haxePath == "")
+			{
 				haxePath = "C:\\HaxeToolkit\\haxe\\";
 			}
 
-			try {
+			try
+			{
 				File.copy(Haxelib.getPath(new Haxelib("lime")) + "\\templates\\\\bin\\lime.exe", haxePath + "\\lime.exe");
-			} catch (e:Dynamic) {}
-			try {
+			}
+			catch (e:Dynamic) {}
+			try
+			{
 				File.copy(Haxelib.getPath(new Haxelib("lime")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime");
-			} catch (e:Dynamic) {}
+			}
+			catch (e:Dynamic) {}
 
-			try {
+			try
+			{
 				System.copyFileTemplate(project.templatePaths, "bin/openfl.exe", haxePath + "\\openfl.exe");
 				System.copyFileTemplate(project.templatePaths, "bin/openfl.sh", haxePath + "\\openfl");
-			} catch (e:Dynamic) {}
-		} else {
-			if (haxePath == null || haxePath == "") {
+			}
+			catch (e:Dynamic) {}
+		}
+		else
+		{
+			if (haxePath == null || haxePath == "")
+			{
 				haxePath = "/usr/lib/haxe";
 			}
 
 			var installedCommand = false;
 			var answer = YES;
 
-			if (targetFlags.exists("y")) {
+			if (targetFlags.exists("y"))
+			{
 				Sys.println("Do you want to install the \"openfl\" command? [y/n/a] y");
-			} else {
+			}
+			else
+			{
 				answer = CLIHelper.ask("Do you want to install the \"openfl\" command?");
 			}
 
-			if (answer == YES || answer == ALWAYS) {
-				if (System.hostPlatform == MAC) {
-					try {
+			if (answer == YES || answer == ALWAYS)
+			{
+				if (System.hostPlatform == MAC)
+				{
+					try
+					{
 						System.runCommand("", "cp", [
 							"-f",
 							Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
@@ -963,9 +1146,13 @@ class PlatformSetup {
 						], false);
 						System.runCommand("", "chmod", ["755", "/usr/local/bin/openfl"], false);
 						installedCommand = true;
-					} catch (e:Dynamic) {}
-				} else {
-					try {
+					}
+					catch (e:Dynamic) {}
+				}
+				else
+				{
+					try
+					{
 						System.runCommand("", "sudo", [
 							"cp",
 							"-f",
@@ -981,11 +1168,13 @@ class PlatformSetup {
 						], false);
 						System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/openfl"], false);
 						installedCommand = true;
-					} catch (e:Dynamic) {}
+					}
+					catch (e:Dynamic) {}
 				}
 			}
 
-			if (!installedCommand) {
+			if (!installedCommand)
+			{
 				Sys.println("");
 				Sys.println("To finish setup, we recommend you either...");
 				Sys.println("");
@@ -1000,12 +1189,14 @@ class PlatformSetup {
 			}
 		}
 
-		if (System.hostPlatform == MAC) {
+		if (System.hostPlatform == MAC)
+		{
 			ConfigHelper.writeConfigValue("MAC_USE_CURRENT_SDK", "1");
 		}
 	}
 
-	public static function setupWebAssembly():Void {
+	public static function setupWebAssembly():Void
+	{
 		Log.println("\x1b[1mIn order to build for WebAssembly or asm.js, you must download");
 		Log.println("and install the Emscripten SDK.");
 		Log.println("");
@@ -1018,7 +1209,8 @@ class PlatformSetup {
 		Log.println("Setup complete.");
 	}
 
-	public static function setupWindows():Void {
+	public static function setupWindows():Void
+	{
 		Log.println("\x1b[1mIn order to build native executables for Windows, you must have a");
 		Log.println("Visual Studio C++ compiler with \"Windows Desktop\" (Win32) support");
 		Log.println("installed. We recommend using Visual Studio Community, which is");
@@ -1029,27 +1221,36 @@ class PlatformSetup {
 
 		var answer = CLIHelper.ask("Would you like to visit the download page now?");
 
-		if (answer == YES || answer == ALWAYS) {
+		if (answer == YES || answer == ALWAYS)
+		{
 			System.openURL(visualStudioURL);
 		}
 	}
 
-	public static function setupHL():Void {
+	public static function setupHL():Void
+	{
 		getDefineValue("HL_PATH", "Path to a custom version of Hashlink. Leave empty to use lime's default version.");
-		if (System.hostPlatform == MAC) {
+		if (System.hostPlatform == MAC)
+		{
 			Log.println("To use the hashlink debugger on macOS, the hl executable needs to be signed.");
-			if (ConfigHelper.getConfigValue("HL_PATH") != null) {
+			if (ConfigHelper.getConfigValue("HL_PATH") != null)
+			{
 				Log.println("When building HL from source, make sure to have run `make codesign_osx` before installing.");
-			} else {
+			}
+			else
+			{
 				var answer = CLIHelper.ask("Would you like to do this now? (Requires sudo.)");
 
-				if (answer == YES || answer == ALWAYS) {
+				if (answer == YES || answer == ALWAYS)
+				{
 					var openSSLConf = System.getTemporaryFile("cnf");
 					var key = System.getTemporaryFile("pem");
 					var cert = System.getTemporaryFile("cer");
 					var limePath = Haxelib.getPath(new Haxelib("lime"));
 					var hlPath = limePath + "/templates/bin/hl/mac/hl";
-					var entitlementsPath = sys.FileSystem.exists(limePath + "/project") ? (limePath + "/project/lib/hashlink/other/osx/entitlements.xml") : (limePath + "/templates/bin/hl/entitlements.xml");
+					var entitlementsPath = sys.FileSystem.exists(limePath + "/project") ? (limePath +
+						"/project/lib/hashlink/other/osx/entitlements.xml") : (limePath
+						+ "/templates/bin/hl/entitlements.xml");
 					System.runCommand("", "sudo", ["security", "delete-identity", "-c", "hl-cert"], true, true, true);
 					sys.io.File.saveContent(openSSLConf, [
 						"[req]",
@@ -1061,25 +1262,8 @@ class PlatformSetup {
 						"extendedKeyUsage=critical,codeSigning",
 					].join("\n"));
 					System.runCommand("", "openssl", [
-						"req",
-						"-x509",
-						"-newkey",
-						"rsa:4096",
-						"-keyout",
-						key,
-						"-nodes",
-						"-days",
-						"365",
-						"-subj",
-						"/CN=hl-cert",
-						"-outform",
-						"der",
-						"-out",
-						cert,
-						"-extensions",
-						"v3_req",
-						"-config",
-						openSSLConf
+						"req", "-x509", "-newkey", "rsa:4096", "-keyout", key, "-nodes", "-days", "365", "-subj", "/CN=hl-cert", "-outform", "der", "-out",
+						cert, "-extensions", "v3_req", "-config", openSSLConf
 					], true, false, true);
 					System.runCommand("", "sudo", [
 						"security",
@@ -1098,51 +1282,66 @@ class PlatformSetup {
 		}
 	}
 
-	private static function throwPermissionsError() {
-		if (System.hostPlatform == WINDOWS) {
+	private static function throwPermissionsError()
+	{
+		if (System.hostPlatform == WINDOWS)
+		{
 			Log.println("Unable to access directory. Perhaps you need to run \"setup\" with administrative privileges?");
-		} else {
+		}
+		else
+		{
 			Log.println("Unable to access directory. Perhaps you should run \"setup\" again using \"sudo\"");
 		}
 
 		Sys.exit(1);
 	}
 
-	private static function unescapePath(path:String):String {
-		if (path == null) {
+	private static function unescapePath(path:String):String
+	{
+		if (path == null)
+		{
 			path = "";
 		}
 
 		path = StringTools.replace(path, "\\ ", " ");
 
-		if (System.hostPlatform != WINDOWS && StringTools.startsWith(path, "~/")) {
+		if (System.hostPlatform != WINDOWS && StringTools.startsWith(path, "~/"))
+		{
 			path = Sys.getEnv("HOME") + "/" + path.substr(2);
 		}
 
 		return path;
 	}
 
-	public static function updateHaxelib(haxelib:Haxelib):Void {
+	public static function updateHaxelib(haxelib:Haxelib):Void
+	{
 		var basePath = Haxelib.runProcess("", ["config"]);
 
-		if (basePath != null) {
+		if (basePath != null)
+		{
 			basePath = StringTools.trim(basePath.split("\n")[0]);
 		}
 
 		var lib = Haxelib.getPath(haxelib, false, true);
 
-		if (StringTools.startsWith(Path.standardize(lib), Path.standardize(basePath))) {
+		if (StringTools.startsWith(Path.standardize(lib), Path.standardize(basePath)))
+		{
 			Haxelib.runCommand("", ["update", haxelib.name]);
-		} else {
+		}
+		else
+		{
 			var git = Path.combine(lib, ".git");
 
-			if (FileSystem.exists(git)) {
+			if (FileSystem.exists(git))
+			{
 				Log.info(Log.accentColor + "Updating \"" + haxelib.name + "\"" + Log.resetColor);
 
-				if (System.hostPlatform == WINDOWS) {
+				if (System.hostPlatform == WINDOWS)
+				{
 					var path = Sys.getEnv("PATH");
 
-					if (path.indexOf("Git") == -1) {
+					if (path.indexOf("Git") == -1)
+					{
 						Sys.putEnv("PATH", "C:\\Program Files (x86)\\Git\\bin;" + path);
 					}
 				}
@@ -1155,38 +1354,43 @@ class PlatformSetup {
 	}
 }
 
-class Progress extends haxe.io.Output {
+class Progress extends haxe.io.Output
+{
 	var o:haxe.io.Output;
 	var cur:Int;
 	var max:Null<Int>;
 	var start:Float;
 
-	public function new(o) {
+	public function new(o)
+	{
 		this.o = o;
 		cur = 0;
 		start = haxe.Timer.stamp();
 	}
 
-	function bytes(n) {
+	function bytes(n)
+	{
 		cur += n;
-		if (max == null)
-			Sys.print(cur + " bytes\r");
+		if (max == null) Sys.print(cur + " bytes\r");
 		else
 			Sys.print(cur + "/" + max + " (" + Std.int((cur * 100.0) / max) + "%)\r");
 	}
 
-	override public function writeByte(c) {
+	public override function writeByte(c)
+	{
 		o.writeByte(c);
 		bytes(1);
 	}
 
-	override public function writeBytes(s, p, l) {
+	public override function writeBytes(s, p, l)
+	{
 		var r = o.writeBytes(s, p, l);
 		bytes(r);
 		return r;
 	}
 
-	override public function close() {
+	public override function close()
+	{
 		super.close();
 		o.close();
 		var time = haxe.Timer.stamp() - start;
@@ -1196,12 +1400,14 @@ class Progress extends haxe.io.Output {
 
 		// When the path is a redirect, we don't want to display that the download completed
 
-		if (cur > 400) {
+		if (cur > 400)
+		{
 			Sys.print("Download complete : " + cur + " bytes in " + time + "s (" + speed + "KB/s)\n");
 		}
 	}
 
-	override public function prepare(m:Int) {
+	public override function prepare(m:Int)
+	{
 		max = m;
 	}
 }

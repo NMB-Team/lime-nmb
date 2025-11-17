@@ -2,7 +2,6 @@ package lime.system;
 
 import lime.app.Application;
 import lime.app.Event;
-
 #if sys
 #if haxe4
 import sys.thread.Deque;
@@ -19,16 +18,17 @@ import neko.vm.Thread;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class BackgroundWorker {
+class BackgroundWorker
+{
 	private static var MESSAGE_COMPLETE = "__COMPLETE__";
 	private static var MESSAGE_ERROR = "__ERROR__";
 
 	public var canceled(default, null):Bool;
 	public var completed(default, null):Bool;
-	public var doWork = new Event<Dynamic -> Void>();
-	public var onComplete = new Event<Dynamic -> Void>();
-	public var onError = new Event<Dynamic -> Void>();
-	public var onProgress = new Event<Dynamic -> Void>();
+	public var doWork = new Event<Dynamic->Void>();
+	public var onComplete = new Event<Dynamic->Void>();
+	public var onError = new Event<Dynamic->Void>();
+	public var onProgress = new Event<Dynamic->Void>();
 
 	@:noCompletion private var __runMessage:Dynamic;
 	#if (cpp || neko)
@@ -38,7 +38,8 @@ class BackgroundWorker {
 
 	public function new() {}
 
-	public function cancel():Void {
+	public function cancel():Void
+	{
 		canceled = true;
 
 		#if (cpp || neko)
@@ -46,7 +47,8 @@ class BackgroundWorker {
 		#end
 	}
 
-	public function run(message:Dynamic = null):Void {
+	public function run(message:Dynamic = null):Void
+	{
 		canceled = false;
 		completed = false;
 		__runMessage = message;
@@ -57,7 +59,8 @@ class BackgroundWorker {
 
 		// TODO: Better way to do this
 
-		if (Application.current != null) {
+		if (Application.current != null)
+		{
 			Application.current.onUpdate.add(__update);
 		}
 		#else
@@ -65,43 +68,50 @@ class BackgroundWorker {
 		#end
 	}
 
-	public function sendComplete(message:Dynamic = null):Void {
+	public function sendComplete(message:Dynamic = null):Void
+	{
 		completed = true;
 
 		#if (cpp || neko)
 		__messageQueue.add(MESSAGE_COMPLETE);
 		__messageQueue.add(message);
 		#else
-		if (!canceled) {
+		if (!canceled)
+		{
 			canceled = true;
 			onComplete.dispatch(message);
 		}
 		#end
 	}
 
-	public function sendError(message:Dynamic = null):Void {
+	public function sendError(message:Dynamic = null):Void
+	{
 		#if (cpp || neko)
 		__messageQueue.add(MESSAGE_ERROR);
 		__messageQueue.add(message);
 		#else
-		if (!canceled) {
+		if (!canceled)
+		{
 			canceled = true;
 			onError.dispatch(message);
 		}
 		#end
 	}
 
-	public function sendProgress(message:Dynamic = null):Void {
+	public function sendProgress(message:Dynamic = null):Void
+	{
 		#if (cpp || neko)
 		__messageQueue.add(message);
 		#else
-		if (!canceled) {
+		if (!canceled)
+		{
 			onProgress.dispatch(message);
 		}
 		#end
 	}
 
-	@:noCompletion private function __doWork():Void {
+	@:noCompletion private function __doWork():Void
+	{
 		doWork.dispatch(__runMessage);
 
 		// #if (cpp || neko)
@@ -120,27 +130,37 @@ class BackgroundWorker {
 		// #end
 	}
 
-	@:noCompletion private function __update(deltaTime:Float):Void {
+	@:noCompletion private function __update(deltaTime:Float):Void
+	{
 		#if (cpp || neko)
 		var message = __messageQueue.pop(false);
 
-		if (message != null) {
-			if (message == MESSAGE_ERROR) {
+		if (message != null)
+		{
+			if (message == MESSAGE_ERROR)
+			{
 				Application.current.onUpdate.remove(__update);
 
-				if (!canceled) {
+				if (!canceled)
+				{
 					canceled = true;
 					onError.dispatch(__messageQueue.pop(false));
 				}
-			} else if (message == MESSAGE_COMPLETE) {
+			}
+			else if (message == MESSAGE_COMPLETE)
+			{
 				Application.current.onUpdate.remove(__update);
 
-				if (!canceled) {
+				if (!canceled)
+				{
 					canceled = true;
 					onComplete.dispatch(__messageQueue.pop(false));
 				}
-			} else {
-				if (!canceled) {
+			}
+			else
+			{
+				if (!canceled)
+				{
 					onProgress.dispatch(message);
 				}
 			}

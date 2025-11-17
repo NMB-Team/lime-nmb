@@ -1,7 +1,8 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class OES_EGL_image_external {
+@:noCompletion class OES_EGL_image_external
+{
 	public var TEXTURE_EXTERNAL_OES = 0x8D65;
 	public var SAMPLER_EXTERNAL_OES = 0x8D66;
 	public var TEXTURE_BINDING_EXTERNAL_OES = 0x8D67;

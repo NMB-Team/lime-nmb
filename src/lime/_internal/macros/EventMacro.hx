@@ -7,12 +7,15 @@ import haxe.macro.Type;
 
 using haxe.macro.Tools;
 
-class EventMacro {
-	public static function build() {
+class EventMacro
+{
+	public static function build()
+	{
 		var typeArgs;
 		var typeResult;
 
-		switch (Context.follow(Context.getLocalType())) {
+		switch (Context.follow(Context.getLocalType()))
+		{
 			case TInst(_, [Context.follow(_) => TFun(args, result)]):
 				typeArgs = args;
 				typeResult = result;
@@ -28,10 +31,14 @@ class EventMacro {
 		var typeParam = TFun(typeArgs, typeResult);
 		var typeString = "";
 
-		if (typeArgs.length == 0) {
+		if (typeArgs.length == 0)
+		{
 			typeString = "Void->";
-		} else {
-			for (arg in typeArgs) {
+		}
+		else
+		{
+			for (arg in typeArgs)
+			{
 				typeString += arg.t.toString() + "->";
 			}
 		}
@@ -44,19 +51,26 @@ class EventMacro {
 
 		var name = "_Event_" + typeString;
 
-		try {
+		try
+		{
 			Context.getType("lime.app." + name);
-		} catch (e:Dynamic) {
+		}
+		catch (e:Dynamic)
+		{
 			var pos = Context.currentPos();
 			var fields = Context.getBuildFields();
 
 			var args:Array<FunctionArg> = [];
 			var argName, argNames = [];
 
-			for (i in 0...typeArgs.length) {
-				if (i == 0) {
+			for (i in 0...typeArgs.length)
+			{
+				if (i == 0)
+				{
 					argName = "a";
-				} else {
+				}
+				else
+				{
 					argName = "a" + i;
 				}
 
@@ -64,58 +78,71 @@ class EventMacro {
 				args.push({name: argName, type: typeArgs[i].t.toComplexType()});
 			}
 
-			var dispatch = macro {
-				canceled = false;
+			var dispatch = macro
+				{
+					canceled = false;
 
-				var listeners = __listeners;
-				var repeat = __repeat;
-				var i = 0;
+					var listeners = __listeners;
+					var repeat = __repeat;
+					var i = 0;
 
-				while (i < listeners.length) {
-					listeners[i]($a{argNames});
+					while (i < listeners.length)
+					{
+						listeners[i]($a{argNames});
 
-					if (!repeat[i]) {
-						this.remove(cast listeners[i]);
-					} else {
-						i++;
-					}
+						if (!repeat[i])
+						{
+							this.remove(cast listeners[i]);
+						}
+						else
+						{
+							i++;
+						}
 
-					if (canceled) {
-						break;
+						if (canceled)
+						{
+							break;
+						}
 					}
 				}
-			}
 
 			var i = 0;
 			var field;
 
-			while (i < fields.length) {
+			while (i < fields.length)
+			{
 				field = fields[i];
 
-				if (field.name == "__listeners" || field.name == "dispatch") {
+				if (field.name == "__listeners" || field.name == "dispatch")
+				{
 					fields.remove(field);
-				} else {
+				}
+				else
+				{
 					i++;
 				}
 			}
 
-			fields.push({
-				name: "__listeners",
-				access: [APublic],
-				kind: FVar(TPath({pack: [], name: "Array", params: [TPType(typeParam.toComplexType())]})),
-				pos: pos
-			});
-			fields.push({
-				name: "dispatch",
-				access: [APublic],
-				kind: FFun({
-					args: args,
-					expr: dispatch,
-					params: [],
-					ret: macro :Void
-				}),
-				pos: pos
-			});
+			fields.push(
+				{
+					name: "__listeners",
+					access: [APublic],
+					kind: FVar(TPath({pack: [], name: "Array", params: [TPType(typeParam.toComplexType())]})),
+					pos: pos
+				});
+			fields.push(
+				{
+					name: "dispatch",
+					access: [APublic],
+					kind: FFun(
+						{
+							args: args,
+							expr: dispatch,
+							params: [],
+							ret: macro:Void
+						}),
+					pos: pos
+				});
 
 			var meta:Array<MetadataEntry> = [
 				{name: ":dox", params: [macro hide], pos: pos},
@@ -127,15 +154,17 @@ class EventMacro {
 			meta.push({name: ":noDebug", pos: pos});
 			#end
 
-			Context.defineType({
-				pos: pos,
-				pack: ["lime", "app"],
-				name: name,
-				kind: TDClass(),
-				fields: fields,
-				params: [{name: "T"}],
-				meta: meta
-			});
+			Context.defineType(
+				{
+					pos: pos,
+					pack: ["lime", "app"],
+					name: name,
+					kind: TDClass(),
+					fields: fields,
+					params: [
+						{name: "T"}],
+					meta: meta
+				});
 		}
 
 		return TPath({pack: ["lime", "app"], name: name, params: [TPType(typeParam.toComplexType())]}).toType();

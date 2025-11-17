@@ -1,7 +1,6 @@
 package lime._internal.format;
 
 import haxe.io.Bytes;
-
 import lime._internal.backend.native.NativeCFFI;
 
 #if !lime_debug
@@ -9,15 +8,16 @@ import lime._internal.backend.native.NativeCFFI;
 @:noDebug
 #end
 @:access(lime._internal.backend.native.NativeCFFI)
-class Zlib {
-	public static function compress(bytes:Bytes):Bytes {
+class Zlib
+{
+	public static function compress(bytes:Bytes):Bytes
+	{
 		#if (lime_cffi && !macro)
 		#if !cs
 		return NativeCFFI.lime_zlib_compress(bytes, Bytes.alloc(0));
 		#else
 		var data:Dynamic = NativeCFFI.lime_zlib_compress(bytes, null);
-		if (data == null)
-			return null;
+		if (data == null) return null;
 		return @:privateAccess new Bytes(data.length, data.b);
 		#end
 		#elseif js
@@ -40,14 +40,14 @@ class Zlib {
 		#end
 	}
 
-	public static function decompress(bytes:Bytes):Bytes {
+	public static function decompress(bytes:Bytes):Bytes
+	{
 		#if (lime_cffi && !macro)
 		#if !cs
 		return NativeCFFI.lime_zlib_decompress(bytes, Bytes.alloc(0));
 		#else
 		var data:Dynamic = NativeCFFI.lime_zlib_decompress(bytes, null);
-		if (data == null)
-			return null;
+		if (data == null) return null;
 		return @:privateAccess new Bytes(data.length, data.b);
 		#end
 		#elseif js

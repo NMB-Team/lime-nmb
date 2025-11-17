@@ -8,7 +8,6 @@ import haxe.macro.Type;
 #else
 import lime._internal.backend.native.NativeCFFI;
 #end
-
 #if !lime_doc_gen
 #if target.threaded
 import sys.thread.Thread;
@@ -18,6 +17,7 @@ import cpp.vm.Thread;
 import neko.vm.Thread;
 #end
 #end
+
 using StringTools;
 
 /**
@@ -43,11 +43,13 @@ using StringTools;
 @:noDebug
 #end
 @:access(lime._internal.backend.native.NativeCFFI)
-class JNI {
+class JNI
+{
 	private static var alreadyCreated = new Map<String, Bool>();
 	private static var initialized = false;
 
-	private static function transformClassName(className:String):String {
+	private static function transformClassName(className:String):String
+	{
 		var parts:Array<String> = className.split(".");
 		if (parts.length <= 1)
 			return className;
@@ -59,11 +61,13 @@ class JNI {
 		return parts.join("/") + nestedClassName;
 	}
 
-	public static function callMember(method:Dynamic, jobject:Dynamic, a:Array<Dynamic>):Dynamic {
+	public static function callMember(method:Dynamic, jobject:Dynamic, a:Array<Dynamic>):Dynamic
+	{
 		return Reflect.callMethod(null, method, [jobject].concat(a));
 	}
 
-	public static function callStatic(method:Dynamic, a:Array<Dynamic>):Dynamic {
+	public static function callStatic(method:Dynamic, a:Array<Dynamic>):Dynamic
+	{
 		return Reflect.callMethod(null, method, a);
 	}
 
@@ -75,7 +79,8 @@ class JNI {
 		@param signature A Java VM type signature.
 		@see Java VM type signatures: https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html#wp16432
 	**/
-	public static function createMemberField(className:String, memberName:String, signature:String):JNIMemberField {
+	public static function createMemberField(className:String, memberName:String, signature:String):JNIMemberField
+	{
 		init();
 
 		#if (android && lime_cffi && !macro)
@@ -97,15 +102,18 @@ class JNI {
 		@param quietFail Set this to suppress the "method not found" error.
 		@see Java VM type signatures: https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html#wp16432
 	**/
-	public static function createMemberMethod(className:String, memberName:String, signature:String, useArray:Bool = false, quietFail:Bool = false):Dynamic {
+	public static function createMemberMethod(className:String, memberName:String, signature:String, useArray:Bool = false, quietFail:Bool = false):Dynamic
+	{
 		init();
 
 		#if (android && lime_cffi && !macro)
 		className = transformClassName(className);
 		var handle = NativeCFFI.lime_jni_create_method(className, memberName, signature, false, quietFail);
 
-		if (handle == null) {
-			if (quietFail) {
+		if (handle == null)
+		{
+			if (quietFail)
+			{
 				return null;
 			}
 
@@ -127,7 +135,8 @@ class JNI {
 		@param signature A Java VM type signature.
 		@see Java VM type signatures: https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html#wp16432
 	**/
-	public static function createStaticField(className:String, memberName:String, signature:String):JNIStaticField {
+	public static function createStaticField(className:String, memberName:String, signature:String):JNIStaticField
+	{
 		init();
 
 		#if (android && lime_cffi && !macro)
@@ -151,15 +160,18 @@ class JNI {
 		@param quietFail Set this to suppress the "method not found" error.
 		@see Java VM type signatures: https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html#wp16432
 	**/
-	public static function createStaticMethod(className:String, memberName:String, signature:String, useArray:Bool = false, quietFail:Bool = false):Dynamic {
+	public static function createStaticMethod(className:String, memberName:String, signature:String, useArray:Bool = false, quietFail:Bool = false):Dynamic
+	{
 		init();
 
 		#if (android && lime_cffi && !macro)
 		className = transformClassName(className);
 		var handle = NativeCFFI.lime_jni_create_method(className, memberName, signature, true, quietFail);
 
-		if (handle == null) {
-			if (quietFail) {
+		if (handle == null)
+		{
+			if (quietFail)
+			{
 				return null;
 			}
 
@@ -173,7 +185,8 @@ class JNI {
 		#end
 	}
 
-	public static function getEnv():Dynamic {
+	public static function getEnv():Dynamic
+	{
 		init();
 
 		#if (android && lime_cffi && !macro)
@@ -183,8 +196,10 @@ class JNI {
 		#end
 	}
 
-	private static function init():Void {
-		if (!initialized) {
+	private static function init():Void
+	{
+		if (!initialized)
+		{
 			initialized = true;
 
 			#if (android && !macro)
@@ -194,12 +209,13 @@ class JNI {
 		}
 	}
 
-	private static function onCallback(object:Dynamic, method:String, args:Array<Dynamic>):Dynamic {
+	private static function onCallback(object:Dynamic, method:String, args:Array<Dynamic>):Dynamic
+	{
 		var field = Reflect.field(object, method);
 
-		if (field != null) {
-			if (args == null)
-				args = [];
+		if (field != null)
+		{
+			if (args == null) args = [];
 
 			return Reflect.callMethod(object, field, args);
 		}
@@ -208,7 +224,8 @@ class JNI {
 		return null;
 	}
 
-	public static function postUICallback(callback:Void -> Void):Void {
+	public static function postUICallback(callback:Void->Void):Void
+	{
 		// TODO: Rename this?
 
 		#if (android && lime_cffi && !macro)
@@ -224,14 +241,17 @@ class JNI {
 @:noDebug
 #end
 @:access(lime._internal.backend.native.NativeCFFI)
-class JNIMemberField {
+class JNIMemberField
+{
 	@:noCompletion private var field:Dynamic;
 
-	public function new(field:Dynamic) {
+	public function new(field:Dynamic)
+	{
 		this.field = field;
 	}
 
-	public function get(jobject:Dynamic):Dynamic {
+	public function get(jobject:Dynamic):Dynamic
+	{
 		#if (android && lime_cffi && !macro)
 		return NativeCFFI.lime_jni_get_member(field, jobject);
 		#else
@@ -239,7 +259,8 @@ class JNIMemberField {
 		#end
 	}
 
-	public function set(jobject:Dynamic, value:Dynamic):Dynamic {
+	public function set(jobject:Dynamic, value:Dynamic):Dynamic
+	{
 		#if (android && lime_cffi && !macro)
 		NativeCFFI.lime_jni_set_member(field, jobject, value);
 		#end
@@ -252,14 +273,17 @@ class JNIMemberField {
 @:noDebug
 #end
 @:access(lime._internal.backend.native.NativeCFFI)
-class JNIStaticField {
+class JNIStaticField
+{
 	@:noCompletion private var field:Dynamic;
 
-	public function new(field:Dynamic) {
+	public function new(field:Dynamic)
+	{
 		this.field = field;
 	}
 
-	public function get():Dynamic {
+	public function get():Dynamic
+	{
 		#if (android && lime_cffi && !macro)
 		return NativeCFFI.lime_jni_get_static(field);
 		#else
@@ -267,7 +291,8 @@ class JNIStaticField {
 		#end
 	}
 
-	public function set(value:Dynamic):Dynamic {
+	public function set(value:Dynamic):Dynamic
+	{
 		#if (android && lime_cffi && !macro)
 		NativeCFFI.lime_jni_set_static(field, value);
 		#end
@@ -280,14 +305,17 @@ class JNIStaticField {
 @:noDebug
 #end
 @:access(lime._internal.backend.native.NativeCFFI)
-class JNIMethod {
+class JNIMethod
+{
 	@:noCompletion private var method:Dynamic;
 
-	public function new(method:Dynamic) {
+	public function new(method:Dynamic)
+	{
 		this.method = method;
 	}
 
-	public function callMember(args:Array<Dynamic>):Dynamic {
+	public function callMember(args:Array<Dynamic>):Dynamic
+	{
 		#if (android && lime_cffi && !macro)
 		var jobject = args.shift();
 		return NativeCFFI.lime_jni_call_member(method, jobject, args);
@@ -296,7 +324,8 @@ class JNIMethod {
 		#end
 	}
 
-	public function callStatic(args:Array<Dynamic>):Dynamic {
+	public function callStatic(args:Array<Dynamic>):Dynamic
+	{
 		#if (android && lime_cffi && !macro)
 		return NativeCFFI.lime_jni_call_static(method, args);
 		#else
@@ -304,18 +333,26 @@ class JNIMethod {
 		#end
 	}
 
-	public function getMemberMethod(useArray:Bool):Dynamic {
-		if (useArray) {
+	public function getMemberMethod(useArray:Bool):Dynamic
+	{
+		if (useArray)
+		{
 			return callMember;
-		} else {
+		}
+		else
+		{
 			return Reflect.makeVarArgs(callMember);
 		}
 	}
 
-	public function getStaticMethod(useArray:Bool):Dynamic {
-		if (useArray) {
+	public function getStaticMethod(useArray:Bool):Dynamic
+	{
+		if (useArray)
+		{
 			return callStatic;
-		} else {
+		}
+		else
+		{
 			return Reflect.makeVarArgs(callStatic);
 		}
 	}
@@ -357,7 +394,8 @@ class JNIMethod {
 interface JNISafety {}
 
 #if !doc_gen
-class JNISafetyTools {
+class JNISafetyTools
+{
 	#if target.threaded
 	private static var mainThread:Thread = Thread.current();
 	#elseif (cpp || neko)
@@ -367,7 +405,8 @@ class JNISafetyTools {
 	/**
 		@return Whether the calling function is being run on the main thread.
 	**/
-	public static inline function onMainThread():Bool {
+	public static inline function onMainThread():Bool
+	{
 		#if target.threaded
 		return Thread.current() == mainThread;
 		#elseif (cpp || neko)
@@ -377,38 +416,47 @@ class JNISafetyTools {
 		#end
 	}
 
-	public static macro function build():Array<Field> {
+	public static macro function build():Array<Field>
+	{
 		var fields:Array<Field> = Context.getBuildFields();
 
 		#if macro
-		for (field in fields) {
+		for (field in fields)
+		{
 			// Don't modify constructors.
-			if (field.name == "new") {
+			if (field.name == "new")
+			{
 				continue;
 			}
 
 			// Don't modify functions lacking `@:runOnMainThread`.
-			if (field.meta == null || !Lambda.exists(field.meta, function(meta) return meta.name == ":runOnMainThread")) {
+			if (field.meta == null || !Lambda.exists(field.meta,
+				function(meta) return meta.name == ":runOnMainThread"))
+			{
 				continue;
 			}
 
-			switch (field.kind) {
+			switch (field.kind)
+			{
 				case FFun(f):
 					// The function needs to call itself and can't be inline.
 					field.access.remove(AInline);
 
 					// Make sure there's no return value.
-					switch (f.ret) {
-						case macro :Void:
+					switch (f.ret)
+					{
+						case macro:Void:
 							// Good to go.
 						case null:
-							f.ret = macro :Void;
+							f.ret = macro:Void;
 						default:
-							Context.error("Expected return type Void, got " + new haxe.macro.Printer().printComplexType(f.ret) + ".", field.pos);
+							Context.error("Expected return type Void, got "
+								+ new haxe.macro.Printer().printComplexType(f.ret) + ".", field.pos);
 					}
 
 					var args:Array<Expr> = [];
-					for (arg in f.args) {
+					for (arg in f.args)
+					{
 						args.push(macro $i{arg.name});
 
 						// Account for an unlikely edge case.
@@ -417,7 +465,11 @@ class JNISafetyTools {
 					}
 
 					// Check the thread before running the function.
-					f.expr = macro if (!lime.system.JNI.JNISafetyTools.onMainThread()) haxe.MainLoop.runInMainThread($i{field.name}.bind($a{args})) else ${f.expr};
+					f.expr = macro
+						if (!lime.system.JNI.JNISafetyTools.onMainThread())
+							haxe.MainLoop.runInMainThread($i{field.name}.bind($a{args}))
+						else
+							${f.expr};
 				default:
 			}
 		}

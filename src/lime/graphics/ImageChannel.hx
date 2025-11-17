@@ -3,7 +3,8 @@ package lime.graphics;
 /**
 	An enum with values for standard image color channels
 **/
-enum ImageChannel {
+enum ImageChannel
+{
 	/**
 		The red color channel
 	**/

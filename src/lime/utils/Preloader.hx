@@ -5,7 +5,6 @@ import haxe.io.Bytes;
 import haxe.io.Path;
 import haxe.macro.Compiler;
 import haxe.Timer;
-
 import lime.app.Event;
 import lime.media.AudioBuffer;
 import lime.system.System;
@@ -13,12 +12,10 @@ import lime.utils.AssetLibrary;
 import lime.utils.Assets;
 import lime.utils.AssetType;
 import lime.utils.Log;
-
 #if (js && html5)
 import js.html.Image;
 import js.html.SpanElement;
 import js.Browser;
-
 import lime.net.HTTPRequest;
 #elseif flash
 import flash.display.LoaderInfo;
@@ -29,20 +26,22 @@ import flash.Lib;
 
 @:access(lime.utils.AssetLibrary)
 #if !lime_debug
-@:fileXml('tags="haxe,release"') @:noDebug
+@:fileXml('tags="haxe,release"')
+@:noDebug
 #end
-class Preloader {
+class Preloader
+{
 	public var complete(default, null):Bool;
-	public var onComplete = new Event<Void -> Void>();
-	public var onProgress = new Event<Int -> Int -> Void>();
+	public var onComplete = new Event<Void->Void>();
+	public var onProgress = new Event<Int->Int->Void>();
 
 	@:noCompletion private var bytesLoaded:Int;
-	@:noCompletion private var bytesLoadedCache = new ObjectMap< #if !disable_preloader_assets AssetLibrary #else Dynamic #end, Int>();
+	@:noCompletion private var bytesLoadedCache = new ObjectMap<#if !disable_preloader_assets AssetLibrary #else Dynamic #end, Int>();
 	@:noCompletion private var bytesLoadedCache2 = new Map<String, Int>();
 	@:noCompletion private var bytesTotal:Int;
 	@:noCompletion private var bytesTotalCache = new Map<String, Int>();
 	@:noCompletion private var initLibraryNames:Bool;
-	@:noCompletion private var libraries:Array< #if !disable_preloader_assets AssetLibrary #else Dynamic #end>;
+	@:noCompletion private var libraries:Array<#if !disable_preloader_assets AssetLibrary #else Dynamic #end>;
 	@:noCompletion private var libraryNames:Array<String>;
 	@:noCompletion private var loadedLibraries:Int;
 	@:noCompletion private var loadedStage:Bool;
@@ -50,13 +49,14 @@ class Preloader {
 	@:noCompletion private var preloadStarted:Bool;
 	@:noCompletion private var simulateProgress:Bool;
 
-	public function new() {
+	public function new()
+	{
 		// TODO: Split out core preloader support from generic Preloader type
 
 		bytesLoaded = 0;
 		bytesTotal = 0;
 
-		libraries = new Array< #if !disable_preloader_assets AssetLibrary #else Dynamic #end>();
+		libraries = new Array<#if !disable_preloader_assets AssetLibrary #else Dynamic #end>();
 		libraryNames = new Array<String>();
 
 		onProgress.add(update);
@@ -64,7 +64,8 @@ class Preloader {
 		#if simulate_preloader
 		var preloadTime = Std.parseInt(Compiler.getDefine("simulate_preloader"));
 
-		if (preloadTime == 1) {
+		if (preloadTime == 1)
+		{
 			preloadTime = 3000;
 		}
 
@@ -75,13 +76,14 @@ class Preloader {
 
 		simulateProgress = true;
 
-		timer.run = function() {
+		timer.run = function()
+		{
 			currentTime = System.getTimer() - startTime;
-			if (currentTime > preloadTime)
-				currentTime = preloadTime;
+			if (currentTime > preloadTime) currentTime = preloadTime;
 			onProgress.dispatch(currentTime, preloadTime);
 
-			if (currentTime >= preloadTime) {
+			if (currentTime >= preloadTime)
+			{
 				timer.stop();
 
 				simulateProgress = false;
@@ -91,58 +93,75 @@ class Preloader {
 		#end
 	}
 
-	public function addLibrary(library:#if !disable_preloader_assets AssetLibrary #else Dynamic #end):Void {
+	public function addLibrary(library:#if !disable_preloader_assets AssetLibrary #else Dynamic #end):Void
+	{
 		libraries.push(library);
 	}
 
-	public function addLibraryName(name:String):Void {
-		if (libraryNames.indexOf(name) == -1) {
+	public function addLibraryName(name:String):Void
+	{
+		if (libraryNames.indexOf(name) == -1)
+		{
 			libraryNames.push(name);
 		}
 	}
 
-	public function load():Void {
-		for (library in libraries) {
+	public function load():Void
+	{
+		for (library in libraries)
+		{
 			bytesTotal += library.bytesTotal;
 		}
 
 		loadedLibraries = -1;
 		preloadStarted = false;
 
-		for (library in libraries) {
+		for (library in libraries)
+		{
 			Log.verbose("Preloading asset library");
 
 			library.load()
-				.onProgress(function(loaded, total) {
-					if (!bytesLoadedCache.exists(library)) {
+				.onProgress(function(loaded, total)
+				{
+					if (!bytesLoadedCache.exists(library))
+					{
 						bytesLoaded += loaded;
-					} else {
+					}
+					else
+					{
 						bytesLoaded += loaded - bytesLoadedCache.get(library);
 					}
 
 					bytesLoadedCache.set(library, loaded);
 
-					if (!simulateProgress) {
+					if (!simulateProgress)
+					{
 						onProgress.dispatch(bytesLoaded, bytesTotal);
 					}
 				})
-				.onComplete(function(_) {
-					if (!bytesLoadedCache.exists(library)) {
+				.onComplete(function(_)
+				{
+					if (!bytesLoadedCache.exists(library))
+					{
 						bytesLoaded += library.bytesTotal;
-					} else {
+					}
+					else
+					{
 						bytesLoaded += Std.int(library.bytesTotal) - bytesLoadedCache.get(library);
 					}
 
 					loadedAssetLibrary();
 				})
-				.onError(function(e) {
+				.onError(function(e)
+				{
 					Log.error(e);
 				});
 		}
 
 		// TODO: Handle bytes total better
 
-		for (name in libraryNames) {
+		for (name in libraryNames)
+		{
 			bytesTotal += 200;
 		}
 
@@ -151,27 +170,30 @@ class Preloader {
 		updateProgress();
 	}
 
-	@:noCompletion private function loadedAssetLibrary(name:String = null):Void {
+	@:noCompletion private function loadedAssetLibrary(name:String = null):Void
+	{
 		loadedLibraries++;
 
 		var current = loadedLibraries;
-		if (!preloadStarted)
-			current++;
+		if (!preloadStarted) current++;
 
 		var totalLibraries = libraries.length + libraryNames.length;
 
-		if (name != null) {
+		if (name != null)
+		{
 			Log.verbose("Loaded asset library: " + name + " [" + current + "/" + totalLibraries + "]");
-		} else {
+		}
+		else
+		{
 			Log.verbose("Loaded asset library [" + current + "/" + totalLibraries + "]");
 		}
 
 		updateProgress();
 	}
 
-	@:noCompletion private function start():Void {
-		if (complete || simulateProgress || !preloadComplete)
-			return;
+	@:noCompletion private function start():Void
+	{
+		if (complete || simulateProgress || !preloadComplete) return;
 
 		complete = true;
 
@@ -180,66 +202,85 @@ class Preloader {
 
 	@:noCompletion private function update(loaded:Int, total:Int):Void {}
 
-	@:noCompletion private function updateProgress():Void {
-		if (!simulateProgress) {
+	@:noCompletion private function updateProgress():Void
+	{
+		if (!simulateProgress)
+		{
 			onProgress.dispatch(bytesLoaded, bytesTotal);
 		}
 
 		#if !disable_preloader_assets
-		if (loadedLibraries == libraries.length && !initLibraryNames) {
+		if (loadedLibraries == libraries.length && !initLibraryNames)
+		{
 			initLibraryNames = true;
 
-			for (name in libraryNames) {
+			for (name in libraryNames)
+			{
 				Log.verbose("Preloading asset library: " + name);
 
 				Assets.loadLibrary(name)
-					.onProgress(function(loaded, total) {
-						if (total > 0) {
-							if (!bytesTotalCache.exists(name)) {
+					.onProgress(function(loaded, total)
+					{
+						if (total > 0)
+						{
+							if (!bytesTotalCache.exists(name))
+							{
 								bytesTotalCache.set(name, total);
 								bytesTotal += (total - 200);
 							}
 
-							if (loaded > total)
-								loaded = total;
+							if (loaded > total) loaded = total;
 
-							if (!bytesLoadedCache2.exists(name)) {
+							if (!bytesLoadedCache2.exists(name))
+							{
 								bytesLoaded += loaded;
-							} else {
+							}
+							else
+							{
 								bytesLoaded += loaded - bytesLoadedCache2.get(name);
 							}
 
 							bytesLoadedCache2.set(name, loaded);
 
-							if (!simulateProgress) {
+							if (!simulateProgress)
+							{
 								onProgress.dispatch(bytesLoaded, bytesTotal);
 							}
 						}
 					})
-					.onComplete(function(library) {
+					.onComplete(function(library)
+					{
 						var total = 200;
 
-						if (bytesTotalCache.exists(name)) {
+						if (bytesTotalCache.exists(name))
+						{
 							total = bytesTotalCache.get(name);
 						}
 
-						if (!bytesLoadedCache2.exists(name)) {
+						if (!bytesLoadedCache2.exists(name))
+						{
 							bytesLoaded += total;
-						} else {
+						}
+						else
+						{
 							bytesLoaded += total - bytesLoadedCache2.get(name);
 						}
 
 						loadedAssetLibrary(name);
 					})
-					.onError(function(e) {
+					.onError(function(e)
+					{
 						Log.error(e);
 					});
 			}
 		}
 		#end
 
-		if (!simulateProgress && loadedLibraries == (libraries.length + libraryNames.length)) {
-			if (!preloadComplete) {
+		if (!simulateProgress
+			&& loadedLibraries == (libraries.length + libraryNames.length))
+		{
+			if (!preloadComplete)
+			{
 				preloadComplete = true;
 
 				Log.verbose("Preload complete");

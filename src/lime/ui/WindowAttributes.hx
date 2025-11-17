@@ -2,7 +2,8 @@ package lime.ui;
 
 import lime.graphics.RenderContextAttributes;
 
-typedef WindowAttributes = {
+typedef WindowAttributes =
+{
 	@:optional public var allowHighDPI:Bool;
 	@:optional public var alwaysOnTop:Bool;
 	@:optional public var borderless:Bool;

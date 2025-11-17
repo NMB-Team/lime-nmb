@@ -10,7 +10,8 @@ import lime.ui.Window;
 	`OPENGLES` is the context type, compatibility contexts for other
 	forms of GL (such as WebGL) may be available also.
 **/
-class RenderContext {
+class RenderContext
+{
 	/**
 		Additional information about the current context
 	**/

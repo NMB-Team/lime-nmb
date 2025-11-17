@@ -1,6 +1,7 @@
 package lime.system;
 
-enum SensorType {
+enum SensorType
+{
 	ACCELEROMETER;
 	GYROSCOPE;
 }

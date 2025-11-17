@@ -1,7 +1,8 @@
 package lime.text.harfbuzz;
 
 #if (!lime_doc_gen || lime_harfbuzz)
-class HBFeature {
+class HBFeature
+{
 	public function new() {}
 }
 // @:cffi private static function lime_hb_feature_from_string (str:String):CFFIPointer;

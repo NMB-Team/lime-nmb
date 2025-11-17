@@ -1,7 +1,8 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class OES_mapbuffer {
+@:noCompletion class OES_mapbuffer
+{
 	public var WRITE_ONLY_OES = 0x88B9;
 	public var BUFFER_ACCESS_OES = 0x88BB;
 	public var BUFFER_MAPPED_OES = 0x88BC;

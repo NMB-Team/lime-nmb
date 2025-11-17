@@ -1,7 +1,8 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class AMD_performance_monitor {
+@:noCompletion class AMD_performance_monitor
+{
 	public var COUNTER_TYPE_AMD = 0x8BC0;
 	public var COUNTER_RANGE_AMD = 0x8BC1;
 	public var UNSIGNED_INT64_AMD = 0x8BC2;

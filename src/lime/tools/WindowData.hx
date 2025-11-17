@@ -31,7 +31,8 @@ abstract WindowData({
 	@:optional var minimized:Bool;
 	@:optional var maximized:Bool;
 	@:optional var hidden:Bool;
-}) from Dynamic {
+}) from Dynamic
+{
 	@:noCompletion
 	public static var expectedFields:WindowData = {
 		width: 0,

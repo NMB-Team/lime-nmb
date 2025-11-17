@@ -1,7 +1,8 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class EXT_discard_framebuffer {
+@:noCompletion class EXT_discard_framebuffer
+{
 	public var COLOR_EXT = 0x1800;
 	public var DEPTH_EXT = 0x1801;
 	public var STENCIL_EXT = 0x1802;

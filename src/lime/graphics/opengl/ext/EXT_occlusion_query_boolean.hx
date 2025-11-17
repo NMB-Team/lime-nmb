@@ -1,7 +1,8 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class EXT_occlusion_query_boolean {
+@:noCompletion class EXT_occlusion_query_boolean
+{
 	public var ANY_SAMPLES_PASSED_EXT = 0x8C2F;
 	public var ANY_SAMPLES_PASSED_CONSERVATIVE_EXT = 0x8D6A;
 	public var CURRENT_QUERY_EXT = 0x8865;

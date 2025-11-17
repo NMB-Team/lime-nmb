@@ -4,11 +4,16 @@ package lime._internal.macros;
 import haxe.macro.Compiler;
 import haxe.macro.Context;
 
-class DefineMacro {
-	public static function run():Void {
-		if (!Context.defined("tools")) {
-			if (Context.defined("js")) {
-				if (!Context.defined("nodejs")) {
+class DefineMacro
+{
+	public static function run():Void
+	{
+		if (!Context.defined("tools"))
+		{
+			if (Context.defined("js"))
+			{
+				if (!Context.defined("nodejs"))
+				{
 					Compiler.define("html5");
 					Compiler.define("web");
 					Compiler.define("lime-canvas");
@@ -16,29 +21,34 @@ class DefineMacro {
 					Compiler.define("lime-howlerjs");
 					Compiler.define("lime-webgl");
 				}
-			} else {
+			}
+			else
+			{
 				Compiler.define("native");
 
 				var cffi = (!Context.defined("nocffi") && !Context.defined("eval"));
 
-				if (Context.defined("ios") || Context.defined("android") || Context.defined("tizen")) {
+				if (Context.defined("ios") || Context.defined("android") || Context.defined("tizen"))
+				{
 					Compiler.define("mobile");
-					if (cffi)
-						Compiler.define("lime-opengles");
-				} else if (Context.defined("webassembly") || Context.defined("wasm") || Context.defined("emscripten")) {
+					if (cffi) Compiler.define("lime-opengles");
+				}
+				else if (Context.defined("webassembly") || Context.defined("wasm") || Context.defined("emscripten"))
+				{
 					Compiler.define("webassembly");
 					Compiler.define("wasm");
 					Compiler.define("emscripten");
 					Compiler.define("web");
-					if (cffi)
-						Compiler.define("lime-opengles");
-				} else {
+					if (cffi) Compiler.define("lime-opengles");
+				}
+				else
+				{
 					Compiler.define("desktop");
-					if (cffi)
-						Compiler.define("lime-opengl");
+					if (cffi) Compiler.define("lime-opengl");
 				}
 
-				if (cffi) {
+				if (cffi)
+				{
 					Compiler.define("lime-cffi");
 
 					Compiler.define("lime-openal");
@@ -46,7 +56,9 @@ class DefineMacro {
 					Compiler.define("lime-curl");
 					Compiler.define("lime-harfbuzz");
 					Compiler.define("lime-vorbis");
-				} else {
+				}
+				else
+				{
 					Compiler.define("disable-cffi");
 				}
 			}

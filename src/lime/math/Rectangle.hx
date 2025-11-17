@@ -15,7 +15,8 @@ import flash.geom.Rectangle as FlashRectangle;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class Rectangle {
+class Rectangle
+{
 	/**
 		Get or set the bottom (y + height) value of the `Rectangle`
 	**/
@@ -78,7 +79,8 @@ class Rectangle {
 		@param	width	(Optional) Initial width value (default is 0)
 		@param	height	(Optional) Initial height value (default is 0)
 	**/
-	public function new(x:Float = 0, y:Float = 0, width:Float = 0, height:Float = 0):Void {
+	public function new(x:Float = 0, y:Float = 0, width:Float = 0, height:Float = 0):Void
+	{
 		this.x = x;
 		this.y = y;
 		this.width = width;
@@ -89,7 +91,8 @@ class Rectangle {
 		Creates a clone of this `Rectangle`
 		@return	A new `Rectangle` instance
 	**/
-	public function clone():Rectangle {
+	public function clone():Rectangle
+	{
 		return new Rectangle(x, y, width, height);
 	}
 
@@ -99,11 +102,13 @@ class Rectangle {
 		@param	y	The y coordinate to test
 		@return	Whether the point is contained in the rectangle
 	**/
-	public function contains(x:Float, y:Float):Bool {
+	public function contains(x:Float, y:Float):Bool
+	{
 		return x >= this.x && y >= this.y && x < right && y < bottom;
 	}
 
-	@:dox(hide) @:noCompletion @:deprecated("Use containsVector") public function containsPoint(point:Vector2):Bool {
+	@:dox(hide) @:noCompletion @:deprecated("Use containsVector") public function containsPoint(point:Vector2):Bool
+	{
 		return containsVector(point);
 	}
 
@@ -114,10 +119,14 @@ class Rectangle {
 		@param	rect	A second `Rectangle` instance to test
 		@return	Whether the `rect` is contained within the current `Rectangle`
 	**/
-	public function containsRect(rect:Rectangle):Bool {
-		if (rect.width <= 0 || rect.height <= 0) {
+	public function containsRect(rect:Rectangle):Bool
+	{
+		if (rect.width <= 0 || rect.height <= 0)
+		{
 			return rect.x > x && rect.y > y && rect.right < right && rect.bottom < bottom;
-		} else {
+		}
+		else
+		{
 			return rect.x >= x && rect.y >= y && rect.right <= right && rect.bottom <= bottom;
 		}
 	}
@@ -127,7 +136,8 @@ class Rectangle {
 		@param	vector	The vector to test
 		@return	Whether the vector is contained in the rectangle
 	**/
-	public function containsVector(vector:Vector2):Bool {
+	public function containsVector(vector:Vector2):Bool
+	{
 		return contains(vector.x, vector.y);
 	}
 
@@ -135,7 +145,8 @@ class Rectangle {
 		Copies the x, y, width and height of another `Rectangle`
 		@param	sourceRect	Another `Rectangle` instance
 	**/
-	public function copyFrom(sourceRect:Rectangle):Void {
+	public function copyFrom(sourceRect:Rectangle):Void
+	{
 		x = sourceRect.x;
 		y = sourceRect.y;
 		width = sourceRect.width;
@@ -148,7 +159,8 @@ class Rectangle {
 		@param	toCompare	Another `Rectangle` to compare with
 		@return	Whether both rectangles are not `null` and have equal values
 	**/
-	public function equals(toCompare:Rectangle):Bool {
+	public function equals(toCompare:Rectangle):Bool
+	{
 		return toCompare != null && x == toCompare.x && y == toCompare.y && width == toCompare.width && height == toCompare.height;
 	}
 
@@ -158,7 +170,8 @@ class Rectangle {
 		@param	dx	A delta x value to increase the size by
 		@param	dy	A delta y value to increase the size by
 	**/
-	public function inflate(dx:Float, dy:Float):Void {
+	public function inflate(dx:Float, dy:Float):Void
+	{
 		x -= dx;
 		width += dx * 2;
 		y -= dy;
@@ -170,7 +183,8 @@ class Rectangle {
 		the given delta vector values
 		@param	vector	A delta vector to increase the size by
 	**/
-	public function inflateVector(vector:Vector2):Void {
+	public function inflateVector(vector:Vector2):Void
+	{
 		inflate(vector.x, vector.y);
 	}
 
@@ -183,14 +197,15 @@ class Rectangle {
 		@param	result	(Optional) A `Rectangle` instance to use for the result
 		@return	A `Rectangle` of the intersection area
 	**/
-	public function intersection(toIntersect:Rectangle, result:Rectangle = null):Rectangle {
-		if (result == null)
-			result = new Rectangle();
+	public function intersection(toIntersect:Rectangle, result:Rectangle = null):Rectangle
+	{
+		if (result == null) result = new Rectangle();
 
 		var x0 = x < toIntersect.x ? toIntersect.x : x;
 		var x1 = right > toIntersect.right ? toIntersect.right : right;
 
-		if (x1 <= x0) {
+		if (x1 <= x0)
+		{
 			result.setEmpty();
 			return result;
 		}
@@ -198,7 +213,8 @@ class Rectangle {
 		var y0 = y < toIntersect.y ? toIntersect.y : y;
 		var y1 = bottom > toIntersect.bottom ? toIntersect.bottom : bottom;
 
-		if (y1 <= y0) {
+		if (y1 <= y0)
+		{
 			result.setEmpty();
 			return result;
 		}
@@ -215,11 +231,13 @@ class Rectangle {
 		@param	toIntersect	Another `Rectangle` to compare with
 		@return	Whether the rectangles intersect
 	**/
-	public function intersects(toIntersect:Rectangle):Bool {
+	public function intersects(toIntersect:Rectangle):Bool
+	{
 		var x0 = x < toIntersect.x ? toIntersect.x : x;
 		var x1 = right > toIntersect.right ? toIntersect.right : right;
 
-		if (x1 <= x0) {
+		if (x1 <= x0)
+		{
 			return false;
 		}
 
@@ -233,7 +251,8 @@ class Rectangle {
 		Whether this rectangle is empty
 		@return	`true` if the width or height is <= 0
 	**/
-	public function isEmpty():Bool {
+	public function isEmpty():Bool
+	{
 		return (width <= 0 || height <= 0);
 	}
 
@@ -242,7 +261,8 @@ class Rectangle {
 		@param	dx	A delta x value
 		@param	dy	A delta y value
 	**/
-	public function offset(dx:Float, dy:Float):Void {
+	public function offset(dx:Float, dy:Float):Void
+	{
 		x += dx;
 		y += dy;
 	}
@@ -251,7 +271,8 @@ class Rectangle {
 		Moves the rectangle by the values of a `Vector2`
 		@param	dx	A delta vector
 	**/
-	public function offsetVector(vector:Vector2):Void {
+	public function offsetVector(vector:Vector2):Void
+	{
 		x += vector.x;
 		y += vector.y;
 	}
@@ -259,7 +280,8 @@ class Rectangle {
 	/**
 		Makes this rectangle empty
 	**/
-	public function setEmpty():Void {
+	public function setEmpty():Void
+	{
 		x = y = width = height = 0;
 	}
 
@@ -270,7 +292,8 @@ class Rectangle {
 		@param	widtha	A new width value
 		@param	heighta	A new height value
 	**/
-	public function setTo(xa:Float, ya:Float, widtha:Float, heighta:Float):Void {
+	public function setTo(xa:Float, ya:Float, widtha:Float, heighta:Float):Void
+	{
 		x = xa;
 		y = ya;
 		width = widtha;
@@ -284,15 +307,20 @@ class Rectangle {
 		@param	result	(Optional) A `Rectangle` instance for the result
 		@return	A `Rectangle` that contains the dimensions of both rectangles
 	**/
-	public function union(toUnion:Rectangle, result:Rectangle = null):Rectangle {
-		if (result == null)
-			result = new Rectangle();
+	public function union(toUnion:Rectangle, result:Rectangle = null):Rectangle
+	{
+		if (result == null) result = new Rectangle();
 
-		if (width == 0 || height == 0) {
+		if (width == 0 || height == 0)
+		{
 			result.copyFrom(toUnion);
-		} else if (toUnion.width == 0 || toUnion.height == 0) {
+		}
+		else if (toUnion.width == 0 || toUnion.height == 0)
+		{
 			result.copyFrom(this);
-		} else {
+		}
+		else
+		{
 			var x0 = x > toUnion.x ? toUnion.x : x;
 			var x1 = right < toUnion.right ? toUnion.right : right;
 			var y0 = y > toUnion.y ? toUnion.y : y;
@@ -314,69 +342,83 @@ class Rectangle {
 	}
 
 	// Getters & Setters
-	@:noCompletion private function get_bottom():Float {
+	@:noCompletion private function get_bottom():Float
+	{
 		return y + height;
 	}
 
-	@:noCompletion private function set_bottom(b:Float):Float {
+	@:noCompletion private function set_bottom(b:Float):Float
+	{
 		height = b - y;
 		return b;
 	}
 
-	@:noCompletion private function get_bottomRight():Vector2 {
+	@:noCompletion private function get_bottomRight():Vector2
+	{
 		return new Vector2(x + width, y + height);
 	}
 
-	@:noCompletion private function set_bottomRight(p:Vector2):Vector2 {
+	@:noCompletion private function set_bottomRight(p:Vector2):Vector2
+	{
 		width = p.x - x;
 		height = p.y - y;
 		return p.clone();
 	}
 
-	@:noCompletion private function get_left():Float {
+	@:noCompletion private function get_left():Float
+	{
 		return x;
 	}
 
-	@:noCompletion private function set_left(l:Float):Float {
+	@:noCompletion private function set_left(l:Float):Float
+	{
 		width -= l - x;
 		x = l;
 		return l;
 	}
 
-	@:noCompletion private function get_right():Float {
+	@:noCompletion private function get_right():Float
+	{
 		return x + width;
 	}
 
-	@:noCompletion private function set_right(r:Float):Float {
+	@:noCompletion private function set_right(r:Float):Float
+	{
 		width = r - x;
 		return r;
 	}
 
-	@:noCompletion private function get_size():Vector2 {
+	@:noCompletion private function get_size():Vector2
+	{
 		return new Vector2(width, height);
 	}
 
-	@:noCompletion private function set_size(p:Vector2):Vector2 {
+	@:noCompletion private function set_size(p:Vector2):Vector2
+	{
 		width = p.x;
 		height = p.y;
 		return p.clone();
 	}
 
-	@:noCompletion private function get_top():Float {
+	@:noCompletion private function get_top():Float
+	{
 		return y;
 	}
 
-	@:noCompletion private function set_top(t:Float):Float {
+	@:noCompletion private function set_top(t:Float):Float
+	{
 		height -= t - y;
 		y = t;
 		return t;
 	}
 
-	@:noCompletion private function get_topLeft():Vector2 {
+	@:noCompletion private function get_topLeft():Vector2
+	{
 		return new Vector2(x, y);
 	}
 
-	@:noCompletion private function set_topLeft(p:Vector2):Vector2 {
+	@:noCompletion private function set_topLeft(p:Vector2):Vector2
+	{
 		x = p.x;
 		y = p.y;
 		return p.clone();

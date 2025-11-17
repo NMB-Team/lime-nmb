@@ -44,7 +44,8 @@ package lime.app;
 @:noDebug
 #end
 @:allow(lime.app.Future)
-class Promise<T> {
+class Promise<T>
+{
 	/**
 		The `Future` associated with this `Promise`.
 
@@ -66,19 +67,22 @@ class Promise<T> {
 	public var isError(get, null):Bool;
 
 	#if commonjs
-	private static function __init__() {
+	private static function __init__()
+	{
 		var p = untyped Promise.prototype;
-		untyped Object.defineProperties(p, {
-			"isComplete": {get: p.get_isComplete},
-			"isError": {get: p.get_isError}
-		});
+		untyped Object.defineProperties(p,
+			{
+				"isComplete": {get: p.get_isComplete},
+				"isError": {get: p.get_isError}
+			});
 	}
 	#end
 
 	/**
 		Create a new `Promise` instance
 	**/
-	public function new() {
+	public function new()
+	{
 		future = new Future<T>();
 	}
 
@@ -87,13 +91,17 @@ class Promise<T> {
 		@param	data	The completion value
 		@return	The current `Promise`
 	**/
-	public function complete(data:T):Promise<T> {
-		if (!future.isError) {
+	public function complete(data:T):Promise<T>
+	{
+		if (!future.isError)
+		{
 			future.isComplete = true;
 			future.value = data;
 
-			if (future.__completeListeners != null) {
-				for (listener in future.__completeListeners) {
+			if (future.__completeListeners != null)
+			{
+				for (listener in future.__completeListeners)
+				{
 					listener(data);
 				}
 
@@ -110,7 +118,8 @@ class Promise<T> {
 		@param	future	The `Future` to use to resolve this `Promise`
 		@return	The current `Promise`
 	**/
-	public function completeWith(future:Future<T>):Promise<T> {
+	public function completeWith(future:Future<T>):Promise<T>
+	{
 		future.onComplete(complete);
 		future.onError(error);
 		future.onProgress(progress);
@@ -123,13 +132,17 @@ class Promise<T> {
 		@param	msg	The error value
 		@return	The current `Promise`
 	**/
-	public function error(msg:Dynamic):Promise<T> {
-		if (!future.isComplete) {
+	public function error(msg:Dynamic):Promise<T>
+	{
+		if (!future.isComplete)
+		{
 			future.isError = true;
 			future.error = msg;
 
-			if (future.__errorListeners != null) {
-				for (listener in future.__errorListeners) {
+			if (future.__errorListeners != null)
+			{
+				for (listener in future.__errorListeners)
+				{
 					listener(msg);
 				}
 
@@ -146,10 +159,14 @@ class Promise<T> {
 		@param	total	A total value. This should be equal or greater to the `progress` value
 		@return	The current `Promise`
 	**/
-	public function progress(progress:Int, total:Int):Promise<T> {
-		if (!future.isError && !future.isComplete) {
-			if (future.__progressListeners != null) {
-				for (listener in future.__progressListeners) {
+	public function progress(progress:Int, total:Int):Promise<T>
+	{
+		if (!future.isError && !future.isComplete)
+		{
+			if (future.__progressListeners != null)
+			{
+				for (listener in future.__progressListeners)
+				{
 					listener(progress, total);
 				}
 			}
@@ -159,11 +176,13 @@ class Promise<T> {
 	}
 
 	// Get & Set Methods
-	@:noCompletion private function get_isComplete():Bool {
+	@:noCompletion private function get_isComplete():Bool
+	{
 		return future.isComplete;
 	}
 
-	@:noCompletion private function get_isError():Bool {
+	@:noCompletion private function get_isError():Bool
+	{
 		return future.isError;
 	}
 }

@@ -1,6 +1,7 @@
 package lime.utils;
 
-enum CompressionAlgorithm {
+enum CompressionAlgorithm
+{
 	DEFLATE;
 	GZIP;
 	LZMA;

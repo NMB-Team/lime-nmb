@@ -1,7 +1,6 @@
 package lime._internal.backend.html5;
 
 import js.html.webgl.RenderingContext in WebGLRenderingContext;
-
 import lime.graphics.opengl.*;
 import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
@@ -11,7 +10,8 @@ import lime.utils.Int32Array;
 import lime.utils.UInt32Array;
 
 @:native("WebGL2RenderingContext")
-extern class HTML5WebGL2RenderContext extends WebGLRenderingContext {
+extern class HTML5WebGL2RenderContext extends WebGLRenderingContext
+{
 	public var DEPTH_BUFFER_BIT:Int;
 	public var STENCIL_BUFFER_BIT:Int;
 	public var COLOR_BUFFER_BIT:Int;
@@ -599,15 +599,19 @@ extern class HTML5WebGL2RenderContext extends WebGLRenderingContext {
 	public function clearBufferuiv(buffer:Int, drawbuffer:Int, values:Array<Int>, ?srcOffset:Int):Void;
 	public function clientWaitSync(sync:GLSync, flags:Int, timeout:Dynamic /*Int64*/):Int;
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, offset:Int):Void {})
-	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView, ?srcOffset:Int, ?srcLengthOverride:Int):Void {})
+	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView, ?srcOffset:Int,
+		?srcLengthOverride:Int):Void {})
 	override function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, data:ArrayBufferView):Void;
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, offset:Int):Void {})
-	public function compressedTexImage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, srcData:ArrayBufferView, ?srcOffset:Int, ?srcLengthOverride:Int):Void;
+	public function compressedTexImage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, srcData:ArrayBufferView,
+		?srcOffset:Int, ?srcLengthOverride:Int):Void;
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, offset:Int):Void {})
-	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:ArrayBufferView, ?srcOffset:Int, ?srcLengthOverride:Int):Void {})
+	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:ArrayBufferView, ?srcOffset:Int,
+		?srcLengthOverride:Int):Void {})
 	override function compressedTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, data:ArrayBufferView):Void;
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, offset:Int):Void {})
-	public function compressedTexSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, srcData:ArrayBufferView, ?srcOffset:Int, ?srcLengthOverride:Int):Void;
+	public function compressedTexSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int,
+		srcData:ArrayBufferView, ?srcOffset:Int, ?srcLengthOverride:Int):Void;
 	public function copySubBufferData(readTarget:Int, writeTarget:Int, readOffset:DataPointer, writeOffset:DataPointer, size:Int):Void;
 	public function copyTexSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, x:Int, y:Int, width:Int, height:Int):Void;
 	public function createQuery():GLQuery;
@@ -661,28 +665,42 @@ extern class HTML5WebGL2RenderContext extends WebGLRenderingContext {
 	public function samplerParameterf(sampler:GLSampler, pname:Int, param:Float):Void;
 	public function samplerParameteri(sampler:GLSampler, pname:Int, param:Int):Void;
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, offset:DataPointer):Void {})
-	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {})
-	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, source:Dynamic /*js.html.ImageBitmap*/):Void {})
+	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView,
+		srcOffset:Int):Void {})
+	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int,
+		source:Dynamic /*js.html.ImageBitmap*/):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, source:js.html.ImageData):Void {})
-	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, source:js.html.ImageElement):Void {})
-	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, source:js.html.CanvasElement):Void {})
-	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, source:js.html.VideoElement):Void {})
+	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int,
+		source:js.html.ImageElement):Void {})
+	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int,
+		source:js.html.CanvasElement):Void {})
+	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int,
+		source:js.html.VideoElement):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, format:Int, type:Int, pixels:js.html.ImageData):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, format:Int, type:Int, image:js.html.ImageElement):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, format:Int, type:Int, canvas:js.html.CanvasElement):Void {})
 	override function texImage2D(target:Int, level:Int, internalformat:Int, format:Int, type:Int, video:js.html.VideoElement):Void;
-	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, source:js.html.CanvasElement):Void {})
-	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, source:js.html.ImageElement):Void {})
-	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, source:js.html.VideoElement):Void {})
-	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, source:Dynamic /*js.html.ImageBitmap*/):Void {})
-	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, source:js.html.ImageData):Void {})
-	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, source:ArrayBufferView):Void {})
-	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, offset:DataPointer):Void {})
-	public function texImage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView, ?srcOffset:Int):Void;
+	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int,
+		source:js.html.CanvasElement):Void {})
+	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int,
+		source:js.html.ImageElement):Void {})
+	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int,
+		source:js.html.VideoElement):Void {})
+	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int,
+		source:Dynamic /*js.html.ImageBitmap*/):Void {})
+	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int,
+		source:js.html.ImageData):Void {})
+	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int,
+		source:ArrayBufferView):Void {})
+	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int,
+		offset:DataPointer):Void {})
+	public function texImage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int,
+		srcData:ArrayBufferView, ?srcOffset:Int):Void;
 	public function texStorage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int):Void;
 	public function texStorage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int):Void;
-	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {})
+	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:ArrayBufferView,
+		srcOffset:Int):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, offset:DataPointer):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, source:js.html.ImageData):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, source:js.html.ImageElement):Void {})
@@ -694,14 +712,22 @@ extern class HTML5WebGL2RenderContext extends WebGLRenderingContext {
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, image:js.html.ImageElement):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, canvas:js.html.CanvasElement):Void {})
 	override function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, video:js.html.VideoElement):Void;
-	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, offset:DataPointer):Void {})
-	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, source:js.html.ImageData):Void {})
-	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, source:js.html.ImageElement):Void {})
-	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, source:js.html.CanvasElement):Void {})
-	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, source:js.html.VideoElement):Void {})
-	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, source:Dynamic /*ImageBitmap*/):Void {})
-	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, pixels:ArrayBufferView, ?srcOffset:Int):Void {})
-	public function texSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, video:js.html.VideoElement):Void;
+	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int,
+		offset:DataPointer):Void {})
+	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int,
+		source:js.html.ImageData):Void {})
+	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int,
+		source:js.html.ImageElement):Void {})
+	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int,
+		source:js.html.CanvasElement):Void {})
+	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int,
+		source:js.html.VideoElement):Void {})
+	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int,
+		source:Dynamic /*ImageBitmap*/):Void {})
+	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int,
+		pixels:ArrayBufferView, ?srcOffset:Int):Void {})
+	public function texSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int,
+		video:js.html.VideoElement):Void;
 	public function transformFeedbackVaryings(program:GLProgram, varyings:Array<String>, bufferMode:Int):Void;
 	public function uniform1ui(location:GLUniformLocation, v0:Int):Void;
 	public function uniform2ui(location:GLUniformLocation, v0:Int, v1:Int):Void;

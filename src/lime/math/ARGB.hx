@@ -19,7 +19,8 @@ import lime.utils.UInt8Array;
 	```
 **/
 @:transitive
-abstract ARGB(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int from UInt to UInt {
+abstract ARGB(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int from UInt to UInt
+{
 	private static var a16:Int;
 	private static var unmult:Float;
 
@@ -47,7 +48,8 @@ abstract ARGB(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 		Creates a new ARGB instance
 		@param	argb	(Optional) An ARGB color value
 	**/
-	public inline function new(argb:Int = 0) {
+	public inline function new(argb:Int = 0)
+	{
 		this = argb;
 	}
 
@@ -59,7 +61,8 @@ abstract ARGB(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 		@param	b	A blue component value
 		@return	A new ARGB instance
 	**/
-	public static inline function create(a:Int, r:Int, g:Int, b:Int):ARGB {
+	public static inline function create(a:Int, r:Int, g:Int, b:Int):ARGB
+	{
 		var argb = new ARGB();
 		argb.set(a, r, g, b);
 		return argb;
@@ -68,10 +71,14 @@ abstract ARGB(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 	/**
 		Multiplies the red, green and blue components by the current alpha component
 	**/
-	public inline function multiplyAlpha():Void {
-		if (a == 0) {
+	public inline function multiplyAlpha():Void
+	{
+		if (a == 0)
+		{
 			this = 0;
-		} else if (a != 0xFF) {
+		}
+		else if (a != 0xFF)
+		{
 			a16 = RGBA.__alpha16[a];
 			set(a, (r * a16) >> 16, (g * a16) >> 16, (b * a16) >> 16);
 		}
@@ -84,8 +91,10 @@ abstract ARGB(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 		@param	format	(Optional) The `PixelFormat` represented by the `UInt8Array` data
 		@param	premultiplied	(Optional) Whether the data is stored in premultiplied alpha format
 	**/
-	public inline function readUInt8(data:UInt8Array, offset:Int, format:PixelFormat = RGBA32, premultiplied:Bool = false):Void {
-		switch (format) {
+	public inline function readUInt8(data:UInt8Array, offset:Int, format:PixelFormat = RGBA32, premultiplied:Bool = false):Void
+	{
+		switch (format)
+		{
 			case BGRA32:
 				set(data[offset + 1], data[offset], data[offset + 3], data[offset + 2]);
 
@@ -96,7 +105,8 @@ abstract ARGB(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 				set(data[offset + 2], data[offset + 3], data[offset], data[offset + 1]);
 		}
 
-		if (premultiplied) {
+		if (premultiplied)
+		{
 			unmultiplyAlpha();
 		}
 	}
@@ -108,15 +118,18 @@ abstract ARGB(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 		@param	g	The green component value to set
 		@param	b	The blue component vlaue to set
 	**/
-	public inline function set(a:Int, r:Int, g:Int, b:Int):Void {
+	public inline function set(a:Int, r:Int, g:Int, b:Int):Void
+	{
 		this = ((a & 0xFF) << 24) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
 	}
 
 	/**
 		Divides the current red, green and blue components by the alpha component
 	**/
-	public inline function unmultiplyAlpha() {
-		if (a != 0 && a != 0xFF) {
+	public inline function unmultiplyAlpha()
+	{
+		if (a != 0 && a != 0xFF)
+		{
 			unmult = 255.0 / a;
 			set(a, RGBA.__clamp[Math.floor(r * unmult)], RGBA.__clamp[Math.floor(g * unmult)], RGBA.__clamp[Math.floor(b * unmult)]);
 		}
@@ -129,12 +142,15 @@ abstract ARGB(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 		@param	format	(Optional) The `PixelFormat` represented by the `UInt8Array` data
 		@param	premultiplied	(Optional) Whether the data is stored in premultiplied alpha format
 	**/
-	public inline function writeUInt8(data:UInt8Array, offset:Int, format:PixelFormat = RGBA32, premultiplied:Bool = false):Void {
-		if (premultiplied) {
+	public inline function writeUInt8(data:UInt8Array, offset:Int, format:PixelFormat = RGBA32, premultiplied:Bool = false):Void
+	{
+		if (premultiplied)
+		{
 			multiplyAlpha();
 		}
 
-		switch (format) {
+		switch (format)
+		{
 			case BGRA32:
 				data[offset] = b;
 				data[offset + 1] = g;
@@ -155,47 +171,57 @@ abstract ARGB(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 		}
 	}
 
-	@:from private static inline function __fromBGRA(bgra:BGRA):ARGB {
+	@:from private static inline function __fromBGRA(bgra:BGRA):ARGB
+	{
 		return ARGB.create(bgra.a, bgra.r, bgra.g, bgra.b);
 	}
 
-	@:from private static inline function __fromRGBA(rgba:RGBA):ARGB {
+	@:from private static inline function __fromRGBA(rgba:RGBA):ARGB
+	{
 		return ARGB.create(rgba.a, rgba.r, rgba.g, rgba.b);
 	}
 
 	// Get & Set Methods
-	@:noCompletion private inline function get_a():Int {
+	@:noCompletion private inline function get_a():Int
+	{
 		return (this >> 24) & 0xFF;
 	}
 
-	@:noCompletion private inline function set_a(value:Int):Int {
+	@:noCompletion private inline function set_a(value:Int):Int
+	{
 		set(value, r, g, b);
 		return value;
 	}
 
-	@:noCompletion private inline function get_b():Int {
+	@:noCompletion private inline function get_b():Int
+	{
 		return this & 0xFF;
 	}
 
-	@:noCompletion private inline function set_b(value:Int):Int {
+	@:noCompletion private inline function set_b(value:Int):Int
+	{
 		set(a, r, g, value);
 		return value;
 	}
 
-	@:noCompletion private inline function get_g():Int {
+	@:noCompletion private inline function get_g():Int
+	{
 		return (this >> 8) & 0xFF;
 	}
 
-	@:noCompletion private inline function set_g(value:Int):Int {
+	@:noCompletion private inline function set_g(value:Int):Int
+	{
 		set(a, r, value, b);
 		return value;
 	}
 
-	@:noCompletion private inline function get_r():Int {
+	@:noCompletion private inline function get_r():Int
+	{
 		return (this >> 16) & 0xFF;
 	}
 
-	@:noCompletion private inline function set_r(value:Int):Int {
+	@:noCompletion private inline function set_r(value:Int):Int
+	{
 		set(a, value, g, b);
 		return value;
 	}

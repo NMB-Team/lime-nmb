@@ -1,7 +1,8 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class QCOM_tiled_rendering {
+@:noCompletion class QCOM_tiled_rendering
+{
 	public var COLOR_BUFFER_BIT0_QCOM = 0x00000001;
 	public var COLOR_BUFFER_BIT1_QCOM = 0x00000002;
 	public var COLOR_BUFFER_BIT2_QCOM = 0x00000004;

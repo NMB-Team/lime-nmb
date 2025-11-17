@@ -1,7 +1,8 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class OES_texture_3D {
+@:noCompletion class OES_texture_3D
+{
 	public var TEXTURE_WRAP_R_OES = 0x8072;
 	public var TEXTURE_3D_OES = 0x806F;
 	public var TEXTURE_BINDING_3D_OES = 0x806A;

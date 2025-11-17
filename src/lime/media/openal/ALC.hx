@@ -4,7 +4,6 @@ package lime.media.openal;
 import lime._internal.backend.native.NativeCFFI;
 import lime.system.CFFI;
 import lime.system.CFFIPointer;
-
 import haxe.io.Bytes;
 
 #if !lime_debug
@@ -12,7 +11,8 @@ import haxe.io.Bytes;
 @:noDebug
 #end
 @:access(lime._internal.backend.native.NativeCFFI)
-class ALC {
+class ALC
+{
 	public static inline var FALSE:Int = 0;
 	public static inline var TRUE:Int = 1;
 	public static inline var FREQUENCY:Int = 0x1007;
@@ -38,7 +38,8 @@ class ALC {
 	public static inline var CAPTURE_DEFAULT_DEVICE_SPECIFIER:Int = 0x311;
 	public static inline var CAPTURE_SAMPLES:Int = 0x312;
 
-	public static function closeDevice(device:ALDevice):Bool {
+	public static function closeDevice(device:ALDevice):Bool
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		return NativeCFFI.lime_alc_close_device(device);
 		#else
@@ -46,11 +47,13 @@ class ALC {
 		#end
 	}
 
-	public static function createContext(device:ALDevice, attrlist:Array<Int> = null):ALContext {
+	public static function createContext(device:ALDevice, attrlist:Array<Int> = null):ALContext
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		#if hl
 		var _attrlist = null;
-		if (attrlist != null) {
+		if (attrlist != null)
+		{
 			_attrlist = new hl.NativeArray<Int>(attrlist.length);
 			for (i in 0...attrlist.length)
 				_attrlist[i] = attrlist[i];
@@ -59,7 +62,8 @@ class ALC {
 		#end
 		var handle = NativeCFFI.lime_alc_create_context(device, attrlist);
 
-		if (handle != null) {
+		if (handle != null)
+		{
 			return new ALContext(handle);
 		}
 		#end
@@ -67,32 +71,33 @@ class ALC {
 		return null;
 	}
 
-	public static function destroyContext(context:ALContext):Void {
+	public static function destroyContext(context:ALContext):Void
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_alc_destroy_context(context);
 		#end
 	}
 
-	public static function getContextsDevice(context:ALContext):ALDevice {
-		#if (lime_cffi && lime_openal && !macro)
-		#if !hl
-		var handle:Dynamic = NativeCFFI.lime_alc_get_contexts_device(context);
+	public static function getContextsDevice(context:ALContext):ALDevice
+	{
+		#if (lime_cffi && lime_openal && !macro) #if !hl var handle:Dynamic = NativeCFFI.lime_alc_get_contexts_device(context);
 
-		if (handle != null) {
+		if (handle != null)
+		{
 			return new ALDevice(handle);
-		}
-		#else
-		#end
+		} #else #end
 		#end
 
 		return null;
 	}
 
-	public static function getCurrentContext():ALContext {
+	public static function getCurrentContext():ALContext
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		var handle:Dynamic = NativeCFFI.lime_alc_get_current_context();
 
-		if (handle != null) {
+		if (handle != null)
+		{
 			return new ALContext(handle);
 		}
 		#end
@@ -100,7 +105,8 @@ class ALC {
 		return null;
 	}
 
-	public static function getError(device:ALDevice):Int {
+	public static function getError(device:ALDevice):Int
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		return NativeCFFI.lime_alc_get_error(device);
 		#else
@@ -108,8 +114,10 @@ class ALC {
 		#end
 	}
 
-	public static function getErrorString(device:ALDevice):String {
-		return switch (getError(device)) {
+	public static function getErrorString(device:ALDevice):String
+	{
+		return switch (getError(device))
+		{
 			case INVALID_DEVICE: "INVALID_DEVICE: Invalid device (or no device?)";
 			case INVALID_CONTEXT: "INVALID_CONTEXT: Invalid context (or no context?)";
 			case INVALID_ENUM: "INVALID_ENUM: Invalid enum value";
@@ -119,12 +127,12 @@ class ALC {
 		}
 	}
 
-	public static function getIntegerv(device:ALDevice, param:Int, size:Int):Array<Int> {
+	public static function getIntegerv(device:ALDevice, param:Int, size:Int):Array<Int>
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		var result = NativeCFFI.lime_alc_get_integerv(device, param, size);
 		#if hl
-		if (result == null)
-			return [];
+		if (result == null) return [];
 		var _result = [];
 		for (i in 0...result.length)
 			_result[i] = result[i];
@@ -137,7 +145,8 @@ class ALC {
 		#end
 	}
 
-	public static function getString(device:ALDevice, param:Int):String {
+	public static function getString(device:ALDevice, param:Int):String
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		var result = NativeCFFI.lime_alc_get_string(device, param);
 		#if hl
@@ -149,13 +158,15 @@ class ALC {
 		#end
 	}
 
-	public static function getStringList(device:ALDevice, param:Int):Array<String> {
+	public static function getStringList(device:ALDevice, param:Int):Array<String>
+	{
 		#if (lime_cffi && lime_openal && !macro)
-		if (param == DEVICE_SPECIFIER || param == ALL_DEVICES_SPECIFIER) {
+		if (param == DEVICE_SPECIFIER ||
+			param == ALL_DEVICES_SPECIFIER)
+		{
 			var result = NativeCFFI.lime_alc_get_string_list(device, param);
 			#if hl
-			if (result == null)
-				return [];
+			if (result == null) return [];
 			var _result = [];
 			for (i in 0...result.length)
 				_result[i] = CFFI.stringValue(result[i]);
@@ -163,6 +174,7 @@ class ALC {
 			#else
 			return result;
 			#end
+
 		}
 
 		return [getString(device, param)];
@@ -171,11 +183,11 @@ class ALC {
 		#end
 	}
 
-	public static function getDeviceList(param:Int):Array<String> {
+	public static function getDeviceList(param:Int):Array<String>
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		var result = NativeCFFI.lime_alc_get_device_list(param);
-		if (result == null)
-			return [];
+		if (result == null) return [];
 		#if hl
 		var _result = [];
 		for (i in 0...result.length)
@@ -189,7 +201,8 @@ class ALC {
 		#end
 	}
 
-	public static function makeContextCurrent(context:ALContext):Bool {
+	public static function makeContextCurrent(context:ALContext):Bool
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		return NativeCFFI.lime_alc_make_context_current(context);
 		#else
@@ -197,11 +210,13 @@ class ALC {
 		#end
 	}
 
-	public static function openDevice(deviceName:String = null):ALDevice {
+	public static function openDevice(deviceName:String = null):ALDevice
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		var handle = NativeCFFI.lime_alc_open_device(deviceName);
 
-		if (handle != null) {
+		if (handle != null)
+		{
 			return new ALDevice(handle);
 		}
 		#end
@@ -209,31 +224,36 @@ class ALC {
 		return null;
 	}
 
-	public static function pauseDevice(device:ALDevice):Void {
+	public static function pauseDevice(device:ALDevice):Void
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_alc_pause_device(device);
 		#end
 	}
 
-	public static function processContext(context:ALContext):Void {
+	public static function processContext(context:ALContext):Void
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_alc_process_context(context);
 		#end
 	}
 
-	public static function resumeDevice(device:ALDevice):Void {
+	public static function resumeDevice(device:ALDevice):Void
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_alc_resume_device(device);
 		#end
 	}
 
-	public static function suspendContext(context:ALContext):Void {
+	public static function suspendContext(context:ALContext):Void
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_alc_suspend_context(context);
 		#end
 	}
 
-	public static function isExtensionPresent(device:ALDevice, extname:String):Bool {
+	public static function isExtensionPresent(device:ALDevice, extname:String):Bool
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		return NativeCFFI.lime_alc_is_extension_present(device, extname);
 		#else
@@ -241,11 +261,13 @@ class ALC {
 		#end
 	}
 
-	public static function captureOpenDevice(deviceName:String, frequency:Int, format:Int, bufferSize:Int):ALDevice {
+	public static function captureOpenDevice(deviceName:String, frequency:Int, format:Int, bufferSize:Int):ALDevice
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		var handle = NativeCFFI.lime_alc_capture_open_device(deviceName, frequency, format, bufferSize);
 
-		if (handle != null) {
+		if (handle != null)
+		{
 			return new ALDevice(handle);
 		}
 		#end
@@ -253,7 +275,8 @@ class ALC {
 		return null;
 	}
 
-	public static function captureCloseDevice(device:ALDevice):Bool {
+	public static function captureCloseDevice(device:ALDevice):Bool
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		return NativeCFFI.lime_alc_capture_close_device(device);
 		#end
@@ -261,19 +284,22 @@ class ALC {
 		return false;
 	}
 
-	public static function captureStart(device:ALDevice):Void {
+	public static function captureStart(device:ALDevice):Void
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_alc_capture_start(device);
 		#end
 	}
 
-	public static function captureStop(device:ALDevice):Void {
+	public static function captureStop(device:ALDevice):Void
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_alc_capture_stop(device);
 		#end
 	}
 
-	public static function captureSamples(device:ALDevice, buffer:Bytes, samples:Int):Void {
+	public static function captureSamples(device:ALDevice, buffer:Bytes, samples:Int):Void
+	{
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_alc_capture_samples(device, buffer, samples);
 		#end

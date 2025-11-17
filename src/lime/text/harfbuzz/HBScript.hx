@@ -1,7 +1,8 @@
 package lime.text.harfbuzz;
 
 #if (!lime_doc_gen || lime_harfbuzz)
-#if (haxe_ver >= 4.0) enum #else @:enum #end abstract HBScript(Int) from Int to Int {
+#if (haxe_ver >= 4.0) enum #else @:enum #end abstract HBScript(Int) from Int to Int
+{
 	public var COMMON = "Z".code << 24 | "y".code << 16 | "y".code << 8 | "y".code;
 	public var INHERITED = "Z".code << 24 | "i".code << 16 | "n".code << 8 | "h".code;
 	public var UNKNOWN = "Z".code << 24 | "z".code << 16 | "z".code << 8 | "z".code;

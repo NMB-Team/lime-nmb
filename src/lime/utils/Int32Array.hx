@@ -8,39 +8,55 @@ import js.lib.Uint8Array as JSUInt8Array;
 import js.html.Int32Array as JSInt32Array;
 import js.html.Uint8Array as JSUInt8Array;
 #end
-
 @:forward
 @:transitive
-abstract Int32Array(JSInt32Array) from JSInt32Array to JSInt32Array {
+abstract Int32Array(JSInt32Array) from JSInt32Array to JSInt32Array
+{
 	@:to inline function toArrayBufferView():ArrayBufferView
 		return this;
 
-	public static inline var BYTES_PER_ELEMENT:Int = 4;
+	public inline static var BYTES_PER_ELEMENT:Int = 4;
 
 	@:generic
-	public inline function new<T>(?elements:Int, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end ?view:ArrayBufferView, ?buffer:ArrayBuffer, ?byteoffset:Int = 0, ?len:Null<Int>) {
-		if (elements != null) {
+	public inline function new<T>(?elements:Int, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end ?view:ArrayBufferView, ?buffer:ArrayBuffer,
+			?byteoffset:Int = 0, ?len:Null<Int>)
+	{
+		if (elements != null)
+		{
 			this = new JSInt32Array(elements);
-		} else if (array != null) {
+		}
+		else if (array != null)
+		{
 			this = new JSInt32Array(untyped array);
 		#if (openfl && commonjs)
 		}
-		else if (vector != null) {
+		else if (vector != null)
+		{
 			this = new JSInt32Array(untyped (vector));
 		#elseif openfl
 		}
-		else if (vector != null) {
+		else if (vector != null)
+		{
 			this = new JSInt32Array(untyped untyped (vector).__array);
 		#end
-		} else if (view != null) {
+		}
+		else if (view != null)
+		{
 			this = new JSInt32Array(untyped view);
-		} else if (buffer != null) {
-			if (len == null) {
+		}
+		else if (buffer != null)
+		{
+			if (len == null)
+			{
 				this = new JSInt32Array(buffer, byteoffset);
-			} else {
+			}
+			else
+			{
 				this = new JSInt32Array(buffer, byteoffset, len);
 			}
-		} else {
+		}
+		else
+		{
 			this = null;
 		}
 	}
@@ -52,15 +68,15 @@ abstract Int32Array(JSInt32Array) from JSInt32Array to JSInt32Array {
 		return this[idx];
 
 	// non spec haxe conversions
-	public static inline function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):Int32Array {
-		if (byteOffset == null)
-			return new JSInt32Array(cast bytes.getData());
-		if (len == null)
-			return new JSInt32Array(cast bytes.getData(), byteOffset);
+	inline public static function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):Int32Array
+	{
+		if (byteOffset == null) return new JSInt32Array(cast bytes.getData());
+		if (len == null) return new JSInt32Array(cast bytes.getData(), byteOffset);
 		return new JSInt32Array(cast bytes.getData(), byteOffset, len);
 	}
 
-	public inline function toBytes():haxe.io.Bytes {
+	inline public function toBytes():haxe.io.Bytes
+	{
 		return @:privateAccess new haxe.io.Bytes(cast new JSUInt8Array(this.buffer));
 	}
 
@@ -72,29 +88,42 @@ import lime.utils.ArrayBufferView;
 
 @:transitive
 @:forward
-abstract Int32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
-	public static inline var BYTES_PER_ELEMENT:Int = 4;
+abstract Int32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
+{
+	public inline static var BYTES_PER_ELEMENT:Int = 4;
 
 	public var length(get, never):Int;
 
 	#if (haxe_ver < 4.2)
 	@:generic
 	#end
-	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end ?view:ArrayBufferView, ?byteoffset:Int = 0, ?len:Null<Int>) {
-		if (elements != null) {
+	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end ?view:ArrayBufferView,
+			?byteoffset:Int = 0, ?len:Null<Int>)
+	{
+		if (elements != null)
+		{
 			this = new ArrayBufferView(elements, Int32);
-		} else if (array != null) {
+		}
+		else if (array != null)
+		{
 			this = new ArrayBufferView(0, Int32).initArray(array);
 		#if openfl
 		}
-		else if (vector != null) {
+		else if (vector != null)
+		{
 			this = new ArrayBufferView(0, Int32).initArray(untyped (vector).__array);
 		#end
-		} else if (view != null) {
+		}
+		else if (view != null)
+		{
 			this = new ArrayBufferView(0, Int32).initTypedArray(view);
-		} else if (buffer != null) {
+		}
+		else if (buffer != null)
+		{
 			this = new ArrayBufferView(0, Int32).initBuffer(buffer, byteoffset, len);
-		} else {
+		}
+		else
+		{
 			throw "Invalid constructor arguments for Int32Array";
 		}
 	}
@@ -104,11 +133,13 @@ abstract Int32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
 		return this.subarray(begin, end);
 
 	// non spec haxe conversions
-	public static inline function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):Int32Array {
+	inline public static function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):Int32Array
+	{
 		return new Int32Array(bytes, byteOffset, len);
 	}
 
-	public inline function toBytes():haxe.io.Bytes {
+	inline public function toBytes():haxe.io.Bytes
+	{
 		return this.buffer;
 	}
 
@@ -118,13 +149,15 @@ abstract Int32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
 
 	@:noCompletion
 	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
-	public inline function __get(idx:Int) {
+	public inline function __get(idx:Int)
+	{
 		return ArrayBufferIO.getInt32(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT));
 	}
 
 	@:noCompletion
 	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
-	public inline function __set(idx:Int, val:Int) {
+	public inline function __set(idx:Int, val:Int)
+	{
 		ArrayBufferIO.setInt32(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT), val);
 		return val;
 	}

@@ -2,7 +2,8 @@ package lime.graphics.opengl.ext;
 
 @:keep
 #if (!js || !html5 || display)
-@:noCompletion class EXT_color_buffer_half_float {
+@:noCompletion class EXT_color_buffer_half_float
+{
 	public var RGBA16F_EXT = 0x881A;
 	public var RGB16F_EXT = 0x881B;
 	#if (!js && !html5)
@@ -16,7 +17,8 @@ package lime.graphics.opengl.ext;
 }
 #else
 @:native("EXT_color_buffer_half_float")
-@:noCompletion extern class EXT_color_buffer_half_float {
+@:noCompletion extern class EXT_color_buffer_half_float
+{
 	public var RGBA16F_EXT:Int;
 	public var RGB16F_EXT:Int;
 	public var FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE_EXT:Int;

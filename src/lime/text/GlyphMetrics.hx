@@ -6,7 +6,8 @@ import lime.math.Vector2;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class GlyphMetrics {
+class GlyphMetrics
+{
 	public var advance:Vector2;
 	public var height:Int;
 	public var horizontalBearing:Vector2;

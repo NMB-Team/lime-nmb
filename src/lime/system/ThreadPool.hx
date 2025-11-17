@@ -1,10 +1,8 @@
 package lime.system;
 
 import haxe.Constraints.Function;
-
 import lime.app.Application;
 import lime.app.Event;
-
 #if sys
 #if haxe4
 import sys.thread.Deque;
@@ -21,15 +19,16 @@ import neko.vm.Thread;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class ThreadPool {
+class ThreadPool
+{
 	public var currentThreads(default, null):Int;
-	public var doWork = new Event<Dynamic -> Void>();
+	public var doWork = new Event<Dynamic->Void>();
 	public var maxThreads:Int;
 	public var minThreads:Int;
-	public var onComplete = new Event<Dynamic -> Void>();
-	public var onError = new Event<Dynamic -> Void>();
-	public var onProgress = new Event<Dynamic -> Void>();
-	public var onRun = new Event<Dynamic -> Void>();
+	public var onComplete = new Event<Dynamic->Void>();
+	public var onError = new Event<Dynamic->Void>();
+	public var onProgress = new Event<Dynamic->Void>();
+	public var onRun = new Event<Dynamic->Void>();
 
 	#if (cpp || neko || webassembly)
 	@:noCompletion private var __synchronous:Bool;
@@ -39,7 +38,8 @@ class ThreadPool {
 	@:noCompletion private var __workResult = new Deque<ThreadPoolMessage>();
 	#end
 
-	public function new(minThreads:Int = 0, maxThreads:Int = 1) {
+	public function new(minThreads:Int = 0, maxThreads:Int = 1)
+	{
 		this.minThreads = minThreads;
 		this.maxThreads = maxThreads;
 
@@ -65,23 +65,29 @@ class ThreadPool {
 	//
 	//
 	// }
-	public function queue(state:Dynamic = null):Void {
+	public function queue(state:Dynamic = null):Void
+	{
 		#if (cpp || neko || webassembly)
 		// TODO: Better way to handle this?
 
-		if (Application.current != null && Application.current.window != null && !__synchronous) {
+		if (Application.current != null && Application.current.window != null && !__synchronous)
+		{
 			__workIncoming.add(new ThreadPoolMessage(WORK, state));
 			__workQueued++;
 
-			if (currentThreads < maxThreads && currentThreads < (__workQueued - __workCompleted)) {
+			if (currentThreads < maxThreads && currentThreads < (__workQueued - __workCompleted))
+			{
 				currentThreads++;
 				Thread.create(__doWork);
 			}
 
-			if (Application.current != null && !Application.current.onUpdate.has(__update)) {
+			if (Application.current != null && !Application.current.onUpdate.has(__update))
+			{
 				Application.current.onUpdate.add(__update);
 			}
-		} else {
+		}
+		else
+		{
 			__synchronous = true;
 			runWork(state);
 		}
@@ -90,9 +96,11 @@ class ThreadPool {
 		#end
 	}
 
-	public function sendComplete(state:Dynamic = null):Void {
+	public function sendComplete(state:Dynamic = null):Void
+	{
 		#if (cpp || neko || webassembly)
-		if (!__synchronous) {
+		if (!__synchronous)
+		{
 			__workResult.add(new ThreadPoolMessage(COMPLETE, state));
 			return;
 		}
@@ -101,9 +109,11 @@ class ThreadPool {
 		onComplete.dispatch(state);
 	}
 
-	public function sendError(state:Dynamic = null):Void {
+	public function sendError(state:Dynamic = null):Void
+	{
 		#if (cpp || neko || webassembly)
-		if (!__synchronous) {
+		if (!__synchronous)
+		{
 			__workResult.add(new ThreadPoolMessage(ERROR, state));
 			return;
 		}
@@ -112,9 +122,11 @@ class ThreadPool {
 		onError.dispatch(state);
 	}
 
-	public function sendProgress(state:Dynamic = null):Void {
+	public function sendProgress(state:Dynamic = null):Void
+	{
 		#if (cpp || neko || webassembly)
-		if (!__synchronous) {
+		if (!__synchronous)
+		{
 			__workResult.add(new ThreadPoolMessage(PROGRESS, state));
 			return;
 		}
@@ -123,9 +135,11 @@ class ThreadPool {
 		onProgress.dispatch(state);
 	}
 
-	@:noCompletion private function runWork(state:Dynamic = null):Void {
+	@:noCompletion private function runWork(state:Dynamic = null):Void
+	{
 		#if (cpp || neko || webassembly)
-		if (!__synchronous) {
+		if (!__synchronous)
+		{
 			__workResult.add(new ThreadPoolMessage(WORK, state));
 			doWork.dispatch(state);
 			return;
@@ -137,24 +151,33 @@ class ThreadPool {
 	}
 
 	#if (cpp || neko || webassembly)
-	@:noCompletion private function __doWork():Void {
-		while (true) {
+	@:noCompletion private function __doWork():Void
+	{
+		while (true)
+		{
 			var message = __workIncoming.pop(true);
 
-			if (message.type == WORK) {
+			if (message.type == WORK)
+			{
 				runWork(message.state);
-			} else if (message.type == EXIT) {
+			}
+			else if (message.type == EXIT)
+			{
 				break;
 			}
 		}
 	}
 
-	@:noCompletion private function __update(deltaTime:Float):Void {
-		if (__workQueued > __workCompleted) {
+	@:noCompletion private function __update(deltaTime:Float):Void
+	{
+		if (__workQueued > __workCompleted)
+		{
 			var message = __workResult.pop(false);
 
-			while (message != null) {
-				switch (message.type) {
+			while (message != null)
+			{
+				switch (message.type)
+				{
 					case WORK:
 						onRun.dispatch(message.state);
 
@@ -165,14 +188,18 @@ class ThreadPool {
 						__workCompleted++;
 
 						if ((currentThreads > (__workQueued - __workCompleted) && currentThreads > minThreads)
-							|| currentThreads > maxThreads) {
+							|| currentThreads > maxThreads)
+						{
 							currentThreads--;
 							__workIncoming.add(new ThreadPoolMessage(EXIT, null));
 						}
 
-						if (message.type == COMPLETE) {
+						if (message.type == COMPLETE)
+						{
 							onComplete.dispatch(message.state);
-						} else {
+						}
+						else
+						{
 							onError.dispatch(message.state);
 						}
 
@@ -181,10 +208,13 @@ class ThreadPool {
 
 				message = __workResult.pop(false);
 			}
-		} else {
+		}
+		else
+		{
 			// TODO: Add sleep if keeping minThreads running with no work?
 
-			if (currentThreads == 0 && minThreads <= 0 && Application.current != null) {
+			if (currentThreads == 0 && minThreads <= 0 && Application.current != null)
+			{
 				Application.current.onUpdate.remove(__update);
 			}
 		}
@@ -192,7 +222,8 @@ class ThreadPool {
 	#end
 }
 
-private enum ThreadPoolMessageType {
+private enum ThreadPoolMessageType
+{
 	COMPLETE;
 	ERROR;
 	EXIT;
@@ -200,11 +231,13 @@ private enum ThreadPoolMessageType {
 	WORK;
 }
 
-private class ThreadPoolMessage {
+private class ThreadPoolMessage
+{
 	public var state:Dynamic;
 	public var type:ThreadPoolMessageType;
 
-	public function new(type:ThreadPoolMessageType, state:Dynamic) {
+	public function new(type:ThreadPoolMessageType, state:Dynamic)
+	{
 		this.type = type;
 		this.state = state;
 	}

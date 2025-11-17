@@ -1,7 +1,8 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class EXT_separate_shader_objects {
+@:noCompletion class EXT_separate_shader_objects
+{
 	public var VERTEX_SHADER_BIT_EXT = 0x00000001;
 	public var FRAGMENT_SHADER_BIT_EXT = 0x00000002;
 	public var ALL_SHADER_BITS_EXT = 0xFFFFFFFF;

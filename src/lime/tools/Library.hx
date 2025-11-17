@@ -2,7 +2,8 @@ package lime.tools;
 
 import hxp.Path;
 
-class Library {
+class Library
+{
 	public var embed:Null<Bool>;
 	public var generate:Null<Bool>;
 	public var name:String;
@@ -11,12 +12,17 @@ class Library {
 	public var sourcePath:String;
 	public var type:String;
 
-	public function new(sourcePath:String, name:String = "", type:String = null, embed:Null<Bool> = null, preload:Null<Bool> = null, generate:Null<Bool> = null, prefix:String = "") {
+	public function new(sourcePath:String, name:String = "", type:String = null, embed:Null<Bool> = null, preload:Null<Bool> = null,
+			generate:Null<Bool> = null, prefix:String = "")
+	{
 		this.sourcePath = sourcePath;
 
-		if (name == "") {
+		if (name == "")
+		{
 			this.name = Path.withoutDirectory(Path.withoutExtension(sourcePath));
-		} else {
+		}
+		else
+		{
 			this.name = name;
 		}
 
@@ -27,7 +33,8 @@ class Library {
 		this.prefix = prefix;
 	}
 
-	public function clone():Library {
+	public function clone():Library
+	{
 		return new Library(sourcePath, name, type, embed, preload, generate, prefix);
 	}
 }

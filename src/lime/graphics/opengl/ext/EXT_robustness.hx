@@ -1,7 +1,8 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class EXT_robustness {
+@:noCompletion class EXT_robustness
+{
 	public var GUILTY_CONTEXT_RESET_EXT = 0x8253;
 	public var INNOCENT_CONTEXT_RESET_EXT = 0x8254;
 	public var UNKNOWN_CONTEXT_RESET_EXT = 0x8255;

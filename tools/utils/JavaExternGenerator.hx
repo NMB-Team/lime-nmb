@@ -6,16 +6,14 @@ import haxe.io.Input;
 import haxe.io.Output;
 import haxe.zip.Compress;
 import haxe.zip.Reader;
-
 import hxp.*;
-
 import lime.tools.HXProject;
-
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
 
-class JavaExternGenerator {
+class JavaExternGenerator
+{
 	private static inline var ACC_PUBLIC = 0x0001;
 	private static inline var ACC_PRIVATE = 0x0002;
 	private static inline var ACC_PROTECTED = 0x0004;
@@ -43,7 +41,8 @@ class JavaExternGenerator {
 	private var parsedIsObj:Array<Bool>;
 	private var retType:JNIType;
 
-	public function new(config:HXProject, javaPath:String, externPath:String) {
+	public function new(config:HXProject, javaPath:String, externPath:String)
+	{
 		this.config = config;
 		this.javaPath = javaPath;
 		this.externPath = externPath;
@@ -54,24 +53,31 @@ class JavaExternGenerator {
 
 		var paths = new Array<String>();
 
-		if (FileSystem.isDirectory(javaPath)) {
+		if (FileSystem.isDirectory(javaPath))
+		{
 			this.javaPath += "/";
 			getPaths(javaPath, "", paths);
-		} else {
+		}
+		else
+		{
 			var path = Path.withoutExtension(javaPath);
 
-			if (Path.extension(javaPath) == "jar") {
+			if (Path.extension(javaPath) == "jar")
+			{
 				this.javaPath = path + "/";
 				System.mkdir(path);
 				System.runCommand(path, "jar", ["-xvf", FileSystem.fullPath(javaPath)], false);
 				getPaths(path, "", paths);
-			} else {
+			}
+			else
+			{
 				this.javaPath = "";
 				paths = [path];
 			}
 		}
 
-		for (path in paths) {
+		for (path in paths)
+		{
 			var type = Path.withoutExtension(path);
 			mProcessed.set(type, true);
 			mExactTypes.set(type, true);
@@ -79,52 +85,65 @@ class JavaExternGenerator {
 
 		mStack = paths;
 
-		while (mStack.length > 0) {
+		while (mStack.length > 0)
+		{
 			var clazz = mStack.pop();
 			var members = new Map<String, String>();
 			generate(clazz, members);
 		}
 
-		for (path in extractedAndroidPaths) {
-			if (FileSystem.exists(path)) {
+		for (path in extractedAndroidPaths)
+		{
+			if (FileSystem.exists(path))
+			{
 				removeRecursive(path);
 			}
 		}
 	}
 
-	private function addType(inName:String, inJavaType:String, inArrayCount:Int) {
+	private function addType(inName:String, inJavaType:String, inArrayCount:Int)
+	{
 		parsedTypes.push({name: inName, java: inJavaType, arrayCount: inArrayCount});
 	}
 
 	private static function debug(s:String) {}
 
-	private function extractAndroidClasses() {
-		if (!extractedAndroidClasses) {
+	private function extractAndroidClasses()
+	{
+		if (!extractedAndroidClasses)
+		{
 			extractedAndroidPaths = [];
 			var platformsDirectory = config.environment.get("ANDROID_SDK") + "/platforms";
 
-			if (FileSystem.exists(platformsDirectory)) {
-				for (path in FileSystem.readDirectory(platformsDirectory)) {
+			if (FileSystem.exists(platformsDirectory))
+			{
+				for (path in FileSystem.readDirectory(platformsDirectory))
+				{
 					var directory = platformsDirectory + "/" + path;
 
-					if (path.indexOf("android-") > -1 && FileSystem.isDirectory(directory)) {
+					if (path.indexOf("android-") > -1 && FileSystem.isDirectory(directory))
+					{
 						var androidJAR = directory + "/android.jar";
 
-						if (FileSystem.exists(androidJAR)) {
+						if (FileSystem.exists(androidJAR))
+						{
 							System.mkdir(path);
 							extractedAndroidPaths.push(path);
 							System.runCommand(path, "jar", ["-xvf", androidJAR], false);
 						}
 					}
 				}
-			} else {
+			}
+			else
+			{
 				throw "Could not find Android SDK directory. Check that ANDROID_SDK is defined in ~/.lime/config.xml";
 			}
 		}
 		extractedAndroidClasses = true;
 	}
 
-	private function generate(inClass:String, inMembers:Map<String, String>) {
+	private function generate(inClass:String, inMembers:Map<String, String>)
+	{
 		Sys.println(inClass);
 
 		var parts = Path.withoutExtension(inClass).split("/");
@@ -136,28 +155,34 @@ class JavaExternGenerator {
 		var dir = outputBase;
 		System.mkdir(dir);
 
-		for (d in dir_parts) {
+		for (d in dir_parts)
+		{
 			dir += "/" + d;
 			System.mkdir(dir);
 		}
 
 		var filename = javaPath + inClass + ".class";
 
-		if (!FileSystem.exists(filename)) {
+		if (!FileSystem.exists(filename))
+		{
 			extractAndroidClasses();
 			var foundFile = false;
 
-			for (path in extractedAndroidPaths) {
-				if (!foundFile) {
+			for (path in extractedAndroidPaths)
+			{
+				if (!foundFile)
+				{
 					filename = path + "/" + inClass + ".class";
 
-					if (FileSystem.exists(filename)) {
+					if (FileSystem.exists(filename))
+					{
 						foundFile = true;
 					}
 				}
 			}
 
-			if (!foundFile) {
+			if (!foundFile)
+			{
 				throw "Could not find class file: \"" + inClass + "\"";
 			}
 		}
@@ -178,39 +203,49 @@ class JavaExternGenerator {
 		mConstants = old_constants;
 	}
 
-	public static function getHaxelib(library:String):String {
+	public static function getHaxelib(library:String):String
+	{
 		var proc = new Process("haxelib", ["path", library]);
 		var result = "";
 
-		try {
-			while (true) {
+		try
+		{
+			while (true)
+			{
 				var line = proc.stdout.readLine();
-				if (line.substr(0, 1) != "-")
-					result = line;
+				if (line.substr(0, 1) != "-") result = line;
 			}
-		} catch (e:Dynamic) {};
+		}
+		catch (e:Dynamic) {};
 		proc.close();
-		if (result == "")
-			throw("Could not find haxelib path  " + library + " - perhaps you need to install it?");
+		if (result == "") throw("Could not find haxelib path  " + library + " - perhaps you need to install it?");
 
 		return result;
 	}
 
-	private function getPaths(basePath:String, source:String, paths:Array<String>) {
+	private function getPaths(basePath:String, source:String, paths:Array<String>)
+	{
 		var files = FileSystem.readDirectory(basePath + "/" + source);
 
-		for (file in files) {
-			if (file.substr(0, 1) != ".") {
+		for (file in files)
+		{
+			if (file.substr(0, 1) != ".")
+			{
 				var itemSource:String = source + "/" + file;
 
-				if (source == "") {
+				if (source == "")
+				{
 					itemSource = file;
 				}
 
-				if (FileSystem.isDirectory(basePath + "/" + itemSource)) {
+				if (FileSystem.isDirectory(basePath + "/" + itemSource))
+				{
 					getPaths(basePath, itemSource, paths);
-				} else {
-					if (Path.extension(itemSource) == "class") {
+				}
+				else
+				{
+					if (Path.extension(itemSource) == "class")
+					{
 						paths.push(Path.withoutExtension(itemSource));
 					}
 				}
@@ -218,24 +253,28 @@ class JavaExternGenerator {
 		}
 	}
 
-	private function isJavaObject(inType) {
-		if (inType.arrayCount > 0)
-			return false;
-		return switch (inType.name) {
+	private function isJavaObject(inType)
+	{
+		if (inType.arrayCount > 0) return false;
+		return switch (inType.name)
+		{
 			case "Int", "Void", "Bool", "Float": false;
 			default: true;
 		}
 	}
 
-	private function isPOD(inName:String) {
-		switch (inName) {
+	private function isPOD(inName:String)
+	{
+		switch (inName)
+		{
 			case "Int", "Void", "Bool", "Float", "String":
 				return true;
 		}
 		return false;
 	}
 
-	private function javaType(inType) {
+	private function javaType(inType)
+	{
 		var result = inType.java;
 		result = StringTools.replace(result, "/", ".");
 		for (i in 0...inType.arrayCount)
@@ -243,51 +282,55 @@ class JavaExternGenerator {
 		return result;
 	}
 
-	private function mkdir(inName:String) {
-		if (!FileSystem.exists(inName))
-			FileSystem.createDirectory(inName);
+	private function mkdir(inName:String)
+	{
+		if (!FileSystem.exists(inName)) FileSystem.createDirectory(inName);
 	}
 
-	private function nmeCallType(inType) {
-		if (isJavaObject(inType))
-			return "callObjectFunction";
+	private function nmeCallType(inType)
+	{
+		if (isJavaObject(inType)) return "callObjectFunction";
 		return "callNumericFunction";
 	}
 
-	private function output(str:String) {
+	private function output(str:String)
+	{
 		mOutput.writeString(str);
 	}
 
-	private function outputClass(cid:Int, lastOnly:Bool) {
+	private function outputClass(cid:Int, lastOnly:Bool)
+	{
 		var name:String = mConstants[mConstants[cid]];
 		// pushClass(name);
 		name = name.split("$").join(dollars);
 		var parts = name.split("/");
-		if (lastOnly)
-			output(parts.pop());
+		if (lastOnly) output(parts.pop());
 		else
 			output(parts.join("."));
 	}
 
-	private function outputFunctionArgs() {
+	private function outputFunctionArgs()
+	{
 		output("(");
-		for (i in 0...parsedTypes.length) {
-			if (i > 0)
-				output(", ");
+		for (i in 0...parsedTypes.length)
+		{
+			if (i > 0) output(", ");
 			output("arg" + i + ":");
 			outputType(parsedTypes[i]);
 		}
 		output(")");
 	}
 
-	private function outputPackage(cid:Int) {
+	private function outputPackage(cid:Int)
+	{
 		var name = (mConstants[mConstants[cid]]);
 		var parts = name.split("/");
 		parts.pop();
 		output("package " + parts.join(".") + ";\n\n\n");
 	}
 
-	private function outputType(inType:JNIType) {
+	private function outputType(inType:JNIType)
+	{
 		for (i in 0...inType.arrayCount)
 			output("Array<");
 		output(inType.name);
@@ -295,7 +338,8 @@ class JavaExternGenerator {
 			output(">");
 	}
 
-	private function parse(src:Input, inMembers:Map<String, String>) {
+	private function parse(src:Input, inMembers:Map<String, String>)
+	{
 		src.bigEndian = true;
 
 		var m0 = src.readByte();
@@ -312,9 +356,11 @@ class JavaExternGenerator {
 		debug("mConstants : " + ccount);
 
 		var cid = 1;
-		while (cid < ccount) {
+		while (cid < ccount)
+		{
 			var tag = src.readByte();
-			switch (tag) {
+			switch (tag)
+			{
 				case 1:
 					var len = src.readUInt16();
 					var str = src.readString(len);
@@ -382,28 +428,33 @@ class JavaExternGenerator {
 		outputClass(this_ref, true);
 
 		var super_ref = src.readUInt16();
-		if (super_ref > 0) {
+		if (super_ref > 0)
+		{
 			debug("Super : " + mConstants[mConstants[super_ref]]);
 
 			var name = mConstants[mConstants[super_ref]];
-			if (name == "java/lang/Object") {
+			if (name == "java/lang/Object")
+			{
 				debug(" -> ignore super");
 				super_ref = 0;
-			} else {
+			}
+			else
+			{
 				output(" extends ");
 				outputClass(super_ref, false);
 			}
-		} else
+		}
+		else
 			debug("Super : None.");
 
-		if (super_ref > 0)
-			generate(mConstants[mConstants[super_ref]], inMembers);
+		if (super_ref > 0) generate(mConstants[mConstants[super_ref]], inMembers);
 
 		var intf_count = src.readUInt16();
 
 		debug("Interfaces:" + intf_count);
 
-		for (i in 0...intf_count) {
+		for (i in 0...intf_count)
+		{
 			var i_ref = src.readUInt16();
 			/*
 				No need to expose these to haxe?
@@ -417,18 +468,19 @@ class JavaExternGenerator {
 
 		output("\n{\n");
 
-		if (super_ref == 0)
-			output("	var __jobject:Dynamic;\n	\n");
+		if (super_ref == 0) output("	var __jobject:Dynamic;\n	\n");
 
 		var java_name = "";
 
-		if (is_interface) {
+		if (is_interface)
+		{
 			var dir = "stubs";
 			var parts = mCurrentType.split(".");
 			var dir_parts = parts.slice(0, parts.length - 1);
 			System.mkdir(dir);
 
-			for (d in dir_parts) {
+			for (d in dir_parts)
+			{
 				dir += "/" + d;
 				System.mkdir(dir);
 			}
@@ -459,7 +511,8 @@ class JavaExternGenerator {
 
 		var seen = new Map<String, Bool>();
 
-		for (i in 0...field_count) {
+		for (i in 0...field_count)
+		{
 			var access = src.readUInt16();
 			var name_ref = src.readUInt16();
 
@@ -472,23 +525,26 @@ class JavaExternGenerator {
 			var expose = access == (ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
 			var as_string = false;
 
-			if (expose) {
+			if (expose)
+			{
 				var type = toHaxeType(mConstants[desc_ref]).name;
-				if (isPOD(type)) {
-					output("	static public inline var " + mConstants[name_ref] + ":" + type);
+				if (isPOD(type))
+				{
+					output("	static inline public var " + mConstants[name_ref] + ":" + type);
 					as_string = type == "String";
-				} else
+				}
+				else
 					expose = false;
 			}
 
 			var att_count = src.readUInt16();
 
-			for (a in 0...att_count) {
+			for (a in 0...att_count)
+			{
 				readAttribute(src, expose, as_string);
 			}
 
-			if (expose)
-				output(";\n");
+			if (expose) output(";\n");
 		}
 
 		var method_count = src.readUInt16();
@@ -497,7 +553,8 @@ class JavaExternGenerator {
 		output("	\n");
 		var constructed = false;
 
-		for (i in 0...method_count) {
+		for (i in 0...method_count)
+		{
 			var access = src.readUInt16();
 			var expose = (access & ACC_PUBLIC) > 0;
 			var is_static = (access & ACC_STATIC) > 0;
@@ -508,99 +565,99 @@ class JavaExternGenerator {
 			var func_name = mConstants[name_ref];
 			var constructor = func_name == "<init>";
 
-			if (expose) {
+			if (expose)
+			{
 				debug("  desc : " + mConstants[desc_ref]);
 				splitFunctionType(mConstants[desc_ref]);
 
 				var func_key = func_name + " " + mConstants[desc_ref];
-				if (constructor) {
+				if (constructor)
+				{
 					func_name = "_create";
 				}
 
 				// Method overloading ...
 				var uniq_name = func_name;
 				var do_override = "";
-				if (inMembers.exists(func_key)) {
+				if (inMembers.exists(func_key))
+				{
 					uniq_name = inMembers.get(func_key);
-					if (!constructor && !is_static)
-						do_override = "override ";
+					if (!constructor && !is_static) do_override = "override ";
 					seen.set(uniq_name, true);
-				} else {
-					if (seen.exists(func_name)) {
-						for (i in 1...100000) {
+				}
+				else
+				{
+					if (seen.exists(func_name))
+					{
+						for (i in 1...100000)
+						{
 							uniq_name = func_name + i;
-							if (!seen.exists(uniq_name))
-								break;
+							if (!seen.exists(uniq_name)) break;
 						}
 					}
 					seen.set(uniq_name, true);
 					inMembers.set(func_key, uniq_name);
 				}
 
-				if (constructor)
-					is_static = true;
+				if (constructor) is_static = true;
 
 				var ret_full_class = constructor || ((mExactTypes.exists(retType.name) || isPOD(retType.name)) && retType.arrayCount == 0);
 
-				if (constructor)
-					retType = {name: mCurrentType, java: mCurrentType, arrayCount: 0};
+				if (constructor) retType = {name: mCurrentType, java: mCurrentType, arrayCount: 0};
 
 				var ret_void = (retType.name == "Void" && retType.arrayCount == 0);
 
-				if (is_interface) {
+				if (is_interface)
+				{
 					java_out.writeString("	@Override public " + javaType(retType) + " " + func_name + "(");
 
-					for (i in 0...parsedTypes.length) {
-						if (i > 0)
-							java_out.writeString(",");
+					for (i in 0...parsedTypes.length)
+					{
+						if (i > 0) java_out.writeString(",");
 						java_out.writeString(javaType(parsedTypes[i]) + " arg" + i);
 					}
 
 					java_out.writeString(") {\n");
 
-					if (parsedTypes.length > 0)
-						java_out.writeString("		Object [] args = new Object[" + parsedTypes.length + "];\n");
+					if (parsedTypes.length > 0) java_out.writeString("		Object [] args = new Object[" + parsedTypes.length + "];\n");
 					else
 						java_out.writeString("		Object [] args = null;\n");
 
-					for (i in 0...parsedTypes.length) {
-						if (isJavaObject(parsedTypes[i]))
-							java_out.writeString("		args[" + i + "] = arg" + i + ";\n");
+					for (i in 0...parsedTypes.length)
+					{
+						if (isJavaObject(parsedTypes[i])) java_out.writeString("		args[" + i + "] = arg" + i + ";\n");
 						else
 							java_out.writeString("		args[" + i + "] = new Value(arg" + i + ");\n");
 					}
 
-					if (!ret_void)
-						java_out.writeString("		return (" + javaType(retType) + ")");
+					if (!ret_void) java_out.writeString("		return (" + javaType(retType) + ")");
 
 					java_out.writeString("		Lime." + nmeCallType(retType) + "(__haxeHandle,\"" + uniq_name + "\",args)");
 
-					if (!ret_void)
-						java_out.writeString(")");
+					if (!ret_void) java_out.writeString(")");
 					java_out.writeString(";\n	}\n");
 
 					output("	public function " + uniq_name);
 					outputFunctionArgs();
 					output(":");
 
-					if (ret_full_class)
-						outputType(retType);
+					if (ret_full_class) outputType(retType);
 					else
 						output("Dynamic");
 					output("\n	{\n		return null;\n	}\n	\n");
-				} else {
+				}
+				else
+				{
 					output("	private static var _" + uniq_name + "_func:Dynamic;\n\n");
 					output("	public ");
 
-					if (is_static || constructor)
-						output("static ");
+					if (is_static || constructor) output("static ");
 
 					output(do_override + "function " + uniq_name);
 					outputFunctionArgs();
 					output(":");
 
-					if (ret_full_class)
-						outputType(retType);
+					if (ret_full_class) outputType(retType);
 					else
 						output("Dynamic");
 
@@ -609,27 +666,24 @@ class JavaExternGenerator {
 					func_name = "_" + uniq_name + "_func";
 					output("		if (" + func_name + " == null)\n");
 					output("			" + func_name + " = openfl.utils.JNI." + (is_static ? "createStaticMethod" : "createMemberMethod"));
-					output("(\"" + StringTools.replace(mCurrentType, ".", "/") + "\", \"" + mConstants[name_ref] + "\", \"" + mConstants[desc_ref] + "\", true);\n");
+					output("(\"" + StringTools.replace(mCurrentType, ".", "/") + "\", \"" + mConstants[name_ref] + "\", \"" + mConstants[desc_ref]
+						+ "\", true);\n");
 
 					output("		var a = new Array<Dynamic>();\n");
 
-					if (!is_static)
-						output("		a.push (__jobject);\n");
+					if (!is_static) output("		a.push (__jobject);\n");
 
 					for (i in 0...parsedTypes.length)
 						output("		a.push(arg" + i + ");\n");
 
-					if (ret_void)
-						output("		");
-					else if (ret_full_class && !isPOD(retType.name))
-						output("		return new " + retType.name + "(");
+					if (ret_void) output("		");
+					else if (ret_full_class && !isPOD(retType.name)) output("		return new " + retType.name + "(");
 					else
 						output("		return ");
 
 					output(func_name + "(a)");
 
-					if (ret_full_class && !isPOD(retType.name))
-						output(");\n");
+					if (ret_full_class && !isPOD(retType.name)) output(");\n");
 					else
 						output(";\n");
 
@@ -637,11 +691,11 @@ class JavaExternGenerator {
 				}
 			}
 
-			if (constructor && !constructed) {
+			if (constructor && !constructed)
+			{
 				constructed = true;
 				output("	public function new(handle:Dynamic)\n	{\n");
-				if (super_ref > 0)
-					output("		super(handle);");
+				if (super_ref > 0) output("		super(handle);");
 				else
 					output("		__jobject = handle;");
 				output("\n	}\n	\n	\n");
@@ -652,7 +706,8 @@ class JavaExternGenerator {
 				readAttribute(src, false, false);
 		}
 
-		if (java_out != null) {
+		if (java_out != null)
+		{
 			java_out.writeString("}\n");
 			java_out.close();
 
@@ -675,7 +730,8 @@ class JavaExternGenerator {
 			var dx = Sys.getEnv("ANDROID_SDK") + "/platforms/" + extractedAndroidPaths[0] + "/tools/dx";
 			System.runCommand("compiled", dx, ["--dex", "--output=classes.jar", class_name], true, true, true);
 
-			if (FileSystem.exists("classes.jar")) {
+			if (FileSystem.exists("classes.jar"))
+			{
 				var class_def = File.getBytes("classes.jar");
 				class_def = Compress.run(class_def, 9);
 				var class_str = BaseCode.encode(class_def.toString(), base64);
@@ -687,11 +743,12 @@ class JavaExternGenerator {
 		output("}");
 	}
 
-	private function parseTypes(type:String, inArrayCount:Int) {
-		if (type == "")
-			return;
+	private function parseTypes(type:String, inArrayCount:Int)
+	{
+		if (type == "") return;
 		var is_obj = false;
-		switch (type.substr(0, 1)) {
+		switch (type.substr(0, 1))
+		{
 			case "[":
 				parseTypes(type.substr(1), inArrayCount + 1);
 			case "I":
@@ -715,8 +772,7 @@ class JavaExternGenerator {
 			case "L":
 				is_obj = true;
 				var end = type.indexOf(";");
-				if (end < 1)
-					throw("Bad object string: " + type);
+				if (end < 1) throw("Bad object string: " + type);
 				var name = type.substr(1, end - 1);
 				addType(processObjectArg(name.split("/").join("."), inArrayCount), name, inArrayCount);
 				type = type.substr(end);
@@ -724,43 +780,46 @@ class JavaExternGenerator {
 				throw("Unknown java type: " + type);
 		}
 		parsedIsObj.push(is_obj);
-		if (type.length > 1)
-			parseTypes(type.substr(1), 0);
+		if (type.length > 1) parseTypes(type.substr(1), 0);
 	}
 
-	private function processObjectArg(inObj:String, inArrayCount:Int) {
-		if (inObj == "java.lang.CharSequence" || inObj == "java.lang.String")
-			return "String";
-		if (mExactTypes.exists(inObj) && inArrayCount == 0)
-			return inObj;
+	private function processObjectArg(inObj:String, inArrayCount:Int)
+	{
+		if (inObj == "java.lang.CharSequence" || inObj == "java.lang.String") return "String";
+		if (mExactTypes.exists(inObj) && inArrayCount == 0) return inObj;
 		return "Dynamic /*" + inObj + "*/";
 	}
 
-	private function pushClass(inName:String) {
-		if (!mProcessed.get(inName)) {
+	private function pushClass(inName:String)
+	{
+		if (!mProcessed.get(inName))
+		{
 			mProcessed.set(inName, true);
 			mStack.push(inName);
 		}
 	}
 
-	private function readAttribute(src:Input, inOutputConst:Bool, asString:Bool) {
+	private function readAttribute(src:Input, inOutputConst:Bool, asString:Bool)
+	{
 		var name_ref = src.readUInt16();
 		debug("   attr:" + mConstants[name_ref]);
 		var len = src.readInt32();
 		var bytes = Bytes.alloc(len);
 		src.readBytes(bytes, 0, len);
 
-		if (inOutputConst && mConstants[name_ref] == "ConstantValue") {
+		if (inOutputConst && mConstants[name_ref] == "ConstantValue")
+		{
 			var ref = (bytes.get(0) << 8) + bytes.get(1);
-			if (asString)
-				output(" = \"" + mConstants[mConstants[ref]] + "\"");
+			if (asString) output(" = \"" + mConstants[mConstants[ref]] + "\"");
 			else
 				output(" = " + mConstants[ref]);
 		}
 	}
 
-	private function removeRecursive(file) {
-		if (!FileSystem.isDirectory(file)) {
+	private function removeRecursive(file)
+	{
+		if (!FileSystem.isDirectory(file))
+		{
 			FileSystem.deleteFile(file);
 			return;
 		}
@@ -769,9 +828,9 @@ class JavaExternGenerator {
 		FileSystem.deleteDirectory(file);
 	}
 
-	private function splitFunctionType(type:String) {
-		if (!fmatch.match(type))
-			throw("Not a function : " + type);
+	private function splitFunctionType(type:String)
+	{
+		if (!fmatch.match(type)) throw("Not a function : " + type);
 		var args = fmatch.matched(1);
 		retType = toHaxeType(fmatch.matched(2));
 		parsedTypes = [];
@@ -779,7 +838,8 @@ class JavaExternGenerator {
 		parseTypes(args, 0);
 	}
 
-	private function toHaxeType(inStr:String) {
+	private function toHaxeType(inStr:String)
+	{
 		parsedTypes = [];
 		parsedIsObj = [];
 		parseTypes(inStr, 0);
@@ -794,7 +854,8 @@ class JavaExternGenerator {
 	}*/
 }
 
-typedef JNIType = {
+typedef JNIType =
+{
 	name:String,
 	java:String,
 	arrayCount:Int

@@ -6,7 +6,8 @@ package lime.graphics.opengl;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-typedef GLShaderPrecisionFormat = {
+typedef GLShaderPrecisionFormat =
+{
 	rangeMin:Int,
 	rangeMax:Int,
 	precision:Int

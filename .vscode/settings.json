@@ -2,7 +2,7 @@
 	"haxe.configurations": [["--cwd", "tools", "tools.hxml"]],
 
 	"[haxe][json]": {
-		"editor.formatOnSave": true,
+		"editor.formatOnSave": false,
 		"editor.formatOnPaste": true
 	},
 	"[haxe]": {

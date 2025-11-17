@@ -1,7 +1,6 @@
 package lime._internal.backend.kha;
 
 import haxe.Timer;
-
 import lime.app.Application;
 import lime.app.Config;
 import lime.media.AudioManager;
@@ -22,7 +21,6 @@ import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Touch;
 import lime.ui.Window;
-
 import openfl._internal.renderer.kha.KhaRenderer;
 
 #if !lime_debug
@@ -37,7 +35,8 @@ import openfl._internal.renderer.kha.KhaRenderer;
 @:access(lime.ui.Gamepad)
 @:access(lime.ui.Joystick)
 @:access(lime.ui.Window)
-class KhaApplication {
+class KhaApplication
+{
 	private var applicationEventInfo = new ApplicationEventInfo(UPDATE);
 	private var clipboardEventInfo = new ClipboardEventInfo();
 	private var currentTouches = new Map<Int, Touch>();
@@ -61,7 +60,8 @@ class KhaApplication {
 
 	private static function __init__() {}
 
-	public function new(parent:Application):Void {
+	public function new(parent:Application):Void
+	{
 		this.parent = parent;
 		frameRate = 60;
 		toggleFullscreen = true;
@@ -69,17 +69,21 @@ class KhaApplication {
 
 	public function create(config:Config):Void {}
 
-	public function exec():Int {
+	public function exec():Int
+	{
 		#if !macro
 		kha.input.Mouse.get().notify(mouseDown, mouseUp, mouseMove, mouseWheel);
 
-		kha.System.notifyOnRender(function(framebuffer:kha.Framebuffer) {
-			for (renderer in parent.renderers) {
+		kha.System.notifyOnRender(function(framebuffer:kha.Framebuffer)
+		{
+			for (renderer in parent.renderers)
+			{
 				KhaRenderer.framebuffer = framebuffer;
 				renderer.render();
 				renderer.onRender.dispatch();
 
-				if (!renderer.onRender.canceled) {
+				if (!renderer.onRender.canceled)
+				{
 					renderer.flip();
 				}
 			}
@@ -91,42 +95,51 @@ class KhaApplication {
 		return 0;
 	}
 
-	private function mouseDown(button:Int, x:Int, y:Int):Void {
+	private function mouseDown(button:Int, x:Int, y:Int):Void
+	{
 		var window = parent.__windowByID.get(-1);
 
-		if (window != null) {
+		if (window != null)
+		{
 			window.onMouseDown.dispatch(x, y, button);
 		}
 	}
 
-	private function mouseUp(button:Int, x:Int, y:Int):Void {
+	private function mouseUp(button:Int, x:Int, y:Int):Void
+	{
 		var window = parent.__windowByID.get(-1);
 
-		if (window != null) {
+		if (window != null)
+		{
 			window.onMouseUp.dispatch(x, y, button);
 		}
 	}
 
-	private function mouseMove(x:Int, y:Int, mx:Int, my:Int):Void {
+	private function mouseMove(x:Int, y:Int, mx:Int, my:Int):Void
+	{
 		var window = parent.__windowByID.get(-1);
 
-		if (window != null) {
+		if (window != null)
+		{
 			window.onMouseMove.dispatch(x, y);
 			window.onMouseMoveRelative.dispatch(mx, my);
 		}
 	}
 
-	private function mouseWheel(amount:Int):Void {
+	private function mouseWheel(amount:Int):Void
+	{
 		var window = parent.__windowByID.get(-1);
 
-		if (window != null) {
+		if (window != null)
+		{
 			window.onMouseWheel.dispatch(0, amount);
 		}
 	}
 
 	public function exit():Void {}
 
-	public function getFrameRate():Float {
+	public function getFrameRate():Float
+	{
 		return frameRate;
 	}
 
@@ -154,49 +167,59 @@ class KhaApplication {
 
 	private function handleWindowEvent():Void {}
 
-	public function setFrameRate(value:Float):Float {
+	public function setFrameRate(value:Float):Float
+	{
 		return frameRate = value;
 	}
 
 	private function updateTimer():Void {}
 }
 
-private class ApplicationEventInfo {
+private class ApplicationEventInfo
+{
 	public var deltaTime:Int;
 	public var type:ApplicationEventType;
 
-	public function new(type:ApplicationEventType = null, deltaTime:Int = 0) {
+	public function new(type:ApplicationEventType = null, deltaTime:Int = 0)
+	{
 		this.type = type;
 		this.deltaTime = deltaTime;
 	}
 
-	public function clone():ApplicationEventInfo {
+	public function clone():ApplicationEventInfo
+	{
 		return new ApplicationEventInfo(type, deltaTime);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract ApplicationEventType(Int) {
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract ApplicationEventType(Int)
+{
 	var UPDATE = 0;
 	var EXIT = 1;
 }
 
-private class ClipboardEventInfo {
+private class ClipboardEventInfo
+{
 	public var type:ClipboardEventType;
 
-	public function new(type:ClipboardEventType = null) {
+	public function new(type:ClipboardEventType = null)
+	{
 		this.type = type;
 	}
 
-	public function clone():ClipboardEventInfo {
+	public function clone():ClipboardEventInfo
+	{
 		return new ClipboardEventInfo(type);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract ClipboardEventType(Int) {
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract ClipboardEventType(Int)
+{
 	var UPDATE = 0;
 }
 
-private class DropEventInfo {
+private class DropEventInfo
+{
 	#if hl
 	public var file:hl.Bytes;
 	#else
@@ -204,28 +227,33 @@ private class DropEventInfo {
 	#end
 	public var type:DropEventType;
 
-	public function new(type:DropEventType = null, file:String = null) {
+	public function new(type:DropEventType = null, file:String = null)
+	{
 		this.type = type;
 		this.file = file;
 	}
 
-	public function clone():DropEventInfo {
+	public function clone():DropEventInfo
+	{
 		return new DropEventInfo(type, file);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract DropEventType(Int) {
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract DropEventType(Int)
+{
 	var DROP_FILE = 0;
 }
 
-private class GamepadEventInfo {
+private class GamepadEventInfo
+{
 	public var axis:Int;
 	public var button:Int;
 	public var id:Int;
 	public var type:GamepadEventType;
 	public var value:Float;
 
-	public function new(type:GamepadEventType = null, id:Int = 0, button:Int = 0, axis:Int = 0, value:Float = 0) {
+	public function new(type:GamepadEventType = null, id:Int = 0, button:Int = 0, axis:Int = 0, value:Float = 0)
+	{
 		this.type = type;
 		this.id = id;
 		this.button = button;
@@ -233,12 +261,14 @@ private class GamepadEventInfo {
 		this.value = value;
 	}
 
-	public function clone():GamepadEventInfo {
+	public function clone():GamepadEventInfo
+	{
 		return new GamepadEventInfo(type, id, button, axis, value);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract GamepadEventType(Int) {
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract GamepadEventType(Int)
+{
 	var AXIS_MOVE = 0;
 	var BUTTON_DOWN = 1;
 	var BUTTON_UP = 2;
@@ -246,7 +276,8 @@ private class GamepadEventInfo {
 	var DISCONNECT = 4;
 }
 
-private class JoystickEventInfo {
+private class JoystickEventInfo
+{
 	public var id:Int;
 	public var index:Int;
 	public var type:JoystickEventType;
@@ -254,7 +285,8 @@ private class JoystickEventInfo {
 	public var x:Float;
 	public var y:Float;
 
-	public function new(type:JoystickEventType = null, id:Int = 0, index:Int = 0, value:Int = 0, x:Float = 0, y:Float = 0) {
+	public function new(type:JoystickEventType = null, id:Int = 0, index:Int = 0, value:Int = 0, x:Float = 0, y:Float = 0)
+	{
 		this.type = type;
 		this.id = id;
 		this.index = index;
@@ -263,12 +295,14 @@ private class JoystickEventInfo {
 		this.y = y;
 	}
 
-	public function clone():JoystickEventInfo {
+	public function clone():JoystickEventInfo
+	{
 		return new JoystickEventInfo(type, id, index, value, x, y);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract JoystickEventType(Int) {
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract JoystickEventType(Int)
+{
 	var AXIS_MOVE = 0;
 	var HAT_MOVE = 1;
 	var TRACKBALL_MOVE = 2;
@@ -278,30 +312,35 @@ private class JoystickEventInfo {
 	var DISCONNECT = 6;
 }
 
-private class KeyEventInfo {
+private class KeyEventInfo
+{
 	public var keyCode:Int;
 	public var modifier:Int;
 	public var type:KeyEventType;
 	public var windowID:Int;
 
-	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode:Int = 0, modifier:Int = 0) {
+	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode:Int = 0, modifier:Int = 0)
+	{
 		this.type = type;
 		this.windowID = windowID;
 		this.keyCode = keyCode;
 		this.modifier = modifier;
 	}
 
-	public function clone():KeyEventInfo {
+	public function clone():KeyEventInfo
+	{
 		return new KeyEventInfo(type, windowID, keyCode, modifier);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract KeyEventType(Int) {
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract KeyEventType(Int)
+{
 	var KEY_DOWN = 0;
 	var KEY_UP = 1;
 }
 
-private class MouseEventInfo {
+private class MouseEventInfo
+{
 	public var button:Int;
 	public var movementX:Float;
 	public var movementY:Float;
@@ -310,7 +349,8 @@ private class MouseEventInfo {
 	public var x:Float;
 	public var y:Float;
 
-	public function new(type:MouseEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0) {
+	public function new(type:MouseEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0)
+	{
 		this.type = type;
 		this.windowID = 0;
 		this.x = x;
@@ -320,46 +360,54 @@ private class MouseEventInfo {
 		this.movementY = movementY;
 	}
 
-	public function clone():MouseEventInfo {
+	public function clone():MouseEventInfo
+	{
 		return new MouseEventInfo(type, windowID, x, y, button, movementX, movementY);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract MouseEventType(Int) {
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract MouseEventType(Int)
+{
 	var MOUSE_DOWN = 0;
 	var MOUSE_UP = 1;
 	var MOUSE_MOVE = 2;
 	var MOUSE_WHEEL = 3;
 }
 
-private class RenderEventInfo {
+private class RenderEventInfo
+{
 	public var context:RenderContext;
 	public var type:RenderEventType;
 
-	public function new(type:RenderEventType = null, context:RenderContext = null) {
+	public function new(type:RenderEventType = null, context:RenderContext = null)
+	{
 		this.type = type;
 		this.context = context;
 	}
 
-	public function clone():RenderEventInfo {
+	public function clone():RenderEventInfo
+	{
 		return new RenderEventInfo(type, context);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract RenderEventType(Int) {
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract RenderEventType(Int)
+{
 	var RENDER = 0;
 	var RENDER_CONTEXT_LOST = 1;
 	var RENDER_CONTEXT_RESTORED = 2;
 }
 
-private class SensorEventInfo {
+private class SensorEventInfo
+{
 	public var id:Int;
 	public var x:Float;
 	public var y:Float;
 	public var z:Float;
 	public var type:SensorEventType;
 
-	public function new(type:SensorEventType = null, id:Int = 0, x:Float = 0, y:Float = 0, z:Float = 0) {
+	public function new(type:SensorEventType = null, id:Int = 0, x:Float = 0, y:Float = 0, z:Float = 0)
+	{
 		this.type = type;
 		this.id = id;
 		this.x = x;
@@ -367,16 +415,19 @@ private class SensorEventInfo {
 		this.z = z;
 	}
 
-	public function clone():SensorEventInfo {
+	public function clone():SensorEventInfo
+	{
 		return new SensorEventInfo(type, id, x, y, z);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract SensorEventType(Int) {
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract SensorEventType(Int)
+{
 	var ACCELEROMETER = 0;
 }
 
-private class TextEventInfo {
+private class TextEventInfo
+{
 	public var id:Int;
 	public var length:Int;
 	public var start:Int;
@@ -388,7 +439,8 @@ private class TextEventInfo {
 	public var type:TextEventType;
 	public var windowID:Int;
 
-	public function new(type:TextEventType = null, windowID:Int = 0, text:String = "", start:Int = 0, length:Int = 0) {
+	public function new(type:TextEventType = null, windowID:Int = 0, text:String = "", start:Int = 0, length:Int = 0)
+	{
 		this.type = type;
 		this.windowID = windowID;
 		this.text = text;
@@ -396,17 +448,20 @@ private class TextEventInfo {
 		this.length = length;
 	}
 
-	public function clone():TextEventInfo {
+	public function clone():TextEventInfo
+	{
 		return new TextEventInfo(type, windowID, text, start, length);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract TextEventType(Int) {
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract TextEventType(Int)
+{
 	var TEXT_INPUT = 0;
 	var TEXT_EDIT = 1;
 }
 
-private class TouchEventInfo {
+private class TouchEventInfo
+{
 	public var device:Int;
 	public var dx:Float;
 	public var dy:Float;
@@ -416,7 +471,8 @@ private class TouchEventInfo {
 	public var x:Float;
 	public var y:Float;
 
-	public function new(type:TouchEventType = null, x:Float = 0, y:Float = 0, id:Int = 0, dx:Float = 0, dy:Float = 0, pressure:Float = 0, device:Int = 0) {
+	public function new(type:TouchEventType = null, x:Float = 0, y:Float = 0, id:Int = 0, dx:Float = 0, dy:Float = 0, pressure:Float = 0, device:Int = 0)
+	{
 		this.type = type;
 		this.x = x;
 		this.y = y;
@@ -427,18 +483,21 @@ private class TouchEventInfo {
 		this.device = device;
 	}
 
-	public function clone():TouchEventInfo {
+	public function clone():TouchEventInfo
+	{
 		return new TouchEventInfo(type, x, y, id, dx, dy, pressure, device);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract TouchEventType(Int) {
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract TouchEventType(Int)
+{
 	var TOUCH_START = 0;
 	var TOUCH_END = 1;
 	var TOUCH_MOVE = 2;
 }
 
-private class WindowEventInfo {
+private class WindowEventInfo
+{
 	public var height:Int;
 	public var type:WindowEventType;
 	public var width:Int;
@@ -446,7 +505,8 @@ private class WindowEventInfo {
 	public var x:Int;
 	public var y:Int;
 
-	public function new(type:WindowEventType = null, windowID:Int = 0, width:Int = 0, height:Int = 0, x:Int = 0, y:Int = 0) {
+	public function new(type:WindowEventType = null, windowID:Int = 0, width:Int = 0, height:Int = 0, x:Int = 0, y:Int = 0)
+	{
 		this.type = type;
 		this.windowID = windowID;
 		this.width = width;
@@ -455,12 +515,14 @@ private class WindowEventInfo {
 		this.y = y;
 	}
 
-	public function clone():WindowEventInfo {
+	public function clone():WindowEventInfo
+	{
 		return new WindowEventInfo(type, windowID, width, height, x, y);
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract WindowEventType(Int) {
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract WindowEventType(Int)
+{
 	var WINDOW_ACTIVATE = 0;
 	var WINDOW_CLOSE = 1;
 	var WINDOW_DEACTIVATE = 2;

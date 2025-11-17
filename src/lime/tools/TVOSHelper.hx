@@ -1,21 +1,22 @@
 package lime.tools;
 
 import hxp.*;
-
 import lime.tools.HXProject;
-
 import sys.io.Process;
 import sys.FileSystem;
 
-class TVOSHelper {
+class TVOSHelper
+{
 	private static var initialized = false;
 
-	public static function build(project:HXProject, workingDirectory:String, additionalArguments:Array<String> = null):Void {
+	public static function build(project:HXProject, workingDirectory:String, additionalArguments:Array<String> = null):Void
+	{
 		initialize(project);
 
 		var commands = getXCodeArgs(project);
 
-		if (project.targetFlags.exists("archive")) {
+		if (project.targetFlags.exists("archive"))
+		{
 			var configuration = project.environment.get("CONFIGURATION");
 			var platformName = project.environment.get("PLATFORM_NAME");
 
@@ -26,14 +27,16 @@ class TVOSHelper {
 			commands.push(Path.combine("build", Path.combine(configuration + "-" + platformName, project.app.file)));
 		}
 
-		if (additionalArguments != null) {
+		if (additionalArguments != null)
+		{
 			commands = commands.concat(additionalArguments);
 		}
 
 		System.runCommand(workingDirectory, "xcodebuild", commands);
 	}
 
-	public static function deploy(project:HXProject, workingDirectory:String):Void {
+	public static function deploy(project:HXProject, workingDirectory:String):Void
+	{
 		initialize(project);
 
 		var commands = getXCodeArgs(project);
@@ -67,16 +70,19 @@ class TVOSHelper {
 		System.runCommand(workingDirectory, "xcodebuild", exportCommands);
 	}
 
-	private static function getXCodeArgs(project:HXProject):Array<String> {
+	private static function getXCodeArgs(project:HXProject):Array<String>
+	{
 		var platformName = "appletvos";
 
-		if (project.targetFlags.exists("simulator")) {
+		if (project.targetFlags.exists("simulator"))
+		{
 			platformName = "appletvsimulator";
 		}
 
 		var configuration = "Release";
 
-		if (project.debug) {
+		if (project.debug)
+		{
 			configuration = "Debug";
 		}
 
@@ -88,7 +94,8 @@ class TVOSHelper {
 			"SDKROOT=" + platformName + iphoneVersion
 		];
 
-		if (project.targetFlags.exists("simulator")) {
+		if (project.targetFlags.exists("simulator"))
+		{
 			commands.push("-arch");
 			commands.push("x86_64");
 		}
@@ -104,7 +111,8 @@ class TVOSHelper {
 			"SDKROOT=" + platformName + iphoneVersion
 		];
 
-		if (project.targetFlags.exists("simulator")) {
+		if (project.targetFlags.exists("simulator"))
+		{
 			commands.push("-arch");
 			commands.push("x86_64");
 		}
@@ -112,16 +120,20 @@ class TVOSHelper {
 		commands.push("-project");
 		commands.push(project.app.file + ".xcodeproj");
 
-		var xcodeVersions = getXcodeVersion().split(".").map(function(i:String) {
+		var xcodeVersions = getXcodeVersion().split(".").map(function(i:String)
+		{
 			var ver = Std.parseInt(i);
 			return ver != null ? ver : 0;
 		});
 
-		if (xcodeVersions[0] >= 9) {
-			if (project.config.getBool('ios.allow-provisioning-updates', true)) {
+		if (xcodeVersions[0] >= 9)
+		{
+			if (project.config.getBool('ios.allow-provisioning-updates', true))
+			{
 				commands.push("-allowProvisioningUpdates");
 			}
-			if (project.config.getBool('ios.allow-provisioning-device-registration', true)) {
+			if (project.config.getBool('ios.allow-provisioning-device-registration', true))
+			{
 				commands.push("-allowProvisioningDeviceRegistration");
 			}
 		}
@@ -129,9 +141,12 @@ class TVOSHelper {
 		return commands;
 	}
 
-	private static function getIOSVersion(project:HXProject):Void {
-		if (!project.environment.exists("TVOS_VER")) {
-			if (!project.environment.exists("DEVELOPER_DIR")) {
+	private static function getIOSVersion(project:HXProject):Void
+	{
+		if (!project.environment.exists("TVOS_VER"))
+		{
+			if (!project.environment.exists("DEVELOPER_DIR"))
+			{
 				var proc = new Process("xcode-select", ["--print-path"]);
 				var developer_dir = proc.stdout.readLine();
 				proc.close();
@@ -140,39 +155,48 @@ class TVOSHelper {
 
 			var dev_path = project.environment.get("DEVELOPER_DIR") + "/Platforms/AppleTVOS.platform/Developer/SDKs";
 
-			if (FileSystem.exists(dev_path)) {
+			if (FileSystem.exists(dev_path))
+			{
 				var best = "";
 				var files = FileSystem.readDirectory(dev_path);
 				var extract_version = ~/^AppleTVOS(.*).sdk$/;
 
-				for (file in files) {
-					if (extract_version.match(file)) {
+				for (file in files)
+				{
+					if (extract_version.match(file))
+					{
 						var ver = extract_version.matched(1);
 
-						if (ver > best) {
+						if (ver > best)
+						{
 							best = ver;
 						}
 					}
 				}
 
-				if (best != "") {
+				if (best != "")
+				{
 					project.environment.set("TVOS_VER", best);
 				}
 			}
 		}
 	}
 
-	private static function getOSXVersion():String {
+	private static function getOSXVersion():String
+	{
 		var output = System.runProcess("", "sw_vers", ["-productVersion"]);
 		return StringTools.trim(output);
 	}
 
-	public static function getProvisioningFile():String {
+	public static function getProvisioningFile():String
+	{
 		var path = Path.expand("~/Library/MobileDevice/Provisioning Profiles");
 		var files = FileSystem.readDirectory(path);
 
-		for (file in files) {
-			if (Path.extension(file) == "mobileprovision") {
+		for (file in files)
+		{
+			if (Path.extension(file) == "mobileprovision")
+			{
 				return path + "/" + file;
 			}
 		}
@@ -180,12 +204,14 @@ class TVOSHelper {
 		return "";
 	}
 
-	public static function getSDKDirectory(project:HXProject):String {
+	public static function getSDKDirectory(project:HXProject):String
+	{
 		initialize(project);
 
 		var platformName = "AppleTVOS";
 
-		if (project.targetFlags.exists("simulator")) {
+		if (project.targetFlags.exists("simulator"))
+		{
 			platformName = "AppleTVSimulator";
 		}
 
@@ -193,7 +219,8 @@ class TVOSHelper {
 		var directory = process.stdout.readLine();
 		process.close();
 
-		if (directory == "" || directory.indexOf("Run xcode-select") > -1) {
+		if (directory == "" || directory.indexOf("Run xcode-select") > -1)
+		{
 			directory = "/Applications/Xcode.app/Contents/Developer";
 		}
 
@@ -202,36 +229,45 @@ class TVOSHelper {
 		return directory;
 	}
 
-	private static function getXcodeVersion():String {
+	private static function getXcodeVersion():String
+	{
 		var output = System.runProcess("", "xcodebuild", ["-version"]);
 		var firstLine = output.split("\n").shift();
 
 		return StringTools.trim(firstLine.substring("Xcode".length, firstLine.length));
 	}
 
-	private static function initialize(project:HXProject):Void {
-		if (!initialized) {
+	private static function initialize(project:HXProject):Void
+	{
+		if (!initialized)
+		{
 			getIOSVersion(project);
 
 			initialized = true;
 		}
 	}
 
-	public static function launch(project:HXProject, workingDirectory:String):Void {
+	public static function launch(project:HXProject, workingDirectory:String):Void
+	{
 		initialize(project);
 
 		var configuration = "Release";
 
-		if (project.debug) {
+		if (project.debug)
+		{
 			configuration = "Debug";
 		}
 
-		if (project.targetFlags.exists("simulator")) {
+		if (project.targetFlags.exists("simulator"))
+		{
 			var applicationPath = "";
 
-			if (Path.extension(workingDirectory) == "app" || Path.extension(workingDirectory) == "ipa") {
+			if (Path.extension(workingDirectory) == "app" || Path.extension(workingDirectory) == "ipa")
+			{
 				applicationPath = workingDirectory;
-			} else {
+			}
+			else
+			{
 				applicationPath = workingDirectory + "/build/" + configuration + "-appletvsimulator/" + project.app.file + ".app";
 			}
 
@@ -250,17 +286,22 @@ class TVOSHelper {
 			var deviceTypeID = null;
 
 			// check if old device flag and convert to current
-			for (key in oldDevices.keys()) {
-				if (project.targetFlags.exists(key)) {
+			for (key in oldDevices.keys())
+			{
+				if (project.targetFlags.exists(key))
+				{
 					deviceFlag = oldDevices[key];
 					break;
 				}
 			}
 
 			// check known device in command line args
-			if (deviceFlag == null) {
-				for (i in 0...devices.length) {
-					if (project.targetFlags.exists(devices[i])) {
+			if (deviceFlag == null)
+			{
+				for (i in 0...devices.length)
+				{
+					if (project.targetFlags.exists(devices[i]))
+					{
 						deviceFlag = devices[i];
 						break;
 					}
@@ -268,7 +309,8 @@ class TVOSHelper {
 			}
 
 			// default to iphone 6
-			if (deviceFlag == null) {
+			if (deviceFlag == null)
+			{
 				deviceFlag = defaultDevice;
 			}
 
@@ -277,23 +319,29 @@ class TVOSHelper {
 			var devicesOutput:String = System.runProcess("", launcher, ["showdevicetypes"]);
 			var deviceTypeList:Array<String> = devicesOutput.split("\n");
 
-			for (i in 0...deviceTypeList.length) {
+			for (i in 0...deviceTypeList.length)
+			{
 				var r = new EReg(deviceFlag + ",", "i");
 
-				if (r.match(deviceTypeList[i])) {
+				if (r.match(deviceTypeList[i]))
+				{
 					deviceTypeID = deviceTypeList[i];
 					break;
 				}
 			}
 
-			if (deviceTypeID == null) {
+			if (deviceTypeID == null)
+			{
 				Log.warn("Device \"" + deviceFlag + "\" was not found");
-			} else {
+			}
+			else
+			{
 				Log.info("Launch app on \"" + deviceTypeID + "\"");
 			}
 
 			// run command with --devicetypeid if exists
-			if (deviceTypeID != null) {
+			if (deviceTypeID != null)
+			{
 				System.runCommand("", launcher, [
 					"launch",
 					FileSystem.fullPath(applicationPath),
@@ -303,7 +351,9 @@ class TVOSHelper {
 					"--timeout",
 					"60"
 				]);
-			} else {
+			}
+			else
+			{
 				System.runCommand("", launcher, [
 					"launch",
 					FileSystem.fullPath(applicationPath),
@@ -312,12 +362,17 @@ class TVOSHelper {
 					"60"
 				]);
 			}
-		} else {
+		}
+		else
+		{
 			var applicationPath = "";
 
-			if (Path.extension(workingDirectory) == "app" || Path.extension(workingDirectory) == "ipa") {
+			if (Path.extension(workingDirectory) == "app" || Path.extension(workingDirectory) == "ipa")
+			{
 				applicationPath = workingDirectory;
-			} else {
+			}
+			else
+			{
 				applicationPath = workingDirectory + "/build/" + configuration + "-appletvos/" + project.app.file + ".app";
 			}
 
@@ -341,12 +396,14 @@ class TVOSHelper {
 		}
 	}
 
-	public static function sign(project:HXProject, workingDirectory:String):Void {
+	public static function sign(project:HXProject, workingDirectory:String):Void
+	{
 		initialize(project);
 
 		var configuration = "Release";
 
-		if (project.debug) {
+		if (project.debug)
+		{
 			configuration = "Debug";
 		}
 
@@ -354,7 +411,8 @@ class TVOSHelper {
 
 		var commands = ["-s", identity, "CODE_SIGN_IDENTITY=" + identity];
 
-		if (project.config.exists("tvos.provisioning-profile")) {
+		if (project.config.exists("tvos.provisioning-profile"))
+		{
 			commands.push("PROVISIONING_PROFILE=" + project.config.getString("tvos.provisioning-profile"));
 		}
 

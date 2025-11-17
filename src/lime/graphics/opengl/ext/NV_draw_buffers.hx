@@ -1,7 +1,8 @@
 package lime.graphics.opengl.ext;
 
 @:keep
-@:noCompletion class NV_draw_buffers {
+@:noCompletion class NV_draw_buffers
+{
 	public var MAX_DRAW_BUFFERS_NV = 0x8824;
 	public var DRAW_BUFFER0_NV = 0x8825;
 	public var DRAW_BUFFER1_NV = 0x8826;
