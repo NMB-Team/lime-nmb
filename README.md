@@ -1,4 +1,8 @@
+<div align="center">
+    
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE.md) [![Community](https://img.shields.io/discourse/posts?color=24afc4&server=https%3A%2F%2Fcommunity.openfl.org&label=community)](https://community.openfl.org/c/lime/19) [![Discord Server](https://img.shields.io/discord/415681294446493696.svg?color=7289da)](https://discordapp.com/invite/tDgq8EE)
+
+</div>
 
 ---
 
@@ -9,7 +13,19 @@
 
 ---
 
+> [!WARNING]
+> This library does not support `Flash`, `AIR`, `Electron`, `Neko` targets. <br/>
+> Also it works only with Haxe 4.3.x or greater.
+> For best compatibility and performance, we recommend using the latest stable version of Haxe. <br/>
+> If you need those, please use the [original version](https://github.com/openfl/lime) of the library instead. <br/>
+
+---
+
+<div align="center">
+    
 # Lime is a flexible, lightweight layer for Haxe cross-platform developers.
+
+</div>
 
 ### Lime supports native, Flash and HTML5 targets with unified support for:
 
@@ -29,10 +45,12 @@
  * Flash
  * GL
 
-### The GL context is based upon the WebGL standard, implemented for both OpenGL and OpenGL ES as needed.
+<div align="center">
 
-### Lime provides a unified audio API, but also provides access to OpenAL for advanced audio on native targets.
+#### The GL context is based upon the WebGL standard, implemented for both OpenGL and OpenGL ES as needed.
+#### Lime provides a unified audio API, but also provides access to OpenAL for advanced audio on native targets.
 
+</div>
 
 License
 =======
