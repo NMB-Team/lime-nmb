@@ -67,6 +67,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_application_set_frame_rate(handle:Dynamic, value:Float):Void;
 
+	@:cffi private static function lime_window_set_fullscreen_exclusive_mode(handle:Dynamic, exclusive:Bool):Bool;
+
 	@:cffi private static function lime_application_update(handle:Dynamic):Bool;
 
 	@:cffi private static function lime_audio_load(data:Dynamic, buffer:Dynamic):Dynamic;
@@ -631,6 +633,8 @@ class NativeCFFI
 		"lime_window_set_display_mode", "ooo", false));
 	private static var lime_window_set_fullscreen = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_fullscreen", "obb",
 		false));
+	private static var lime_window_set_fullscreen_exclusive_mode = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_fullscreen_exclusive_mode", "obb",
+		false));
 	private static var lime_window_set_icon = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_set_icon", "oov",
 		false));
 	private static var lime_window_set_maximized = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_maximized", "obb",
@@ -672,6 +676,7 @@ class NativeCFFI
 	private static var lime_application_init = CFFI.load("lime", "lime_application_init", 1);
 	private static var lime_application_quit = CFFI.load("lime", "lime_application_quit", 1);
 	private static var lime_application_set_frame_rate = CFFI.load("lime", "lime_application_set_frame_rate", 2);
+	private static var lime_window_set_fullscreen_exclusive_mode = CFFI.load("lime", "lime_window_set_fullscreen_exclusive_mode", 2);
 	private static var lime_application_update = CFFI.load("lime", "lime_application_update", 1);
 	private static var lime_audio_load = CFFI.load("lime", "lime_audio_load", 2);
 	private static var lime_audio_load_bytes = CFFI.load("lime", "lime_audio_load_bytes", 2);
@@ -1221,6 +1226,11 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_sensor_event_manager_register") private static function lime_sensor_event_manager_register(callback:Void->Void,
 		eventObject:SensorEventInfo):Void {}
+
+	@:hlNative("lime", "hl_window_set_fullscreen_exclusive_mode") private static function lime_window_set_fullscreen_exclusive_mode(handle:CFFIPointer, exclusive:Bool):Bool
+	{
+		return false;
+	}
 
 	@:hlNative("lime", "hl_system_get_allow_screen_timeout") private static function lime_system_get_allow_screen_timeout():Bool
 	{

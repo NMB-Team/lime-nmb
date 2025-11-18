@@ -1337,6 +1337,11 @@ class HTML5Window
 		return value;
 	}
 
+	public function setFullscreenExclusiveMode(value:Bool):Bool
+	{
+		return false;
+	}
+
 	public function setVSync(value:Bool):Bool
 	{
 		return false;

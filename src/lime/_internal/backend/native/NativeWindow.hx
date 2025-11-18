@@ -298,6 +298,18 @@ class NativeWindow
 		return displayMode;
 	}
 
+	public function setFullscreenExclusiveMode(value:Bool):Bool
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			value = NativeCFFI.lime_window_set_fullscreen_exclusive_mode(handle, value);
+			#end
+		}
+
+		return value;
+	}
+
 	public function getFrameRate():Float
 	{
 		return frameRate;

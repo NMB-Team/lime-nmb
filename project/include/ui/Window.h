@@ -57,6 +57,7 @@ namespace lime {
 			virtual void SetCursorDirectly (void *cursor) = 0;
 			virtual void SetDisplayMode (DisplayMode* displayMode) = 0;
 			virtual bool SetFullscreen (bool fullscreen) = 0;
+			virtual bool SetFullscreenExclusiveMode (bool exclusive) = 0;
 			virtual void SetIcon (ImageBuffer *imageBuffer) = 0;
 			virtual bool SetMaximized (bool minimized) = 0;
 			virtual bool SetMinimized (bool minimized) = 0;

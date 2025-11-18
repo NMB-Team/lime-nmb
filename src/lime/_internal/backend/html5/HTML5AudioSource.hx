@@ -253,7 +253,6 @@ class HTML5AudioSource
 		return getPitch();
 	}
 
-
 	public function getPosition():Vector4
 	{
 		#if lime_howlerjs
