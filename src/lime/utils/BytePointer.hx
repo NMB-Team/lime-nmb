@@ -101,9 +101,9 @@ abstract BytePointer(BytePointerData) from BytePointerData to BytePointerData
 	@:to @:noCompletion public static function toUInt8Array(bytePointer:BytePointer):UInt8Array
 	{
 		#if (js && !doc_gen)
-		return new UInt8Array(bytePointer.bytes.getData(), Std.int(bytePointer.offset / 8));
+		return new UInt8Array(bytePointer.bytes.getData(), Std.int(bytePointer.offset * .125));
 		#else
-		return new UInt8Array(bytePointer.bytes, Std.int(bytePointer.offset / 8));
+		return new UInt8Array(bytePointer.bytes, Std.int(bytePointer.offset * .125));
 		#end
 	}
 
@@ -112,9 +112,9 @@ abstract BytePointer(BytePointerData) from BytePointerData to BytePointerData
 		if (bytePointer == null || bytePointer.bytes == null) return null;
 
 		#if (js && !doc_gen)
-		return new UInt8ClampedArray(bytePointer.bytes.getData(), Std.int(bytePointer.offset / 8));
+		return new UInt8ClampedArray(bytePointer.bytes.getData(), Std.int(bytePointer.offset * .125));
 		#else
-		return new UInt8ClampedArray(bytePointer.bytes, Std.int(bytePointer.offset / 8));
+		return new UInt8ClampedArray(bytePointer.bytes, Std.int(bytePointer.offset * .125));
 		#end
 	}
 
@@ -123,9 +123,9 @@ abstract BytePointer(BytePointerData) from BytePointerData to BytePointerData
 		if (bytePointer == null || bytePointer.bytes == null) return null;
 
 		#if (js && !doc_gen)
-		return new Int8Array(bytePointer.bytes.getData(), Std.int(bytePointer.offset / 8));
+		return new Int8Array(bytePointer.bytes.getData(), Std.int(bytePointer.offset * .125));
 		#else
-		return new Int8Array(bytePointer.bytes, Std.int(bytePointer.offset / 8));
+		return new Int8Array(bytePointer.bytes, Std.int(bytePointer.offset * .125));
 		#end
 	}
 

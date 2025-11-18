@@ -422,7 +422,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 		switch (orientationStyle) {
 
 			case Orientation3D.AXIS_ANGLE:
-				rot.w = Math.acos((mr[0] + mr[5] + mr[10] - 1) / 2);
+				rot.w = Math.acos((mr[0] + mr[5] + mr[10] - 1) * .5);
 
 				var len = Math.sqrt((mr[6] - mr[9]) * (mr[6] - mr[9]) + (mr[8] - mr[2]) * (mr[8] - mr[2]) + (mr[1] - mr[4]) * (mr[1] - mr[4]));
 				rot.x = (mr[6] - mr[9]) / len;
@@ -433,25 +433,25 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 				var tr = mr[0] + mr[5] + mr[10];
 
 				if (tr > 0) {
-					rot.w = Math.sqrt(1 + tr) / 2;
+					rot.w = Math.sqrt(1 + tr) * .5;
 
 					rot.x = (mr[6] - mr[9]) / (4 * rot.w);
 					rot.y = (mr[8] - mr[2]) / (4 * rot.w);
 					rot.z = (mr[1] - mr[4]) / (4 * rot.w);
 				} else if ((mr[0] > mr[5]) && (mr[0] > mr[10])) {
-					rot.x = Math.sqrt(1 + mr[0] - mr[5] - mr[10]) / 2;
+					rot.x = Math.sqrt(1 + mr[0] - mr[5] - mr[10]) * .5;
 
 					rot.w = (mr[6] - mr[9]) / (4 * rot.x);
 					rot.y = (mr[1] + mr[4]) / (4 * rot.x);
 					rot.z = (mr[8] + mr[2]) / (4 * rot.x);
 				} else if (mr[5] > mr[10]) {
-					rot.y = Math.sqrt(1 + mr[5] - mr[0] - mr[10]) / 2;
+					rot.y = Math.sqrt(1 + mr[5] - mr[0] - mr[10]) * .5;
 
 					rot.x = (mr[1] + mr[4]) / (4 * rot.y);
 					rot.w = (mr[8] - mr[2]) / (4 * rot.y);
 					rot.z = (mr[6] + mr[9]) / (4 * rot.y);
 				} else {
-					rot.z = Math.sqrt(1 + mr[10] - mr[0] - mr[5]) / 2;
+					rot.z = Math.sqrt(1 + mr[10] - mr[0] - mr[5]) * .5;
 
 					rot.x = (mr[8] + mr[2]) / (4 * rot.z);
 					rot.y = (mr[6] + mr[9]) / (4 * rot.z);

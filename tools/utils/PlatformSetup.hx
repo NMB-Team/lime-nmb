@@ -1395,8 +1395,8 @@ class Progress extends haxe.io.Output
 		o.close();
 		var time = haxe.Timer.stamp() - start;
 		var speed = (cur / time) / 1024;
-		time = Std.int(time * 10) / 10;
-		speed = Std.int(speed * 10) / 10;
+		time = Std.int(time * 10) * .1;
+		speed = Std.int(speed * 10) * .1;
 
 		// When the path is a redirect, we don't want to display that the download completed
 

@@ -22,7 +22,7 @@ class OAuthClient
 	// parameters.set("oauth_version", Std.string(version));
 	// parameters.set("oauth_signature_method", Std.string(OAuthSignatureMethod.HMAC_SHA1));
 	// parameters.set("oauth_nonce", generateNonce ());
-	// parameters.set("oauth_timestamp", Std.string(Std.int(Date.now ().getTime () / 1000)));
+	// parameters.set("oauth_timestamp", Std.string(Std.int(Date.now ().getTime () * .001)));
 	// parameters.set("oauth_consumer_key", consumer.key);
 	//
 	// var oauth = new OAuthRequest (version, method, url, parameters);

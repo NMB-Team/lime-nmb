@@ -130,7 +130,7 @@ class JPEG
 
 		if (image.buffer.__srcCanvas != null)
 		{
-			var data = image.buffer.__srcCanvas.toDataURL("image/jpeg", quality / 100);
+			var data = image.buffer.__srcCanvas.toDataURL("image/jpeg", quality * .01);
 			#if nodejs
 			var buffer = new js.node.Buffer((data.split(";base64,")[1] : String), "base64").toString("binary");
 			#else

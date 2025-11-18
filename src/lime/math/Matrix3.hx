@@ -303,8 +303,8 @@ class Matrix3
 			c = 0;
 		}
 
-		this.tx = tx + width / 2;
-		this.ty = ty + height / 2;
+		this.tx = tx + width * .5;
+		this.ty = ty + height * .5;
 	}
 
 	/**

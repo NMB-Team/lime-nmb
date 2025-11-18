@@ -884,7 +884,7 @@ class Image
 					case ARGB32: // do nothing
 					case BGRA32:
 						var color:BGRA;
-						var length = Std.int(byteArray.length / 4);
+						var length = Std.int(byteArray.length * .25);
 
 						for (i in 0...length)
 						{
@@ -897,7 +897,7 @@ class Image
 
 					default:
 						var color:RGBA;
-						var length = Std.int(byteArray.length / 4);
+						var length = Std.int(byteArray.length * .25);
 
 						for (i in 0...length)
 						{
@@ -1279,7 +1279,7 @@ class Image
 						#end
 
 						var color:BGRA;
-						var length = Std.int(byteArray.length / 4);
+						var length = Std.int(byteArray.length * .25);
 
 						for (i in 0...length)
 						{
@@ -1299,7 +1299,7 @@ class Image
 						#end
 
 						var color:RGBA;
-						var length = Std.int(byteArray.length / 4);
+						var length = Std.int(byteArray.length * .25);
 
 						for (i in 0...length)
 						{

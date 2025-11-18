@@ -334,8 +334,8 @@ class ImageDataUtil
 
 				var sourcePremultiplied = sourceImage.buffer.premultiplied;
 				var destPremultiplied = image.buffer.premultiplied;
-				var sourceBytesPerPixel = Std.int(sourceImage.buffer.bitsPerPixel / 8);
-				var destBytesPerPixel = Std.int(image.buffer.bitsPerPixel / 8);
+				var sourceBytesPerPixel = Std.int(sourceImage.buffer.bitsPerPixel * .125);
+				var destBytesPerPixel = Std.int(image.buffer.bitsPerPixel * .125);
 
 				var useAlphaImage = (alphaImage != null && alphaImage.transparent);
 				var blend = (mergeAlpha || (useAlphaImage && !image.transparent))
@@ -963,7 +963,7 @@ class ImageDataUtil
 		#end
 		{
 			var format = image.buffer.format;
-			var length = Std.int(data.length / 4);
+			var length = Std.int(data.length * .25);
 			var pixel:RGBA = 0;
 
 			for (i in 0...length)
@@ -1114,7 +1114,7 @@ class ImageDataUtil
 		#end
 		{
 			var index, a16;
-			var length = Std.int(data.length / 4);
+			var length = Std.int(data.length * .25);
 			var r1, g1, b1, a1, r2, g2, b2, a2;
 			var r, g, b, a;
 
@@ -1413,7 +1413,7 @@ class ImageDataUtil
 		#end
 		{
 			var format = image.buffer.format;
-			var length = Std.int(data.length / 4);
+			var length = Std.int(data.length * .25);
 			var pixel:RGBA = 0;
 
 			for (i in 0...length)

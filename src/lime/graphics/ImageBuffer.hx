@@ -216,6 +216,6 @@ class ImageBuffer
 
 	@:noCompletion private function get_stride():Int
 	{
-		return width * Std.int(bitsPerPixel / 8);
+		return width * Std.int(bitsPerPixel * .125);
 	}
 }

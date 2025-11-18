@@ -98,7 +98,7 @@ class NativeApplication
 		#if lime_cffi
 		if (pauseTimer > -1)
 		{
-			var offset = System.getTimer() - pauseTimer;
+			var offset = Std.int(System.getTimer()) - pauseTimer;
 			for (timer in Timer.sRunningTimers)
 			{
 				if (timer.mRunning) timer.mFireAt += offset;
@@ -282,10 +282,10 @@ class NativeApplication
 			{
 				case KEY_DOWN:
 					window.onKeyDown.dispatch(keyCode, modifier);
-					window.onKeyDownPrecise.dispatch(keyCode,modifier,System.getTimerPrecise());
+					window.onKeyDownPrecise.dispatch(keyCode, modifier, System.getTimer());
 				case KEY_UP:
 					window.onKeyUp.dispatch(keyCode, modifier);
-					window.onKeyUpPrecise.dispatch(keyCode,modifier,System.getTimerPrecise());
+					window.onKeyUpPrecise.dispatch(keyCode, modifier, System.getTimer());
 			}
 
 			#if (windows || linux)
@@ -545,7 +545,7 @@ class NativeApplication
 				case WINDOW_DEACTIVATE:
 					window.onDeactivate.dispatch();
 					AudioManager.suspend();
-					pauseTimer = System.getTimer();
+					pauseTimer = Std.int(System.getTimer());
 
 				case WINDOW_ENTER:
 					window.onEnter.dispatch();

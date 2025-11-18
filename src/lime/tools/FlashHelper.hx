@@ -253,7 +253,7 @@ class FlashHelper
 
 					if (wav.data != null)
 					{
-						var sampleCount = Std.int(wav.data.length / (hdr.bitsPerSample / 8));
+						var sampleCount = Std.int(wav.data.length / (hdr.bitsPerSample * .125));
 
 						var snd:format.swf.Sound =
 							{

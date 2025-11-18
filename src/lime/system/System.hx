@@ -116,6 +116,8 @@ class System
 	@:noCompletion private static var __platformVersion:String;
 	@:noCompletion private static var __userDirectory:String;
 
+	public static var lastTimer:Float = 0;
+
 	#if (js && html5)
 	@:keep @:expose("lime.embed")
 	public static function embed(projectName:String, element:Dynamic, width:Null<Int> = null, height:Null<Int> = null, config:Dynamic = null):Void
@@ -302,34 +304,23 @@ class System
 	/**
 		The number of milliseconds since the application was initialized.
 	**/
-	public static function getTimer():Int
-	{
+	public static function getTimer():Float {
+		var timer:Float = 0;
+		#if flash
+		timer = flash.Lib.getTimer();
+		#elseif ((js && !nodejs) || electron)
+		timer = Browser.window.performance.now();
+		#elseif (lime_cffi && !macro)
+		timer = NativeCFFI.lime_system_get_timer();
+		#elseif cpp
+		timer = untyped __global__.__time_stamp() * 1000;
+		#elseif sys
+		timer = Sys.time() * 1000;
+		#end
 
-		#if ((js && !nodejs) || electron)
-		return Std.int(Browser.window.performance.now());
-		#elseif (lime_cffi && !macro)
-		return cast NativeCFFI.lime_system_get_timer();
-		#elseif cpp
-		return Std.int(untyped __global__.__time_stamp() * 1000);
-		#elseif sys
-		return Std.int(Sys.time() * 1000);
-		#else
-		return 0;
-		#end
-	}
-	public static function getTimerPrecise():Float
-	{
-		#if ((js && !nodejs) || electron)
-		return Browser.window.performance.now();
-		#elseif (lime_cffi && !macro)
-		return NativeCFFI.lime_system_get_timer();
-		#elseif cpp
-		return untyped __global__.__time_stamp() * 1000.0;
-		#elseif sys
-		return Sys.time() * 1000.0;
-		#else
-		return 0;
-		#end
+		lastTimer = timer;
+
+		return timer;
 	}
 
 	#if (!lime_doc_gen || lime_cffi)

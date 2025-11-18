@@ -386,7 +386,7 @@ class NativeAudioSource
 			{
 				AL.sourceStop(handle);
 
-				parent.buffer.__srcVorbisFile.timeSeek((value + parent.offset) / 1000);
+				parent.buffer.__srcVorbisFile.timeSeek((value + parent.offset) * .001);
 				AL.sourceUnqueueBuffers(handle, STREAM_NUM_BUFFERS);
 				refillBuffers(buffers);
 
@@ -396,9 +396,9 @@ class NativeAudioSource
 			{
 				AL.sourceRewind(handle);
 
-				// AL.sourcef (handle, AL.SEC_OFFSET, (value + parent.offset) / 1000);
+				// AL.sourcef (handle, AL.SEC_OFFSET, (value + parent.offset) * .001);
 
-				var secondOffset = (value + parent.offset) / 1000;
+				var secondOffset = (value + parent.offset) * .001;
 				var totalSeconds = samples / parent.buffer.sampleRate;
 
 				if (secondOffset < 0) secondOffset = 0;

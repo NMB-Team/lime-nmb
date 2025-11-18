@@ -69,7 +69,7 @@ class Preloader
 			preloadTime = 3000;
 		}
 
-		var startTime = System.getTimer();
+		var startTime = Std.int(System.getTimer());
 		var currentTime = 0;
 		var timeStep = Std.int(1000 / 60);
 		var timer = new Timer(timeStep);
@@ -78,7 +78,7 @@ class Preloader
 
 		timer.run = function()
 		{
-			currentTime = System.getTimer() - startTime;
+			currentTime = Std.int(System.getTimer() - startTime);
 			if (currentTime > preloadTime) currentTime = preloadTime;
 			onProgress.dispatch(currentTime, preloadTime);
 

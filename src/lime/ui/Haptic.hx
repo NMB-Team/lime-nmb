@@ -40,7 +40,7 @@ class Haptic
 		}
 		else
 		{
-			var periodMS = Std.int(Math.ceil(period / 2));
+			var periodMS = Std.int(Math.ceil(period * .5));
 			var count = Std.int(Math.ceil((duration / period) * 2));
 			pattern = [0]; // w3c spec says to vibrate on even elements of the pattern and android waits on even elements. This line makes the Navigator.vibrate match android behavior. https://w3c.github.io/vibration/ vs https://developer.android.com/reference/android/os/Vibrator.html#vibrate(long[],%20int)
 

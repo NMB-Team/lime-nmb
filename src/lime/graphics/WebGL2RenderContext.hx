@@ -4807,7 +4807,7 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	{
 		var count = 0;
 		if (srcLength != null) count = srcLength;
-		else if (v != null) count = Std.int(v.length / 8);
+		else if (v != null) count = Std.int(v.length * .125);
 
 		__tempPointer.set(v, srcOffset);
 
@@ -4875,7 +4875,7 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	{
 		var count = 0;
 		if (srcLength != null) count = srcLength;
-		else if (v != null) count = Std.int(v.length / 8);
+		else if (v != null) count = Std.int(v.length * .125);
 
 		__tempPointer.set(v, srcOffset);
 

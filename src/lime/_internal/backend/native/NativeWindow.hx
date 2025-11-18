@@ -389,7 +389,7 @@ class NativeWindow
 
 				var temp = Bytes.alloc(rowLength);
 				var buffer = data.buffer;
-				var rows = Std.int(height / 2);
+				var rows = Std.int(height * .5);
 
 				while (rows-- > 0)
 				{

@@ -215,7 +215,7 @@ import lime.utils.Log;
 		}
 		else
 		{
-			var time = System.getTimer();
+			var time = Std.int(System.getTimer());
 			var end = time + waitTime;
 
 			while (!isComplete && !isError && time <= end)
@@ -224,7 +224,7 @@ import lime.utils.Log;
 				Sys.sleep(0.01);
 				#end
 
-				time = System.getTimer();
+				time = Std.int(System.getTimer());
 			}
 
 			return this;

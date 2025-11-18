@@ -75,7 +75,7 @@ class Timer
 		timer = new java.util.Timer();
 		timer.scheduleAtFixedRate(task = new TimerTask(this), haxe.Int64.ofInt(time_ms), haxe.Int64.ofInt(time_ms));
 		#elseif (haxe_ver >= "3.4.0")
-		var dt = time_ms / 1000;
+		var dt = time_ms * .001;
 		event = MainLoop.add(function()
 		{
 			@:privateAccess event.nextRun += dt;
@@ -180,11 +180,11 @@ class Timer
 	public static inline function stamp():Float
 	{
 		#if flash
-		return flash.Lib.getTimer() / 1000;
+		return flash.Lib.getTimer() * .001;
 		#elseif (neko || php)
 		return Sys.time();
 		#elseif js
-		return Date.now().getTime() / 1000;
+		return Date.now().getTime() * .001;
 		#elseif cpp
 		return untyped __global__.__time_stamp();
 		#elseif python
@@ -265,7 +265,7 @@ class Timer
 	public static inline function stamp():Float
 	{
 		var timer = System.getTimer();
-		return (timer > 0 ? timer / 1000 : 0);
+		return (timer > 0 ? timer * .001 : 0);
 	}
 
 	public function stop():Void
