@@ -73,7 +73,7 @@ Building from Source
 
 Clone the Lime repository, as well as the submodules:
 
-    git clone --recursive https://github.com/openfl/lime
+    git clone --recursive https://github.com/NMB-Team/lime-nmb
 
 Tell haxelib where your development copy of Lime is installed:
 
@@ -126,9 +126,6 @@ Lime currently supports the following targets:
     lime test android
     lime test ios
     lime test html5
-    lime test flash
-    lime test air
-    lime test neko
     lime test hl
 
 Desktop builds are currently designed to be built on the same host OS
