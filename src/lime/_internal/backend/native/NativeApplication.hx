@@ -192,7 +192,8 @@ class NativeApplication
 
 				updateTimer();
 
-				parent.onUpdate.dispatch(applicationEventInfo.deltaTime);
+				if (@:privateAccess parent.onUpdate.__listeners.length != 0)
+					parent.onUpdate.dispatch(applicationEventInfo.deltaTime);
 
 			default:
 		}
@@ -206,9 +207,8 @@ class NativeApplication
 	private function handleDropEvent():Void
 	{
 		for (window in parent.windows)
-		{
-			window.onDropFile.dispatch(#if hl @:privateAccess String.fromUTF8(dropEventInfo.file) #else dropEventInfo.file #end);
-		}
+			if (@:privateAccess window.onDropFile.__listeners.length != 0)
+				window.onDropFile.dispatch(#if hl @:privateAccess String.fromUTF8(dropEventInfo.file) #else dropEventInfo.file #end);
 	}
 
 	private function handleGamepadEvent():Void
