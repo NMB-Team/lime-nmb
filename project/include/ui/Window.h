@@ -68,7 +68,7 @@ namespace lime {
 			virtual void SetTextInputRect (Rectangle *rect) = 0;
 			virtual const char* SetTitle (const char* title) = 0;
 			virtual bool SetVisible (bool visible) = 0;
-			virtual bool SetAlwaysOnTop (bool enabled) = 0;
+			virtual bool SetAlwaysOnTop (bool alwaysOnTop) = 0;
 			virtual bool SetVSync (bool vsync) = 0;
 			virtual void WarpMouse (int x, int y) = 0;
 
