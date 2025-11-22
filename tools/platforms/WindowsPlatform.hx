@@ -156,7 +156,7 @@ class WindowsPlatform extends PlatformTarget
 					// different (newer even) than the build of HashLink that
 					// is bundled with Lime. if using Lime's bundled HashLink,
 					// set hl-ver to the correct version
-					project.haxedefs.set("hl-ver", HashlinkHelper.BUNDLED_HL_VER);
+					project.haxedefs.set("hl-ver", lime.tools.ToolVersion.BUNDLED_HL_VER);
 				}
 			}
 		}
