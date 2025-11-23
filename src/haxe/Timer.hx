@@ -38,8 +38,7 @@ package haxe;
 	It is also possible to extend this class and override its run() method in
 	the child class.
 **/
-class Timer
-{
+class Timer {
 	#if (flash || js)
 	private var id:Null<Int>;
 	#elseif java
@@ -60,12 +59,10 @@ class Timer
 
 		The accuracy of this may be platform-dependent.
 	**/
-	public function new(time_ms:Int)
-	{
+	public function new(time_ms:Int) {
 		#if flash
 		var me = this;
-		id = untyped __global__["flash.utils.setInterval"](function()
-		{
+		id = untyped __global__["flash.utils.setInterval"](function() {
 			me.run();
 		}, time_ms);
 		#elseif js
@@ -76,8 +73,7 @@ class Timer
 		timer.scheduleAtFixedRate(task = new TimerTask(this), haxe.Int64.ofInt(time_ms), haxe.Int64.ofInt(time_ms));
 		#elseif (haxe_ver >= "3.4.0")
 		var dt = time_ms * .001;
-		event = MainLoop.add(function()
-		{
+		event = MainLoop.add(function() {
 			@:privateAccess event.nextRun += dt;
 			run();
 		});
@@ -93,10 +89,10 @@ class Timer
 
 		It is not possible to restart `this` Timer once stopped.
 	**/
-	public function stop()
-	{
+	public function stop() {
 		#if (flash || js)
-		if (id == null) return;
+		if (id == null)
+			return;
 		#if flash
 		untyped __global__["flash.utils.clearInterval"](id);
 		#elseif js
@@ -104,15 +100,13 @@ class Timer
 		#end
 		id = null;
 		#elseif java
-		if (timer != null)
-		{
+		if (timer != null) {
 			timer.cancel();
 			timer = null;
 		}
 		task = null;
 		#elseif (haxe_ver >= "3.4.0")
-		if (event != null)
-		{
+		if (event != null) {
 			event.stop();
 			event = null;
 		}
@@ -141,11 +135,9 @@ class Timer
 
 		If `f` is null, the result is unspecified.
 	**/
-	public static function delay(f:Void->Void, time_ms:Int)
-	{
+	public static function delay(f:Void -> Void, time_ms:Int) {
 		var t = new haxe.Timer(time_ms);
-		t.run = function()
-		{
+		t.run = function() {
 			t.stop();
 			f();
 		};
@@ -163,8 +155,7 @@ class Timer
 
 		If `f` is null, the result is unspecified.
 	**/
-	public static function measure<T>(f:Void->T, ?pos:PosInfos):T
-	{
+	public static function measure<T>(f:Void -> T, ?pos:PosInfos):T {
 		var t0 = stamp();
 		var r = f();
 		Log.trace((stamp() - t0) + "s", pos);
@@ -177,8 +168,7 @@ class Timer
 		The value itself might differ depending on platforms, only differences
 		between two values make sense.
 	**/
-	public static inline function stamp():Float
-	{
+	public static inline function stamp():Float {
 		#if flash
 		return flash.Lib.getTimer() * .001;
 		#elseif (neko || php)
@@ -199,18 +189,15 @@ class Timer
 
 #if java
 @:nativeGen
-private class TimerTask extends java.util.TimerTask
-{
+private class TimerTask extends java.util.TimerTask {
 	var timer:Timer;
 
-	public function new(timer:Timer):Void
-	{
+	public function new(timer:Timer):Void {
 		super();
 		this.timer = timer;
 	}
 
-	@:overload override public function run():Void
-	{
+	@:overload override public function run():Void {
 		timer.run();
 	}
 }
@@ -218,28 +205,24 @@ private class TimerTask extends java.util.TimerTask
 #else
 import lime.system.System;
 
-class Timer
-{
+class Timer {
 	private static var sRunningTimers:Array<Timer> = [];
 
 	private var mTime:Float;
 	private var mFireAt:Float;
 	private var mRunning:Bool;
 
-	public function new(time:Float)
-	{
+	public function new(time:Float) {
 		mTime = time;
 		sRunningTimers.push(this);
 		mFireAt = getMS() + mTime;
 		mRunning = true;
 	}
 
-	public static function delay(f:Void->Void, time:Int)
-	{
+	public static function delay(f:Void -> Void, time:Float) {
 		var t = new Timer(time);
 
-		t.run = function()
-		{
+		t.run = function() {
 			t.stop();
 			f();
 		};
@@ -247,13 +230,11 @@ class Timer
 		return t;
 	}
 
-	private static inline function getMS():Float
-	{
+	private static inline function getMS():Float {
 		return System.getTimer();
 	}
 
-	public static function measure<T>(f:Void->T, ?pos:PosInfos):T
-	{
+	public static function measure<T>(f:Void -> T, ?pos:PosInfos):T {
 		var t0 = stamp();
 		var r = f();
 		Log.trace((stamp() - t0) + "s", pos);
@@ -262,21 +243,17 @@ class Timer
 
 	dynamic public function run() {}
 
-	public static inline function stamp():Float
-	{
+	public static inline function stamp():Float {
 		var timer = System.getTimer();
 		return (timer > 0 ? timer * .001 : 0);
 	}
 
-	public function stop():Void
-	{
+	public function stop():Void {
 		mRunning = false;
 	}
 
-	@:noCompletion private function __check(inTime:Float)
-	{
-		if (inTime >= mFireAt)
-		{
+	@:noCompletion private function __check(inTime:Float) {
+		if (inTime >= mFireAt) {
 			mFireAt += mTime;
 			run();
 		}
