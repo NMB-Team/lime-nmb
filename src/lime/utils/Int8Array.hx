@@ -15,7 +15,7 @@ abstract Int8Array(JSInt8Array) from JSInt8Array to JSInt8Array
 	@:to inline function toArrayBufferView():ArrayBufferView
 		return this;
 
-	public inline static var BYTES_PER_ELEMENT:Int = 1;
+	public static inline var BYTES_PER_ELEMENT:Int = 1;
 
 	@:generic
 	public inline function new<T>(?elements:Int, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end ?view:ArrayBufferView, ?buffer:ArrayBuffer,
@@ -68,12 +68,12 @@ abstract Int8Array(JSInt8Array) from JSInt8Array to JSInt8Array
 		return this[idx];
 
 	// non spec haxe conversions
-	inline public static function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):Int8Array
+	public static inline function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):Int8Array
 	{
 		return new JSInt8Array(cast bytes.getData(), byteOffset, len);
 	}
 
-	inline public function toBytes():haxe.io.Bytes
+	public inline function toBytes():haxe.io.Bytes
 	{
 		return @:privateAccess new haxe.io.Bytes(cast new JSUInt8Array(this.buffer));
 	}
@@ -88,7 +88,7 @@ import lime.utils.ArrayBufferView;
 @:forward
 abstract Int8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 {
-	public inline static var BYTES_PER_ELEMENT:Int = 1;
+	public static inline var BYTES_PER_ELEMENT:Int = 1;
 
 	public var length(get, never):Int;
 
@@ -131,14 +131,14 @@ abstract Int8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 		return this.subarray(begin, end);
 
 	// non spec haxe conversions
-	inline public static function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):Int8Array
+	public static inline function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):Int8Array
 	{
 		if (byteOffset == null) return new Int8Array(null, null, cast bytes.getData());
 		if (len == null) return new Int8Array(null, null, cast bytes.getData(), byteOffset);
 		return new Int8Array(null, null, cast bytes.getData(), byteOffset, len);
 	}
 
-	inline public function toBytes():haxe.io.Bytes
+	public inline function toBytes():haxe.io.Bytes
 	{
 		return this.buffer;
 	}

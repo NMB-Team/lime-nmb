@@ -16,7 +16,7 @@ abstract Float32Array(JSFloat32Array) from JSFloat32Array to JSFloat32Array
 	@:to function toArrayBufferView():ArrayBufferView
 		return this;
 
-	public inline static var BYTES_PER_ELEMENT:Int = 4;
+	public static inline var BYTES_PER_ELEMENT:Int = 4;
 
 	@:generic
 	public inline function new<T>(?elements:Int, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Float>, #end ?view:ArrayBufferView, ?buffer:ArrayBuffer,
@@ -69,14 +69,14 @@ abstract Float32Array(JSFloat32Array) from JSFloat32Array to JSFloat32Array
 		return this[idx];
 
 	// non spec haxe conversions
-	inline public static function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):Float32Array
+	public static inline function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):Float32Array
 	{
 		if (byteOffset == null) return new JSFloat32Array(cast bytes.getData());
 		if (len == null) return new JSFloat32Array(cast bytes.getData(), byteOffset);
 		return new JSFloat32Array(cast bytes.getData(), byteOffset, len);
 	}
 
-	inline public function toBytes():haxe.io.Bytes
+	public inline function toBytes():haxe.io.Bytes
 	{
 		return @:privateAccess new haxe.io.Bytes(cast new JSUInt8Array(this.buffer));
 	}
@@ -92,7 +92,7 @@ import lime.utils.ArrayBufferView;
 @:forward
 abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 {
-	public inline static var BYTES_PER_ELEMENT:Int = 4;
+	public static inline var BYTES_PER_ELEMENT:Int = 4;
 
 	public var length(get, never):Int;
 
@@ -135,12 +135,12 @@ abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 		return this.subarray(begin, end);
 
 	// non spec haxe conversions
-	inline public static function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):Float32Array
+	public static inline function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):Float32Array
 	{
 		return new Float32Array(bytes, byteOffset, len);
 	}
 
-	inline public function toBytes():haxe.io.Bytes
+	public inline function toBytes():haxe.io.Bytes
 	{
 		return this.buffer;
 	}

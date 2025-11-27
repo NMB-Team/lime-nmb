@@ -613,7 +613,7 @@ class Application extends Module
 		__removeWindow(window);
 	}
 
-	@:noCompletion private override function __unregisterLimeModule(application:Application):Void
+	@:noCompletion override private function __unregisterLimeModule(application:Application):Void
 	{
 		application.onUpdate.remove(update);
 		application.onExit.remove(__onModuleExit);

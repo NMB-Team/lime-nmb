@@ -220,9 +220,9 @@ class Timer {
 	}
 
 	public static function delay(f:Void -> Void, time:Float) {
-		var t = new Timer(time);
+		final t = new Timer(time);
 
-		t.run = function() {
+		t.run = () -> {
 			t.stop();
 			f();
 		};
@@ -235,8 +235,8 @@ class Timer {
 	}
 
 	public static function measure<T>(f:Void -> T, ?pos:PosInfos):T {
-		var t0 = stamp();
-		var r = f();
+		final t0 = stamp();
+		final r = f();
 		Log.trace((stamp() - t0) + "s", pos);
 		return r;
 	}
@@ -244,7 +244,7 @@ class Timer {
 	dynamic public function run() {}
 
 	public static inline function stamp():Float {
-		var timer = System.getTimer();
+		final timer = System.getTimer();
 		return (timer > 0 ? timer * .001 : 0);
 	}
 

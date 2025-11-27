@@ -530,7 +530,7 @@ class JavaExternGenerator
 				var type = toHaxeType(mConstants[desc_ref]).name;
 				if (isPOD(type))
 				{
-					output("	static inline public var " + mConstants[name_ref] + ":" + type);
+					output("	static public inline var " + mConstants[name_ref] + ":" + type);
 					as_string = type == "String";
 				}
 				else

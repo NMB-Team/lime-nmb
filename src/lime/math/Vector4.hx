@@ -152,7 +152,7 @@ class Vector4
 		@param	pt2	A second `Vector4` instance
 		@return	The distance between each vector
 	**/
-	public inline static function distance(pt1:Vector4, pt2:Vector4):Float
+	public static inline function distance(pt1:Vector4, pt2:Vector4):Float
 	{
 		var x = pt2.x - pt1.x;
 		var y = pt2.y - pt1.y;
@@ -168,7 +168,7 @@ class Vector4
 		@param	pt2	A second `Vector4` instance
 		@return	The square of the distance between each vector
 	**/
-	public inline static function distanceSquared(pt1:Vector4, pt2:Vector4):Float
+	public static inline function distanceSquared(pt1:Vector4, pt2:Vector4):Float
 	{
 		var x = pt2.x - pt1.x;
 		var y = pt2.y - pt1.y;
@@ -321,17 +321,17 @@ class Vector4
 		return x * x + y * y + z * z;
 	}
 
-	private inline static function get_X_AXIS():Vector4
+	private static inline function get_X_AXIS():Vector4
 	{
 		return new Vector4(1, 0, 0);
 	}
 
-	private inline static function get_Y_AXIS():Vector4
+	private static inline function get_Y_AXIS():Vector4
 	{
 		return new Vector4(0, 1, 0);
 	}
 
-	private inline static function get_Z_AXIS():Vector4
+	private static inline function get_Z_AXIS():Vector4
 	{
 		return new Vector4(0, 0, 1);
 	}

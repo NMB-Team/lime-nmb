@@ -7,7 +7,7 @@ import haxe.crypto.Crc32;
 // https://groups.google.com/d/msg/haxelang/N03kf5WSrTU/KU8nmsaqfIIJ
 class GUID
 {
-	inline public static function randomIntegerWithinRange(min:Int, max:Int, ?seeded:Bool = false):Int
+	public static inline function randomIntegerWithinRange(min:Int, max:Int, ?seeded:Bool = false):Int
 	{
 		return seeded ? Math.floor(GUID.seededRandom() * (1 + max - min) + min) : Math.floor(Math.random() * (1 + max - min) + min);
 	}

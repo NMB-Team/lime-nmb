@@ -67,7 +67,6 @@ class AudioBuffer
 
 	public function new() {}
 
-
 	public function dispose():Void
 	{
 		#if (js && html5 && lime_howlerjs)

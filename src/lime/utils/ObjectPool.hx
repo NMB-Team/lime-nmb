@@ -2,7 +2,6 @@ package lime.utils;
 
 import haxe.ds.ObjectMap;
 
-
 /**
  	A generic object pool for reusing objects.
  **/

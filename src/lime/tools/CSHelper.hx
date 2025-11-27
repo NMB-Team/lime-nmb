@@ -247,7 +247,7 @@ class CSHelper
 		System.runCommand(path, gradlePath, ["build", "assembleRelease"]);
 	}
 
-	inline public static function buildSln(path:String, slnPath:String, task:String = null)
+	public static inline function buildSln(path:String, slnPath:String, task:String = null)
 	{
 		buildCSProj(path, slnPath, task);
 	}
