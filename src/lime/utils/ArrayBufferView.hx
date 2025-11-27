@@ -49,8 +49,6 @@ class ArrayBufferView
 		var srcData = view.buffer;
 		var srcLength = view.length;
 		var srcByteOffset = view.byteOffset;
-		var srcElementSize = view.bytesPerElement;
-		var elementSize = bytesPerElement;
 
 		// same species, so just blit the data
 		// in other words, it shares the same bytes per element etc
@@ -81,7 +79,6 @@ class ArrayBufferView
 		if (in_byteOffset % bytesPerElement != 0) throw TAError.RangeError;
 
 		var bufferByteLength = in_buffer.length;
-		var elementSize = bytesPerElement;
 		var newByteLength = bufferByteLength;
 
 		if (len == null)

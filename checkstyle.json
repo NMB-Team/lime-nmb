@@ -109,20 +109,6 @@
 		},
 		{
 			"props": {
-				"modifiers": [
-					"OVERRIDE",
-					"PUBLIC_PRIVATE",
-					"STATIC",
-					"MACRO",
-					"INLINE",
-					"DYNAMIC",
-					"FINAL"
-				]
-			},
-			"type": "ModifierOrder"
-		},
-		{
-			"props": {
 				"max": 3,
 				"severity": "IGNORE"
 			},
@@ -137,7 +123,7 @@
 		},
 		{
 			"props": {
-				"max": 4
+				"max": 6
 			},
 			"type": "NestedIfDepth"
 		},
@@ -195,14 +181,6 @@
 				"option": "eol"
 			},
 			"type": "OperatorWrap"
-		},
-		{
-			"props": {
-				"ignoreExtern": true,
-				"format": "^(_|[a-zA-Z][a-zA-Z0-9]*$)",
-				"tokens": []
-			},
-			"type": "ParameterName"
 		},
 		{
 			"props": {

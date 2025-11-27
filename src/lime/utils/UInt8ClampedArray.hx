@@ -15,7 +15,7 @@ abstract UInt8ClampedArray(JSUInt8ClampedArray) from JSUInt8ClampedArray to JSUI
 	@:to inline function toArrayBufferView():ArrayBufferView
 		return this;
 
-	public inline static var BYTES_PER_ELEMENT:Int = 1;
+	public static inline var BYTES_PER_ELEMENT:Int = 1;
 
 	@:generic
 	public inline function new<T>(?elements:Int, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end ?view:ArrayBufferView, ?buffer:ArrayBuffer,
@@ -68,14 +68,14 @@ abstract UInt8ClampedArray(JSUInt8ClampedArray) from JSUInt8ClampedArray to JSUI
 		return this[idx];
 
 	// non spec haxe conversions
-	inline public static function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):UInt8ClampedArray
+	public static inline function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):UInt8ClampedArray
 	{
 		if (byteOffset == null) return new JSUInt8ClampedArray(cast bytes.getData());
 		if (len == null) return new JSUInt8ClampedArray(cast bytes.getData(), byteOffset);
 		return new JSUInt8ClampedArray(cast bytes.getData(), byteOffset, len);
 	}
 
-	inline public function toBytes():haxe.io.Bytes
+	public inline function toBytes():haxe.io.Bytes
 	{
 		return @:privateAccess new haxe.io.Bytes(cast new JSUInt8Array(this.buffer));
 	}
@@ -100,7 +100,7 @@ import lime.utils.ArrayBufferView;
 @:arrayAccess
 abstract UInt8ClampedArray(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 {
-	public inline static var BYTES_PER_ELEMENT:Int = 1;
+	public static inline var BYTES_PER_ELEMENT:Int = 1;
 
 	public var length(get, never):Int;
 
@@ -143,12 +143,12 @@ abstract UInt8ClampedArray(ArrayBufferView) from ArrayBufferView to ArrayBufferV
 		return this.subarray(begin, end);
 
 	// non spec haxe conversions
-	inline public static function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):UInt8ClampedArray
+	public static inline function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):UInt8ClampedArray
 	{
 		return new UInt8ClampedArray(bytes, byteOffset, len);
 	}
 
-	inline public function toBytes():haxe.io.Bytes
+	public inline function toBytes():haxe.io.Bytes
 	{
 		return this.buffer;
 	}

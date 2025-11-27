@@ -14,29 +14,30 @@
 #endif
 
 
-#include <thread>
-#if defined(_MSC_VER)
-  #include <immintrin.h> // _mm_pause
-#elif defined(__GNUC__) || defined(__clang__)
-  #include <x86intrin.h> // _mm_pause
+#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
+	#if defined(_MSC_VER)
+		#include <immintrin.h> // _mm_pause
+	#elif defined(__GNUC__) || defined(__clang__)
+		#include <x86intrin.h> // _mm_pause
+	#endif
 #endif
 
+
 inline void cpu_relax() noexcept {
-#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
-    _mm_pause(); // x86 PAUSE instruction
-#else
-    std::this_thread::yield(); // fallback
-#endif
+	#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
+		_mm_pause(); // x86 PAUSE instruction
+	#else
+		std::this_thread::yield(); // fallback
+	#endif
 }
 
 
 namespace lime {
 
-
 	AutoGCRoot* Application::callback = 0;
 	SDLApplication* SDLApplication::currentApplication = 0;
 
-	const int analogAxisDeadZone = 1000;
+	const int ANALOG_AXIS_DEADZONE = 1000;
 	std::map<int, std::map<int, int> > gamepadsAxisMap;
 	bool inBackground = false;
 
@@ -71,9 +72,9 @@ namespace lime {
 
 		framePeriod = 0.0;
 
-		currentUpdate = 0;
-		lastUpdate = 0;
-		nextUpdate = 0;
+		currentUpdate = 0.0;
+		lastUpdate    = 0.0;
+		nextUpdate    = 0.0;
 
 		ApplicationEvent applicationEvent;
 		ClipboardEvent clipboardEvent;
@@ -89,27 +90,25 @@ namespace lime {
 		WindowEvent windowEvent;
 
 		#if defined(ANDROID) || defined (IPHONE)
-		SDL_EventState (SDL_SENSORUPDATE, SDL_ENABLE);
+			SDL_EventState (SDL_SENSORUPDATE, SDL_ENABLE);
 		#endif
 
-		SDL_EventState (SDL_DROPFILE, SDL_ENABLE);
+			SDL_EventState (SDL_DROPFILE, SDL_ENABLE);
 
 		#if defined(ANDROID) || defined (IPHONE)
-		InitializeSensors ();
+			InitializeSensors ();
 		#endif
-		SDLJoystick::Init ();
+			SDLJoystick::Init ();
 
 		#ifdef HX_MACOS
-		CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL (CFBundleGetMainBundle ());
-		char path[PATH_MAX];
+			CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL (CFBundleGetMainBundle ());
+			char path[PATH_MAX];
 
-		if (CFURLGetFileSystemRepresentation (resourcesURL, TRUE, (UInt8 *)path, PATH_MAX)) {
+			if (CFURLGetFileSystemRepresentation (resourcesURL, TRUE, (UInt8 *)path, PATH_MAX)) {
+				chdir (path);
+			}
 
-			chdir (path);
-
-		}
-
-		CFRelease (resourcesURL);
+			CFRelease (resourcesURL);
 		#endif
 
 	}
@@ -124,8 +123,8 @@ namespace lime {
 
 		accelerometerSensorID = System::GetFirstAccelerometerSensorId ();
 
-		if (gyroscopeSensorID > 0)
-			accelerometerSensor = SDL_SensorOpen (gyroscopeSensorID);
+		if (accelerometerSensorID > 0)
+			accelerometerSensor = SDL_SensorOpen (accelerometerSensorID);
 
 	}
 	#endif
@@ -182,32 +181,9 @@ namespace lime {
 	}
 
 
-	double getTime() {
-		const double counter = (double)SDL_GetPerformanceCounter() - performanceCounter;
+	double GetTimeMs() {
+		const double counter = static_cast<double>(SDL_GetPerformanceCounter()) - performanceCounter;
 		return (counter / performanceFrequency) * 1000.0;
-	}
-
-
-	void busyWait(double ms) {
-		const double start = getTime();
-		while (getTime() - start < ms) {
-			cpu_relax();
-		}
-	}
-
-	void coolSleep(double sleepFor) {
-		double dt = 0.0;
-		double start = getTime();
-		double threshold = sleepFor - (0.9765625 * 2.2);
-
-		while ((dt = getTime() - start) < threshold)
-			SDL_Delay(1);
-
-		double end = getTime();
-
-		double remainder = (start - end) - dt;
-		if (remainder > 0)
-			busyWait(remainder);
 	}
 
 
@@ -226,7 +202,8 @@ namespace lime {
 
 				if (!inBackground) {
 					applicationEvent.type = UPDATE;
-					applicationEvent.deltaTime = (currentUpdate - lastUpdate) * 1000.0;
+
+					applicationEvent.deltaTime = currentUpdate - lastUpdate;
 
 					ApplicationEvent::Dispatch (&applicationEvent);
 					RenderEvent::Dispatch (&renderEvent);
@@ -413,8 +390,9 @@ namespace lime {
 	void SDLApplication::Init () {
 		active = true;
 
-		double ticks = (double)SDL_GetPerformanceCounter();
-		lastUpdate = ticks;
+		const double now = GetTimeMs();
+		lastUpdate = now;
+		currentUpdate = now;
 	}
 
 
@@ -452,57 +430,45 @@ namespace lime {
 
 			switch (event->type) {
 
-				case SDL_CONTROLLERAXISMOTION:
+				case SDL_CONTROLLERAXISMOTION: {
+					auto& axisMap = gamepadsAxisMap[event->caxis.which];
+					auto& storedValue = axisMap[event->caxis.axis];
 
-					if (gamepadsAxisMap[event->caxis.which].empty ()) {
-
-						gamepadsAxisMap[event->caxis.which][event->caxis.axis] = event->caxis.value;
-
-					} else if (gamepadsAxisMap[event->caxis.which][event->caxis.axis] == event->caxis.value) {
-
+					if (storedValue == event->caxis.value)
 						break;
-
-					}
 
 					gamepadEvent.type = GAMEPAD_AXIS_MOVE;
 					gamepadEvent.axis = event->caxis.axis;
-					gamepadEvent.id = event->caxis.which;
+					gamepadEvent.id   = event->caxis.which;
 
-					if (event->caxis.value > -analogAxisDeadZone && event->caxis.value < analogAxisDeadZone) {
+					const int value = event->caxis.value;
 
-						if (gamepadsAxisMap[event->caxis.which][event->caxis.axis] != 0) {
-
-							gamepadsAxisMap[event->caxis.which][event->caxis.axis] = 0;
-							gamepadEvent.axisValue = 0;
-							GamepadEvent::Dispatch (&gamepadEvent);
-
+					if (value > -ANALOG_AXIS_DEADZONE && value < ANALOG_AXIS_DEADZONE) {
+						if (storedValue != 0) {
+							storedValue = 0;
+							gamepadEvent.axisValue = 0.0;
+							GamepadEvent::Dispatch(&gamepadEvent);
 						}
-
 						break;
-
 					}
 
-					gamepadsAxisMap[event->caxis.which][event->caxis.axis] = event->caxis.value;
-					gamepadEvent.axisValue = event->caxis.value / (event->caxis.value > 0 ? 32767.0 : 32768.0);
-
-					GamepadEvent::Dispatch (&gamepadEvent);
+					storedValue = value;
+					gamepadEvent.axisValue = value / (value > 0 ? 32767.0 : 32768.0);
+					GamepadEvent::Dispatch(&gamepadEvent);
 					break;
+				}
 
 				case SDL_CONTROLLERBUTTONDOWN:
-
 					gamepadEvent.type = GAMEPAD_BUTTON_DOWN;
 					gamepadEvent.button = event->cbutton.button;
 					gamepadEvent.id = event->cbutton.which;
-
 					GamepadEvent::Dispatch (&gamepadEvent);
 					break;
 
 				case SDL_CONTROLLERBUTTONUP:
-
 					gamepadEvent.type = GAMEPAD_BUTTON_UP;
 					gamepadEvent.button = event->cbutton.button;
 					gamepadEvent.id = event->cbutton.which;
-
 					GamepadEvent::Dispatch (&gamepadEvent);
 					break;
 
@@ -512,7 +478,6 @@ namespace lime {
 
 						gamepadEvent.type = GAMEPAD_CONNECT;
 						gamepadEvent.id = SDLGamepad::GetInstanceID (event->cdevice.which);
-
 						GamepadEvent::Dispatch (&gamepadEvent);
 
 					}
@@ -520,10 +485,8 @@ namespace lime {
 					break;
 
 				case SDL_CONTROLLERDEVICEREMOVED: {
-
 					gamepadEvent.type = GAMEPAD_DISCONNECT;
 					gamepadEvent.id = event->cdevice.which;
-
 					GamepadEvent::Dispatch (&gamepadEvent);
 					SDLGamepad::Disconnect (event->cdevice.which);
 					break;
@@ -661,18 +624,20 @@ namespace lime {
 
 			if (keyEvent.type == KEY_DOWN) {
 
-				if (keyEvent.keyCode == SDLK_CAPSLOCK) keyEvent.modifier |= KMOD_CAPS;
-				if (keyEvent.keyCode == SDLK_LALT) keyEvent.modifier |= KMOD_LALT;
-				if (keyEvent.keyCode == SDLK_LCTRL) keyEvent.modifier |= KMOD_LCTRL;
-				if (keyEvent.keyCode == SDLK_LGUI) keyEvent.modifier |= KMOD_LGUI;
-				if (keyEvent.keyCode == SDLK_LSHIFT) keyEvent.modifier |= KMOD_LSHIFT;
-				if (keyEvent.keyCode == SDLK_MODE) keyEvent.modifier |= KMOD_MODE;
-				if (keyEvent.keyCode == SDLK_NUMLOCKCLEAR) keyEvent.modifier |= KMOD_NUM;
-				if (keyEvent.keyCode == SDLK_RALT) keyEvent.modifier |= KMOD_RALT;
-				if (keyEvent.keyCode == SDLK_RCTRL) keyEvent.modifier |= KMOD_RCTRL;
-				if (keyEvent.keyCode == SDLK_RGUI) keyEvent.modifier |= KMOD_RGUI;
-				if (keyEvent.keyCode == SDLK_RSHIFT) keyEvent.modifier |= KMOD_RSHIFT;
+				// fixes warn C5055
+				const SDL_Keycode code = static_cast<SDL_Keycode>(keyEvent.keyCode);
 
+				if (code == SDLK_CAPSLOCK)      keyEvent.modifier |= KMOD_CAPS;
+				if (code == SDLK_LALT)          keyEvent.modifier |= KMOD_LALT;
+				if (code == SDLK_LCTRL)         keyEvent.modifier |= KMOD_LCTRL;
+				if (code == SDLK_LGUI)         keyEvent.modifier |= KMOD_LGUI;
+				if (code == SDLK_LSHIFT)        keyEvent.modifier |= KMOD_LSHIFT;
+				if (code == SDLK_MODE)          keyEvent.modifier |= KMOD_MODE;
+				if (code == SDLK_NUMLOCKCLEAR)  keyEvent.modifier |= KMOD_NUM;
+				if (code == SDLK_RALT)          keyEvent.modifier |= KMOD_RALT;
+				if (code == SDLK_RCTRL)         keyEvent.modifier |= KMOD_RCTRL;
+				if (code == SDLK_RGUI)          keyEvent.modifier |= KMOD_RGUI;
+				if (code == SDLK_RSHIFT)        keyEvent.modifier |= KMOD_RSHIFT;
 			}
 
 			KeyEvent::Dispatch (&keyEvent);
@@ -684,64 +649,64 @@ namespace lime {
 
 	void SDLApplication::ProcessMouseEvent (SDL_Event* event) {
 
-		if (MouseEvent::callback) {
+		if (!MouseEvent::callback)
+			return;
 
-			switch (event->type) {
+		switch (event->type) {
 
-				case SDL_MOUSEMOTION:
+			case SDL_MOUSEMOTION:
+				mouseEvent.type = MOUSE_MOVE;
+				mouseEvent.x = event->motion.x;
+				mouseEvent.y = event->motion.y;
+				mouseEvent.movementX = event->motion.xrel;
+				mouseEvent.movementY = event->motion.yrel;
+				mouseEvent.windowID = event->motion.windowID;
+				break;
 
-					mouseEvent.type = MOUSE_MOVE;
-					mouseEvent.x = event->motion.x;
-					mouseEvent.y = event->motion.y;
-					mouseEvent.movementX = event->motion.xrel;
-					mouseEvent.movementY = event->motion.yrel;
-					break;
+			case SDL_MOUSEBUTTONDOWN:
+				SDL_CaptureMouse (SDL_TRUE);
 
-				case SDL_MOUSEBUTTONDOWN:
+				mouseEvent.type = MOUSE_DOWN;
+				mouseEvent.button = event->button.button - 1;
+				mouseEvent.x = event->button.x;
+				mouseEvent.y = event->button.y;
+				mouseEvent.clickCount = event->button.clicks;
+				mouseEvent.windowID = event->button.windowID;
+				break;
 
-					SDL_CaptureMouse (SDL_TRUE);
+			case SDL_MOUSEBUTTONUP:
 
-					mouseEvent.type = MOUSE_DOWN;
-					mouseEvent.button = event->button.button - 1;
-					mouseEvent.x = event->button.x;
-					mouseEvent.y = event->button.y;
-					mouseEvent.clickCount = event->button.clicks;
-					break;
+				SDL_CaptureMouse (SDL_FALSE);
 
-				case SDL_MOUSEBUTTONUP:
+				mouseEvent.type = MOUSE_UP;
+				mouseEvent.button = event->button.button - 1;
+				mouseEvent.x = event->button.x;
+				mouseEvent.y = event->button.y;
+				mouseEvent.clickCount = event->button.clicks;
+				mouseEvent.windowID = event->button.windowID;
+				break;
 
-					SDL_CaptureMouse (SDL_FALSE);
+			case SDL_MOUSEWHEEL:
 
-					mouseEvent.type = MOUSE_UP;
-					mouseEvent.button = event->button.button - 1;
-					mouseEvent.x = event->button.x;
-					mouseEvent.y = event->button.y;
-					mouseEvent.clickCount = event->button.clicks;
-					break;
+				mouseEvent.type = MOUSE_WHEEL;
 
-				case SDL_MOUSEWHEEL:
+				if (event->wheel.direction == SDL_MOUSEWHEEL_FLIPPED) {
+					mouseEvent.x = -event->wheel.x;
+					mouseEvent.y = -event->wheel.y;
+				} else {
+					mouseEvent.x = event->wheel.x;
+					mouseEvent.y = event->wheel.y;
+				}
 
-					mouseEvent.type = MOUSE_WHEEL;
+				mouseEvent.windowID = event->wheel.windowID;
+				break;
 
-					if (event->wheel.direction == SDL_MOUSEWHEEL_FLIPPED) {
-
-						mouseEvent.x = -event->wheel.x;
-						mouseEvent.y = -event->wheel.y;
-
-					} else {
-
-						mouseEvent.x = event->wheel.x;
-						mouseEvent.y = event->wheel.y;
-
-					}
-					break;
-
-			}
-
-			mouseEvent.windowID = event->button.windowID;
-			MouseEvent::Dispatch (&mouseEvent);
+			default:
+				return;
 
 		}
+
+		MouseEvent::Dispatch (&mouseEvent);
 
 	}
 
@@ -931,12 +896,14 @@ namespace lime {
 	}
 
 	void PushUpdate(void) {
-		SDL_Event event;
-		SDL_UserEvent userevent;
+		SDL_Event event {};
+		SDL_UserEvent userevent {};
+
 		userevent.type = SDL_USEREVENT;
 		userevent.code = 0;
-		userevent.data1 = NULL;
-		userevent.data2 = NULL;
+		userevent.data1 = nullptr;
+		userevent.data2 = nullptr;
+
 		event.type = SDL_USEREVENT;
 		event.user = userevent;
 
@@ -945,37 +912,75 @@ namespace lime {
 
 
 	bool SDLApplication::Update () {
-		// i have no idea why this makes fps
-		// more consistent, but i am happy regardless.
-		lastUpdate = currentUpdate;
-		currentUpdate = getTime();
+		const double now = GetTimeMs();
+
+		if (framePeriod <= 0.0) {
+			SDL_Event event;
+
+			if (SDL_WaitEvent(&event)) {
+				HandleEvent(&event);
+				if (!active) return false;
+
+				while (SDL_PollEvent(&event)) {
+					HandleEvent(&event);
+					if (!active) return false;
+				}
+			}
+
+			lastUpdate    = currentUpdate;
+			currentUpdate = now;
+
+			PushUpdate();
+			return active;
+		}
+
+		static bool firstFrame = true;
+		static double nextFrameTimeMs = 0.0;
+		const double  maxFrameTime = framePeriod * 4.0;
+
+		if (firstFrame) {
+			firstFrame = false;
+			nextFrameTimeMs = now;
+		}
 
 		SDL_Event event;
-		while (SDL_PollEvent (&event)) {
-			HandleEvent (&event);
-			event.type = -1;
-			if (!active)
-				return active;
+
+		while (SDL_PollEvent(&event)) {
+			HandleEvent(&event);
+			if (!active) return false;
 		}
-		double remainder = getTime() - currentUpdate;
 
-		double dt = currentUpdate - lastUpdate;
-		double dtLimit = framePeriod * 4;
+		if (now < nextFrameTimeMs) {
+			double remaining = nextFrameTimeMs - now;
+			Uint32 timeout = static_cast<Uint32>(remaining);
+			if (timeout < 1u) timeout = 1u;
 
-		if (dt > dtLimit)
-			dt = dtLimit;
+			if (SDL_WaitEventTimeout(&event, timeout)) {
+				HandleEvent(&event);
+				if (!active) return false;
 
-		nextUpdate += dt;
+				while (SDL_PollEvent(&event)) {
+					HandleEvent(&event);
+					if (!active) return false;
+				}
+			}
 
-		if (nextUpdate >= framePeriod - remainder) {
-			PushUpdate();
-			nextUpdate = 0;
-		} else {
-			// let the cpu have a bit of rest
-			double sleepDuration = (framePeriod * .5) - remainder;
-			if(sleepDuration > 0)
-				coolSleep(sleepDuration);
+			return active;
 		}
+
+		double dt = now - currentUpdate;
+		if (dt > maxFrameTime)
+			dt = maxFrameTime;
+
+		lastUpdate    = currentUpdate;
+		currentUpdate = currentUpdate + dt;
+
+		PushUpdate();
+
+		nextFrameTimeMs += framePeriod;
+
+		if (now - nextFrameTimeMs > maxFrameTime)
+			nextFrameTimeMs = now;
 
 		return active;
 	}

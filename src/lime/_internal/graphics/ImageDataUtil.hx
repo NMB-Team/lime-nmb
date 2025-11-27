@@ -52,7 +52,6 @@ class ImageDataUtil
 
 		var sourcePixel:RGBA = 0;
 		var mapPixel:RGBA = 0;
-		var targetPixel:RGBA = 0;
 
 		var mapPixelX:Float;
 		var mapPixelY:Float;
@@ -303,7 +302,7 @@ class ImageDataUtil
 			&& destPoint.y == 0
 			&& alphaImage == null
 			&& alphaPoint == null
-			&& mergeAlpha == false
+			&& !mergeAlpha
 			&& image.format == sourceImage.format)
 		{
 			image.buffer.data.set(sourceImage.buffer.data);
@@ -1113,7 +1112,7 @@ class ImageDataUtil
 		else
 		#end
 		{
-			var index, a16;
+			var index;
 			var length = Std.int(data.length * .25);
 			var r1, g1, b1, a1, r2, g2, b2, a2;
 			var r, g, b, a;
@@ -1262,8 +1261,7 @@ class ImageDataUtil
 					}
 					else
 					{
-						color = bytes.get(dataPosition + 3) | (bytes.get(dataPosition + 2) << 8) | (bytes.get(dataPosition +
-							1) << 16) | (bytes.get(dataPosition) << 24);
+						color = bytes.get(dataPosition + 3) | (bytes.get(dataPosition + 2) << 8) | (bytes.get(dataPosition + 1) << 16) | (bytes.get(dataPosition) << 24);
 					}
 
 					dataPosition += 4;
@@ -1348,7 +1346,6 @@ class ImageDataUtil
 			var srcPosition,
 				destPosition,
 				srcPixel:RGBA = 0,
-				destPixel:RGBA = 0,
 				pixelMask:UInt,
 				test:Bool,
 				value:Int;
