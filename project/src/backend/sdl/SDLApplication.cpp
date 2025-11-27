@@ -228,19 +228,8 @@ namespace lime {
 					applicationEvent.type = UPDATE;
 					applicationEvent.deltaTime = (currentUpdate - lastUpdate) * 1000.0;
 
-					double start = getTime();
-
 					ApplicationEvent::Dispatch (&applicationEvent);
 					RenderEvent::Dispatch (&renderEvent);
-
-					double end = getTime();
-					double remainder = end - start;
-
-					if (framePeriod > 0.0) {
-						double sleepDuration = framePeriod - remainder;
-						if (sleepDuration > 0)
-							coolSleep(sleepDuration);
-					}
 				}
 
 				break;
@@ -961,18 +950,6 @@ namespace lime {
 		lastUpdate = currentUpdate;
 		currentUpdate = getTime();
 
-		double dt = currentUpdate - lastUpdate;
-
-		double dtLimit = framePeriod * 4;
-		if (dt > dtLimit)
-			dt = dtLimit;
-
-		nextUpdate += dt;
-
-		if(nextUpdate >= framePeriod) {
-			PushUpdate();
-			nextUpdate -= framePeriod;
-		}
 		SDL_Event event;
 		while (SDL_PollEvent (&event)) {
 			HandleEvent (&event);
@@ -980,6 +957,26 @@ namespace lime {
 			if (!active)
 				return active;
 		}
+		double remainder = getTime() - currentUpdate;
+
+		double dt = currentUpdate - lastUpdate;
+		double dtLimit = framePeriod * 4;
+
+		if (dt > dtLimit)
+			dt = dtLimit;
+
+		nextUpdate += dt;
+
+		if (nextUpdate >= framePeriod - remainder) {
+			PushUpdate();
+			nextUpdate = 0;
+		} else {
+			// let the cpu have a bit of rest
+			double sleepDuration = (framePeriod * .5) - remainder;
+			if(sleepDuration > 0)
+				coolSleep(sleepDuration);
+		}
+
 		return active;
 	}
 
