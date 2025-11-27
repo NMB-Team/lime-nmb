@@ -206,7 +206,7 @@ private class TimerTask extends java.util.TimerTask {
 import lime.system.System;
 
 class Timer {
-	private static final sRunningTimers:Array<Timer> = [];
+	private static var sRunningTimers:Array<Timer> = [];
 
 	private var mTime:Float;
 	private var mFireAt:Float;
