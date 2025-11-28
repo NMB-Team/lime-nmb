@@ -55,8 +55,76 @@ namespace lime {
 
 	static bool init = false;
 
-	static double performanceFrequency = -1.0;
-	static double performanceCounter = -1.0;
+	static double performanceFrequency = 0.0;
+	static double performanceCounter = 0.0;
+	static bool timersInitialized = false;
+
+
+	static inline void InitTimersOnce() {
+
+		if (timersInitialized)
+			return;
+
+		performanceFrequency = (double)SDL_GetPerformanceFrequency();
+		performanceCounter = (double)SDL_GetPerformanceCounter();
+		timersInitialized = true;
+
+	}
+
+
+	double System::GetTimer () {
+
+		InitTimersOnce();
+		const double counter = (double)SDL_GetPerformanceCounter() - performanceCounter;
+		return (counter / performanceFrequency) * 1000.0;
+
+	}
+
+
+	static inline DisplayMode MakeDisplayModeFromSDL(const SDL_DisplayMode& sdlMode) {
+		DisplayMode mode;
+		mode.height = sdlMode.h;
+		mode.width = sdlMode.w;
+
+		switch (sdlMode.format) {
+			case SDL_PIXELFORMAT_ARGB8888:
+				mode.pixelFormat = ARGB32;
+				break;
+			case SDL_PIXELFORMAT_BGRA8888:
+			case SDL_PIXELFORMAT_BGRX8888:
+				mode.pixelFormat = BGRA32;
+				break;
+			default:
+				mode.pixelFormat = RGBA32;
+				break;
+		}
+
+		mode.refreshRate = sdlMode.refresh_rate;
+		return mode;
+	}
+
+
+	#ifdef HX_WINDOWS
+	static inline std::wstring Utf8ToWString(const char* utf8) {
+
+		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+		return converter.from_bytes(utf8 ? utf8 : "");
+
+	}
+
+	static inline std::wstring Utf8ToWString(const std::string& utf8) {
+
+		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+		return converter.from_bytes(utf8);
+
+	}
+	#endif
+
+	static inline std::wstring* MakeWStringPtr(const std::wstring& src) {
+
+		return new std::wstring(src);
+
+	}
 
 
 	const char* Clipboard::GetText () {
@@ -100,7 +168,7 @@ namespace lime {
 
 	std::wstring* System::GetDirectory (SystemDirectory type, const char* company, const char* title) {
 
-		std::wstring* result = 0;
+		std::wstring* result = nullptr;
 		System::GCEnterBlocking ();
 
 		switch (type) {
@@ -108,27 +176,31 @@ namespace lime {
 			case APPLICATION: {
 
 				char* path = SDL_GetBasePath ();
-				#ifdef HX_WINDOWS
-				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-				result = new std::wstring (converter.from_bytes(path));
-				#else
-				result = new std::wstring (path, path + strlen (path));
-				#endif
-				SDL_free (path);
+				if (path) {
+					#ifdef HX_WINDOWS
+					std::wstring wpath = Utf8ToWString(path);
+					#else
+					std::wstring wpath(path, path + strlen(path));
+					#endif
+					SDL_free(path);
+					result = MakeWStringPtr(wpath);
+				}
 				break;
 
 			}
 
 			case APPLICATION_STORAGE: {
 
-				char* path = SDL_GetPrefPath (company, title);
-				#ifdef HX_WINDOWS
-				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-				result = new std::wstring (converter.from_bytes(path));
-				#else
-				result = new std::wstring (path, path + strlen (path));
-				#endif
-				SDL_free (path);
+				char* path = SDL_GetPrefPath(company, title);
+				if (path) {
+					#ifdef HX_WINDOWS
+					std::wstring wpath = Utf8ToWString(path);
+					#else
+					std::wstring wpath(path, path + strlen(path));
+					#endif
+					SDL_free(path);
+					result = MakeWStringPtr(wpath);
+				}
 				break;
 
 			}
@@ -138,15 +210,14 @@ namespace lime {
 				#if defined (HX_WINRT)
 
 				Windows::Storage::StorageFolder^ folder = Windows::Storage::KnownFolders::HomeGroup;
-				result = new std::wstring (folder->Path->Data ());
+				result = MakeWStringPtr(std::wstring(folder->Path->Data()));
 
 				#elif defined (HX_WINDOWS)
 
 				char folderPath[MAX_PATH] = "";
-				SHGetFolderPath (NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, folderPath);
-				//WIN_StringToUTF8 (folderPath);
-				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-				result = new std::wstring (converter.from_bytes (folderPath));
+				if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, folderPath))) {
+					result = MakeWStringPtr(Utf8ToWString(folderPath));
+				}
 
 				#elif defined (IPHONE)
 
@@ -154,16 +225,12 @@ namespace lime {
 
 				#elif !defined (ANDROID)
 
-				char const* home = getenv ("HOME");
-
-				if (home == NULL) {
-
-					return 0;
-
+				const char* home = getenv("HOME");
+				if (home) {
+					std::string path = std::string(home) + "/Desktop";
+					std::wstring wpath(path.begin(), path.end());
+					result = MakeWStringPtr(wpath);
 				}
-
-				std::string path = std::string (home) + std::string ("/Desktop");
-				result = new std::wstring (path.begin (), path.end ());
 
 				#endif
 				break;
@@ -175,15 +242,14 @@ namespace lime {
 				#if defined (HX_WINRT)
 
 				Windows::Storage::StorageFolder^ folder = Windows::Storage::KnownFolders::DocumentsLibrary;
-				result = new std::wstring (folder->Path->Data ());
+				result = MakeWStringPtr(std::wstring(folder->Path->Data()));
 
 				#elif defined (HX_WINDOWS)
 
 				char folderPath[MAX_PATH] = "";
-				SHGetFolderPath (NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, folderPath);
-				//WIN_StringToUTF8 (folderPath);
-				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-				result = new std::wstring (converter.from_bytes (folderPath));
+				if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, folderPath))) {
+					result = MakeWStringPtr(Utf8ToWString(folderPath));
+				}
 
 				#elif defined (IPHONE)
 
@@ -191,17 +257,15 @@ namespace lime {
 
 				#elif defined (ANDROID)
 
-				result = new std::wstring (L"/mnt/sdcard/Documents");
+				result = MakeWStringPtr(std::wstring(L"/mnt/sdcard/Documents"));
 
 				#else
 
-				char const* home = getenv ("HOME");
-
-				if (home != NULL) {
-
-					std::string path = std::string (home) + std::string ("/Documents");
-					result = new std::wstring (path.begin (), path.end ());
-
+				const char* home = getenv("HOME");
+				if (home) {
+					std::string path = std::string(home) + "/Documents";
+					std::wstring wpath(path.begin(), path.end());
+					result = MakeWStringPtr(wpath);
 				}
 
 				#endif
@@ -212,37 +276,22 @@ namespace lime {
 			case FONTS: {
 
 				#if defined (HX_WINRT)
-
 				// TODO
-
 				#elif defined (HX_WINDOWS)
-
-				char folderPath[MAX_PATH] = "";
-				SHGetFolderPath (NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, folderPath);
-				//WIN_StringToUTF8 (folderPath);
-				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-				result = new std::wstring (converter.from_bytes (folderPath));
-
+					char folderPath[MAX_PATH] = "";
+					if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, folderPath))) {
+						result = MakeWStringPtr(Utf8ToWString(folderPath));
+					}
 				#elif defined (HX_MACOS)
-
-				result = new std::wstring (L"/Library/Fonts");
-
+					result = MakeWStringPtr(std::wstring(L"/Library/Fonts"));
 				#elif defined (IPHONE)
-
-				result = new std::wstring (L"/System/Library/Fonts");
-
+					result = MakeWStringPtr(std::wstring(L"/System/Library/Fonts"));
 				#elif defined (ANDROID)
-
-				result = new std::wstring (L"/system/fonts");
-
+					result = MakeWStringPtr(std::wstring(L"/system/fonts"));
 				#elif defined (BLACKBERRY)
-
-				result = new std::wstring (L"/usr/fonts/font_repository/monotype");
-
+					result = MakeWStringPtr(std::wstring(L"/usr/fonts/font_repository/monotype"));
 				#else
-
-				result = new std::wstring (L"/usr/share/fonts/truetype");
-
+					result = MakeWStringPtr(std::wstring(L"/usr/share/fonts/truetype"));
 				#endif
 				break;
 
@@ -253,15 +302,14 @@ namespace lime {
 				#if defined (HX_WINRT)
 
 				Windows::Storage::StorageFolder^ folder = Windows::Storage::ApplicationData::Current->RoamingFolder;
-				result = new std::wstring (folder->Path->Data ());
+				result = MakeWStringPtr(std::wstring(folder->Path->Data()));
 
 				#elif defined (HX_WINDOWS)
 
 				char folderPath[MAX_PATH] = "";
-				SHGetFolderPath (NULL, CSIDL_PROFILE, NULL, SHGFP_TYPE_CURRENT, folderPath);
-				//WIN_StringToUTF8 (folderPath);
-				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-				result = new std::wstring (converter.from_bytes (folderPath));
+				if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, SHGFP_TYPE_CURRENT, folderPath))) {
+					result = MakeWStringPtr(Utf8ToWString(folderPath));
+				}
 
 				#elif defined (IPHONE)
 
@@ -269,17 +317,15 @@ namespace lime {
 
 				#elif defined (ANDROID)
 
-				result = new std::wstring (L"/mnt/sdcard");
+				result = MakeWStringPtr(std::wstring(L"/mnt/sdcard"));
 
 				#else
 
-				char const* home = getenv ("HOME");
-
-				if (home != NULL) {
-
-					std::string path = std::string (home);
-					result = new std::wstring (path.begin (), path.end ());
-
+				const char* home = getenv("HOME");
+				if (home) {
+					std::string path = std::string(home);
+					std::wstring wpath(path.begin(), path.end());
+					result = MakeWStringPtr(wpath);
 				}
 
 				#endif
@@ -311,9 +357,7 @@ namespace lime {
 				id_supportedModes = val_id ("supportedModes");
 				id_width = val_id ("width");
 
-				performanceFrequency = (double)SDL_GetPerformanceFrequency();
-				performanceCounter = (double)SDL_GetPerformanceCounter();
-
+				InitTimersOnce();
 				init = true;
 
 			}
@@ -333,75 +377,26 @@ namespace lime {
 			SDL_GetDisplayBounds (id, &bounds);
 			alloc_field (display, id_bounds, Rectangle (bounds.x, bounds.y, bounds.w, bounds.h).Value ());
 
-			float dpi = 72.0;
+			float dpi = 72.0f;
 			#ifndef EMSCRIPTEN
-			SDL_GetDisplayDPI (id, &dpi, NULL, NULL);
+			SDL_GetDisplayDPI(id, &dpi, NULL, NULL);
 			#endif
-			alloc_field (display, id_dpi, alloc_float (dpi));
+			alloc_field(display, id_dpi, alloc_float (dpi));
 
-			SDL_DisplayMode displayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
-			DisplayMode mode;
+			SDL_DisplayMode sdlMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
+			SDL_GetDesktopDisplayMode(id, &sdlMode);
 
-			SDL_GetDesktopDisplayMode (id, &displayMode);
-
-			mode.height = displayMode.h;
-
-			switch (displayMode.format) {
-
-				case SDL_PIXELFORMAT_ARGB8888:
-
-					mode.pixelFormat = ARGB32;
-					break;
-
-				case SDL_PIXELFORMAT_BGRA8888:
-				case SDL_PIXELFORMAT_BGRX8888:
-
-					mode.pixelFormat = BGRA32;
-					break;
-
-				default:
-
-					mode.pixelFormat = RGBA32;
-
-			}
-
-			mode.refreshRate = displayMode.refresh_rate;
-			mode.width = displayMode.w;
-
+			DisplayMode mode = MakeDisplayModeFromSDL (sdlMode);
 			alloc_field (display, id_currentMode, (value)mode.Value ());
 
-			int numDisplayModes = SDL_GetNumDisplayModes (id);
+			const int numDisplayModes = SDL_GetNumDisplayModes (id);
 			value supportedModes = alloc_array (numDisplayModes);
 
-			for (int i = 0; i < numDisplayModes; i++) {
+			for (int i = 0; i < numDisplayModes; ++i) {
 
-				SDL_GetDisplayMode (id, i, &displayMode);
-
-				mode.height = displayMode.h;
-
-				switch (displayMode.format) {
-
-					case SDL_PIXELFORMAT_ARGB8888:
-
-						mode.pixelFormat = ARGB32;
-						break;
-
-					case SDL_PIXELFORMAT_BGRA8888:
-					case SDL_PIXELFORMAT_BGRX8888:
-
-						mode.pixelFormat = BGRA32;
-						break;
-
-					default:
-
-						mode.pixelFormat = RGBA32;
-
-				}
-
-				mode.refreshRate = displayMode.refresh_rate;
-				mode.width = displayMode.w;
-
-				val_array_set_i (supportedModes, i, (value)mode.Value ());
+				SDL_GetDisplayMode(id, i, &sdlMode);
+				DisplayMode m = MakeDisplayModeFromSDL (sdlMode);
+				val_array_set_i(supportedModes, i, (value)m.Value());
 
 			}
 
@@ -411,9 +406,7 @@ namespace lime {
 		} else {
 
 			if (!init) {
-				performanceFrequency = (double)SDL_GetPerformanceFrequency();
-				performanceCounter = (double)SDL_GetPerformanceCounter();
-
+				InitTimersOnce();
 				init = true;
 			}
 
@@ -440,8 +433,10 @@ namespace lime {
 			vdynamic* display = (vdynamic*)hl_alloc_dynobj ();
 
 			const char* displayName = SDL_GetDisplayName (id);
-			char* _displayName = (char*)malloc(strlen(displayName) + 1);
-			strcpy (_displayName, displayName);
+			const size_t nameLen = strlen(displayName) + 1;
+			char* _displayName = (char*)malloc(nameLen);
+			if (_displayName)
+				memcpy(_displayName, displayName, nameLen);
 			hl_dyn_setp (display, id_name, &hlt_bytes, _displayName);
 
 			SDL_Rect bounds = { 0, 0, 0, 0 };
@@ -461,34 +456,9 @@ namespace lime {
 			#endif
 			hl_dyn_setf (display, id_dpi, dpi);
 
-			SDL_DisplayMode displayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
-			DisplayMode mode;
-
-			SDL_GetDesktopDisplayMode (id, &displayMode);
-
-			mode.height = displayMode.h;
-
-			switch (displayMode.format) {
-
-				case SDL_PIXELFORMAT_ARGB8888:
-
-					mode.pixelFormat = ARGB32;
-					break;
-
-				case SDL_PIXELFORMAT_BGRA8888:
-				case SDL_PIXELFORMAT_BGRX8888:
-
-					mode.pixelFormat = BGRA32;
-					break;
-
-				default:
-
-					mode.pixelFormat = RGBA32;
-
-			}
-
-			mode.refreshRate = displayMode.refresh_rate;
-			mode.width = displayMode.w;
+			SDL_DisplayMode sdlMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
+			SDL_GetDesktopDisplayMode (id, &sdlMode);
+			DisplayMode mode = MakeDisplayModeFromSDL(sdlMode);
 
 			vdynamic* _displayMode = (vdynamic*)hl_alloc_dynobj ();
 			hl_dyn_seti (_displayMode, id_height, &hlt_i32, mode.height);
@@ -497,46 +467,23 @@ namespace lime {
 			hl_dyn_seti (_displayMode, id_width, &hlt_i32, mode.width);
 			hl_dyn_setp (display, id_currentMode, &hlt_dynobj, _displayMode);
 
-			int numDisplayModes = SDL_GetNumDisplayModes (id);
+			const int numDisplayModes = SDL_GetNumDisplayModes (id);
 
 			hl_varray* supportedModes = (hl_varray*)hl_alloc_array (&hlt_dynobj, numDisplayModes);
 			vdynamic** supportedModesData = hl_aptr (supportedModes, vdynamic*);
 
 			for (int i = 0; i < numDisplayModes; i++) {
 
-				SDL_GetDisplayMode (id, i, &displayMode);
+				SDL_GetDisplayMode (id, i, &sdlMode);
+				DisplayMode m = MakeDisplayModeFromSDL(sdlMode);
 
-				mode.height = displayMode.h;
+				vdynamic* dm = (vdynamic*)hl_alloc_dynobj ();
+				hl_dyn_seti (dm, id_height, &hlt_i32, m.height);
+				hl_dyn_seti (dm, id_pixelFormat, &hlt_i32, m.pixelFormat);
+				hl_dyn_seti (dm, id_refreshRate, &hlt_i32, m.refreshRate);
+				hl_dyn_seti (dm, id_width, &hlt_i32, m.width);
 
-				switch (displayMode.format) {
-
-					case SDL_PIXELFORMAT_ARGB8888:
-
-						mode.pixelFormat = ARGB32;
-						break;
-
-					case SDL_PIXELFORMAT_BGRA8888:
-					case SDL_PIXELFORMAT_BGRX8888:
-
-						mode.pixelFormat = BGRA32;
-						break;
-
-					default:
-
-						mode.pixelFormat = RGBA32;
-
-				}
-
-				mode.refreshRate = displayMode.refresh_rate;
-				mode.width = displayMode.w;
-
-				vdynamic* _displayMode = (vdynamic*)hl_alloc_dynobj ();
-				hl_dyn_seti (_displayMode, id_height, &hlt_i32, mode.height);
-				hl_dyn_seti (_displayMode, id_pixelFormat, &hlt_i32, mode.pixelFormat);
-				hl_dyn_seti (_displayMode, id_refreshRate, &hlt_i32, mode.refreshRate);
-				hl_dyn_seti (_displayMode, id_width, &hlt_i32, mode.width);
-
-				*supportedModesData++ = _displayMode;
+				*supportedModesData++ = dm;
 
 			}
 
@@ -560,6 +507,7 @@ namespace lime {
 		return -1;
 	}
 
+
 	int System::GetFirstAccelerometerSensorId () {
 		int numSensors = SDL_NumSensors ();
 		for (int i = 0; i < numSensors; i++) {
@@ -569,24 +517,15 @@ namespace lime {
 		}
 		return -1;
 	}
+
+
 	#endif
+
 
 	int System::GetNumDisplays () {
 
 		return SDL_GetNumVideoDisplays ();
 
-	}
-
-
-	double System::GetTimer () {
-		if(performanceCounter == -1.0) {
-			performanceCounter = (double)SDL_GetPerformanceCounter();
-		}
-		if(performanceFrequency == -1.0) {
-			performanceFrequency = (double)SDL_GetPerformanceFrequency();
-		}
-		const double counter = (double)SDL_GetPerformanceCounter() - performanceCounter;
-		return (counter / performanceFrequency) * 1000.0;
 	}
 
 
@@ -611,37 +550,32 @@ namespace lime {
 
 		#ifndef HX_WINDOWS
 
-		switch (((SDL_RWops*)handle)->type) {
+		if (!handle)
+			return nullptr;
+
+		SDL_RWops* rw = (SDL_RWops*)handle;
+
+		switch (rw->type) {
 
 			case SDL_RWOPS_STDFILE:
-
-				return ((SDL_RWops*)handle)->hidden.stdio.fp;
+				return rw->hidden.stdio.fp;
 
 			case SDL_RWOPS_JNIFILE:
 			{
 				#ifdef ANDROID
-				System::GCEnterBlocking ();
-				FILE* file = ::fdopen (((SDL_RWops*)handle)->hidden.androidio.fd, "rb");
-				::fseek (file, ((SDL_RWops*)handle)->hidden.androidio.offset, 0);
-				System::GCExitBlocking ();
+				GCBlockingScope gcScope;
+				FILE* file = ::fdopen (rw->hidden.androidio.fd, "rb");
+				if (file)
+					::fseek (file, rw->hidden.androidio.offset, SEEK_SET);
 				return file;
+				#else
+				return nullptr;
 				#endif
 			}
 
 			case SDL_RWOPS_WINFILE:
-			{
-				/*#ifdef HX_WINDOWS
-				printf("SDKFLJDSLFKJ\n");
-				int fd = _open_osfhandle ((uintptr_t)((SDL_RWops*)handle)->hidden.windowsio.h, _O_RDONLY);
-
-				if (fd != -1) {
-					printf("SDKFLJDSLFKJ\n");
-					return ::fdopen (fd, "rb");
-
-				}
-				#endif*/
-			}
-
+			default:
+				return nullptr;
 		}
 
 		return NULL;
@@ -659,10 +593,13 @@ namespace lime {
 
 		#ifndef HX_WINDOWS
 
+		if (!handle)
+			return 0;
+
 		System::GCEnterBlocking ();
-		int size = SDL_RWsize (((SDL_RWops*)handle));
+		const Sint64 size = SDL_RWsize((SDL_RWops*)handle);
 		System::GCExitBlocking ();
-		return size;
+		return size > 0 ? (int)size : 0;
 
 		#else
 
@@ -677,11 +614,14 @@ namespace lime {
 
 		#ifndef HX_WINDOWS
 
+		if (!handle)
+			return false;
+
 		return ((SDL_RWops*)handle)->type == SDL_RWOPS_STDFILE;
 
 		#else
 
-		return true;
+		return handle != nullptr;
 
 		#endif
 
@@ -690,149 +630,140 @@ namespace lime {
 
 	int fclose (FILE_HANDLE *stream) {
 
+		if (!stream)
+			return 0;
+
+		System::GCEnterBlocking ();
+
 		#ifndef HX_WINDOWS
-
-		if (stream) {
-
-			System::GCEnterBlocking ();
-			int code = SDL_RWclose ((SDL_RWops*)stream->handle);
-			delete stream;
-			System::GCExitBlocking ();
-			return code;
-
-		}
-
-		return 0;
-
+		int code = SDL_RWclose ((SDL_RWops*)stream->handle);
 		#else
-
-		if (stream) {
-
-			System::GCEnterBlocking ();
-			int code = ::fclose ((FILE*)stream->handle);
-			delete stream;
-			System::GCExitBlocking ();
-			return code;
-
-		}
-
-		return 0;
-
+		int code = ::fclose ((FILE*)stream->handle);
 		#endif
+
+		delete stream;
+
+		System::GCExitBlocking ();
+
+		return code;
 
 	}
 
 
 	FILE_HANDLE *fdopen (int fd, const char *mode) {
 
+		if (fd < 0 || !mode)
+			return NULL;
+
 		#ifndef HX_WINDOWS
 
 		System::GCEnterBlocking ();
 		FILE* fp = ::fdopen (fd, mode);
-		SDL_RWops *result = SDL_RWFromFP (fp, SDL_TRUE);
-		System::GCExitBlocking ();
-
-		if (result) {
-
-			return new FILE_HANDLE (result);
-
+		if (!fp) {
+			System::GCExitBlocking ();
+			return NULL;
 		}
 
-		return NULL;
+		SDL_RWops *result = SDL_RWFromFP (fp, SDL_TRUE);
+		if (!result) {
+			::fclose (fp);
+			System::GCExitBlocking ();
+			return NULL;
+		}
+		System::GCExitBlocking ();
+
+		return new FILE_HANDLE (result);
 
 		#else
 
-		FILE* result;
-
 		System::GCEnterBlocking ();
-		result = ::fdopen (fd, mode);
+		FILE* result = ::fdopen (fd, mode);
 		System::GCExitBlocking ();
 
-		if (result) {
-
+		if (result)
 			return new FILE_HANDLE (result);
-
-		}
 
 		return NULL;
 
 		#endif
-
 	}
 
 
 	FILE_HANDLE *fopen (const char *filename, const char *mode) {
 
+		if (!filename || !mode)
+			return nullptr;
+
 		#ifndef HX_WINDOWS
 
-		SDL_RWops *result;
+		SDL_RWops* result = nullptr;
 
 		System::GCEnterBlocking ();
 
 		#ifdef HX_MACOS
 
-		result = SDL_RWFromFile (filename, "rb");
+		result = SDL_RWFromFile (filename, mode);
 
 		if (!result) {
 
 			CFStringRef str = CFStringCreateWithCString (NULL, filename, kCFStringEncodingUTF8);
-			CFURLRef path = CFBundleCopyResourceURL (CFBundleGetMainBundle (), str, NULL, NULL);
+			CFURLRef path   = CFBundleCopyResourceURL (CFBundleGetMainBundle (), str, NULL, NULL);
 			CFRelease (str);
 
 			if (path) {
 
 				str = CFURLCopyPath (path);
 				CFIndex maxSize = CFStringGetMaximumSizeForEncoding (CFStringGetLength (str), kCFStringEncodingUTF8);
-				char *buffer = (char *)malloc (maxSize);
+				char* buffer = (char*)malloc ((size_t)maxSize + 1);
 
-				if (CFStringGetCString (str, buffer, maxSize, kCFStringEncodingUTF8)) {
+				if (buffer) {
 
-					result = SDL_RWFromFP (::fopen (buffer, "rb"), SDL_TRUE);
+					if (CFStringGetCString (str, buffer, maxSize + 1, kCFStringEncodingUTF8)) {
+
+						FILE* fp = ::fopen (buffer, mode);
+						if (fp) {
+							result = SDL_RWFromFP (fp, SDL_TRUE);
+							if (!result)
+								::fclose(fp);
+						}
+
+					}
+
 					free (buffer);
-
 				}
 
 				CFRelease (str);
 				CFRelease (path);
 
 			}
-
 		}
+
 		#else
+
 		result = SDL_RWFromFile (filename, mode);
+
 		#endif
 
 		System::GCExitBlocking ();
 
-		if (result) {
 
-			return new FILE_HANDLE (result);
+		if (!result)
+			return nullptr;
 
-		}
-
-		return NULL;
+		return new FILE_HANDLE (result);
 
 		#else
 
-		FILE* result;
-		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-		std::wstring* wfilename = new std::wstring (converter.from_bytes (filename));
-		std::wstring* wmode = new std::wstring (converter.from_bytes (mode));
+		std::wstring wfilename = Utf8ToWString(filename);
+		std::wstring wmode  = Utf8ToWString(mode);
 
 		System::GCEnterBlocking ();
-		result = ::_wfopen (wfilename->c_str(), wmode->c_str());
+		FILE* result = ::_wfopen (wfilename.c_str(), wmode.c_str());
+		if (!result)
+			return nullptr;
 		System::GCExitBlocking ();
 
-		delete wfilename;
-		delete wmode;
-
-		if (result) {
-
-			return new FILE_HANDLE (result);
-
-		}
-
-		return NULL;
+		return new FILE_HANDLE (result);
 
 		#endif
 
@@ -841,12 +772,16 @@ namespace lime {
 
 	size_t fread (void *ptr, size_t size, size_t count, FILE_HANDLE *stream) {
 
-		size_t nmem;
+		if (!stream || !ptr || size == 0 || count == 0)
+			return 0;
+
+		size_t nmem = 0;
+
 		System::GCEnterBlocking ();
 
 		#ifndef HX_WINDOWS
 
-		nmem = SDL_RWread (stream ? (SDL_RWops*)stream->handle : NULL, ptr, size, count);
+		nmem = SDL_RWread ((SDL_RWops*)stream->handle, ptr, size, count);
 
 		#else
 
@@ -856,18 +791,21 @@ namespace lime {
 
 		System::GCExitBlocking ();
 		return nmem;
-
 	}
 
 
 	int fseek (FILE_HANDLE *stream, long int offset, int origin) {
 
+		if (!stream)
+			return -1;
+
 		int success;
+
 		System::GCEnterBlocking ();
 
 		#ifndef HX_WINDOWS
 
-		success = SDL_RWseek (stream ? (SDL_RWops*)stream->handle : NULL, offset, origin);
+		success = SDL_RWseek ((SDL_RWops*)stream->handle, offset, origin);
 
 		#else
 
@@ -877,18 +815,23 @@ namespace lime {
 
 		System::GCExitBlocking ();
 		return success;
-
 	}
 
 
 	long int ftell (FILE_HANDLE *stream) {
 
+		if (!stream)
+			return -1L;
+
+
 		long int pos;
+
 		System::GCEnterBlocking ();
 
 		#ifndef HX_WINDOWS
 
-		pos = SDL_RWtell (stream ? (SDL_RWops*)stream->handle : NULL);
+		Sint64 p = SDL_RWtell ((SDL_RWops*)stream->handle);
+		pos = (p >= 0) ? (long int)p : -1L;
 
 		#else
 
@@ -898,18 +841,21 @@ namespace lime {
 
 		System::GCExitBlocking ();
 		return pos;
-
 	}
 
 
 	size_t fwrite (const void *ptr, size_t size, size_t count, FILE_HANDLE *stream) {
 
-		size_t nmem;
+		if (!stream || !ptr || size == 0 || count == 0)
+			return 0;
+
+		size_t nmem = 0;
+
 		System::GCEnterBlocking ();
 
 		#ifndef HX_WINDOWS
 
-		nmem = SDL_RWwrite (stream ? (SDL_RWops*)stream->handle : NULL, ptr, size, count);
+		nmem = SDL_RWwrite ((SDL_RWops*)stream->handle, ptr, size, count);
 
 		#else
 

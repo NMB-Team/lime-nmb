@@ -1,89 +1,116 @@
 #include "SDLGamepad.h"
-
+#include <map>
+#include <unordered_map>
+#include <string>
 
 namespace lime {
 
 
-	std::map<int, SDL_GameController*> gameControllers = std::map<int, SDL_GameController*> ();
-	std::map<int, int> gameControllerIDs = std::map<int, int> ();
+	static std::unordered_map<int, SDL_GameController*> gameControllers;
+	static std::unordered_map<int, int> deviceToInstanceID;
 
 
 	bool SDLGamepad::Connect (int deviceID) {
 
-		if (SDL_IsGameController (deviceID)) {
+		if (!SDL_IsGameController(deviceID))
+			return false;
 
-			SDL_GameController *gameController = SDL_GameControllerOpen (deviceID);
+		SDL_GameController* controller = SDL_GameControllerOpen(deviceID);
+		if (!controller)
+			return false;
 
-			if (gameController) {
-
-				SDL_Joystick *joystick = SDL_GameControllerGetJoystick (gameController);
-				int id = SDL_JoystickInstanceID (joystick);
-
-				gameControllers[id] = gameController;
-				gameControllerIDs[deviceID] = id;
-
-				return true;
-
-			}
-
+		SDL_Joystick* joystick = SDL_GameControllerGetJoystick(controller);
+		if (!joystick) {
+			SDL_GameControllerClose(controller);
+			return false;
 		}
 
-		return false;
+		int instanceID = SDL_JoystickInstanceID(joystick);
+		if (instanceID < 0) {
+			SDL_GameControllerClose(controller);
+			return false;
+		}
+
+		auto existing = gameControllers.find(instanceID);
+		if (existing != gameControllers.end()) {
+			SDL_GameControllerClose(existing->second);
+			gameControllers.erase(existing);
+		}
+
+		gameControllers[instanceID] = controller;
+		deviceToInstanceID[deviceID] = instanceID;
+
+		return true;
 
 	}
 
 
-	bool SDLGamepad::Disconnect (int id) {
+	bool SDLGamepad::Disconnect (int instanceID) {
 
-		if (gameControllers.find (id) != gameControllers.end ()) {
+		auto it = gameControllers.find(instanceID);
+		if (it == gameControllers.end())
+			return false;
 
-			SDL_GameController *gameController = gameControllers[id];
-			SDL_GameControllerClose (gameController);
-			gameControllers.erase (id);
+		SDL_GameController* controller = it->second;
+		SDL_GameControllerClose(controller);
+		gameControllers.erase(it);
 
-			return true;
-
+		for (auto devIt = deviceToInstanceID.begin(); devIt != deviceToInstanceID.end(); ) {
+			if (devIt->second == instanceID)
+				devIt = deviceToInstanceID.erase(devIt);
+			else
+				++devIt;
 		}
 
-		return false;
+		return true;
 
 	}
 
 
-	int SDLGamepad::GetInstanceID (int deviceID) {
+	int SDLGamepad::GetInstanceID (int deviceIndex) {
 
-		return gameControllerIDs[deviceID];
+		auto it = deviceToInstanceID.find(deviceIndex);
+		if (it == deviceToInstanceID.end())
+			return -1;
+
+		return it->second;
 
 	}
 
 
 	void Gamepad::AddMapping (const char* content) {
 
-		SDL_GameControllerAddMapping (content);
+		int result = SDL_GameControllerAddMapping (content);
+		(void)result;
 
 	}
 
 
-	const char* Gamepad::GetDeviceGUID (int id) {
+	std::string Gamepad::GetDeviceGUID (int instanceID) {
 
-		SDL_Joystick* joystick = SDL_GameControllerGetJoystick (gameControllers[id]);
+		auto it = gameControllers.find(instanceID);
+		if (it == gameControllers.end())
+			return {};
 
-		if (joystick) {
+		SDL_Joystick* joystick = SDL_GameControllerGetJoystick(it->second);
+		if (!joystick)
+			return {};
 
-			char* guid = new char[64];
-			SDL_JoystickGetGUIDString (SDL_JoystickGetGUID (joystick), guid, 64);
-			return guid;
-
-		}
-
-		return 0;
+		char guid[64] = {};
+		SDL_JoystickGetGUIDString (SDL_JoystickGetGUID(joystick), guid, sizeof(guid));
+		return std::string(guid);
 
 	}
 
 
-	const char* Gamepad::GetDeviceName (int id) {
+	std::string Gamepad::GetDeviceName (int instanceID) {
 
-		return SDL_GameControllerName (gameControllers[id]);
+		auto it = gameControllers.find(instanceID);
+		if (it == gameControllers.end())
+			return {};
+
+		const char* name = SDL_GameControllerName(it->second);
+		return name ? std::string(name) : std::string{};
 
 	}
 

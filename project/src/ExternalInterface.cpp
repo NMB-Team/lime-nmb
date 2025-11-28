@@ -1648,55 +1648,41 @@ namespace lime {
 	}
 
 
-	value lime_gamepad_get_device_guid (int id) {
+	value lime_gamepad_get_device_guid(int id) {
 
-		const char* guid = Gamepad::GetDeviceGUID (id);
+		std::string guid = Gamepad::GetDeviceGUID(id);
 
-		if (guid) {
-
-			value result = alloc_string (guid);
-			delete guid;
-			return result;
-
-		} else {
-
-			return alloc_null ();
-
-		}
+		if (!guid.empty())
+			return alloc_string(guid.c_str());
+		else
+			return alloc_null();
 
 	}
-
 
 	HL_PRIM vbyte* HL_NAME(hl_gamepad_get_device_guid) (int id) {
 
-		const char* guid = Gamepad::GetDeviceGUID (id);
-
-		if (guid) {
-
-			return (vbyte*)guid;
-
-		} else {
-
-			return 0;
-
-		}
+		static thread_local std::string cache;
+		cache = Gamepad::GetDeviceGUID(id);
+		return cache.empty() ? nullptr : (vbyte*)cache.c_str();
 
 	}
 
 
-	value lime_gamepad_get_device_name (int id) {
+	value lime_gamepad_get_device_name(int id) {
 
-		const char* name = Gamepad::GetDeviceName (id);
-		return name ? alloc_string (name) : alloc_null ();
+		std::string name = Gamepad::GetDeviceName(id);
+		return name.empty() ? alloc_null() : alloc_string(name.c_str());
 
 	}
-
 
 	HL_PRIM vbyte* HL_NAME(hl_gamepad_get_device_name) (int id) {
 
-		return (vbyte*)Gamepad::GetDeviceName (id);
+		static thread_local std::string cache;
+		cache = Gamepad::GetDeviceName(id);
+		return cache.empty() ? nullptr : (vbyte*)cache.c_str();
 
 	}
+
 
 
 	value lime_gzip_compress (value buffer, value bytes) {
