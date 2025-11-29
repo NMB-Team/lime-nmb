@@ -26,7 +26,10 @@ class NativeAudioSource
 	#end
 	private static var STREAM_TIMER_FREQUENCY = 100;
 
+	#if lime_openalsoft
+	private static var hasDirectChannelsExt:Null<Bool>;
 	private static var hasALSoftLatencyExt:Null<Bool>;
+	#end
 
 	private var buffers:Array<ALBuffer>;
 	private var bufferTimeBlocks:Array<Float>;
@@ -73,10 +76,13 @@ class NativeAudioSource
 
 	public function init():Void
 	{
+		#if lime_openalsoft
 		if (hasALSoftLatencyExt == null)
 		{
 			hasALSoftLatencyExt = AL.isExtensionPresent("AL_SOFT_source_latency");
 		}
+		#end
+
 		dataLength = 0;
 		format = 0;
 
@@ -123,6 +129,9 @@ class NativeAudioSource
 			}
 
 			handle = AL.createSource();
+
+			setDirectChannelsExt();
+
 			samples = cast Int64.toInt(pcmTotal);
 		}
 		else
@@ -144,8 +153,24 @@ class NativeAudioSource
 			{
 				AL.sourcei(handle, AL.BUFFER, parent.buffer.__srcBuffer);
 			}
+
+			setDirectChannelsExt();
+
 			samples = (cast(dataLength, Float) * 8.0) / (cast(parent.buffer.channels, Float) * cast(parent.buffer.bitsPerSample, Float));
 		}
+	}
+
+	private function setDirectChannelsExt():Void {
+		#if lime_openalsoft
+		if (hasDirectChannelsExt == null) {
+			hasDirectChannelsExt = AL.isExtensionPresent("AL_soft_direct_channels")
+				&& AL.isExtensionPresent("AL_soft_direct_channels_remix");
+		}
+
+		if (hasDirectChannelsExt) {
+			AL.sourcei(handle, AL.DIRECT_CHANNELS_SOFT, AL.REMIX_UNMATCHED soft);
+		}
+		#end
 	}
 
 	public function play():Void
@@ -555,6 +580,7 @@ class NativeAudioSource
 
 	public function getLatency():Float
 	{
+		#if lime_openalsoft
 		if (hasALSoftLatencyExt)
 		{
 			var offsets = AL.getSourcedvSOFT(handle, AL.SEC_OFFSET_LATENCY_SOFT, 2);
@@ -563,6 +589,7 @@ class NativeAudioSource
 				return offsets[1] * 1000;
 			}
 		}
+		#end
 
 		return 0;
 	}

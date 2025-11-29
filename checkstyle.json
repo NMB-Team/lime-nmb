@@ -252,12 +252,6 @@
 		},
 		{
 			"props": {
-				"severity": "WARNING"
-			},
-			"type": "UnusedLocalVar"
-		},
-		{
-			"props": {
 				"tokens": [",", ";"],
 				"allowTrailingComma": false
 			},
@@ -307,10 +301,6 @@
 				"severity": "IGNORE"
 			},
 			"type": "UnnecessaryConstructor"
-		},
-		{
-			"props": {},
-			"type": "UnusedLocalVar"
 		}
 	],
 	"numberOfCheckerThreads": 5

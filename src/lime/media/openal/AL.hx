@@ -232,9 +232,16 @@ class AL
 	public static inline var FILTER_LOWPASS:Int = 0x0001;
 	public static inline var FILTER_HIGHPASS:Int = 0x0002;
 	public static inline var FILTER_BANDPASS:Int = 0x0003;
+	#if lime_openalsoft
+	/* AL_SOFT_direct_channels extension */
+	public static inline var DIRECT_CHANNELS_SOFT:Int = 0x1033;
+	/* AL_SOFT_direct_channels_remix extension */
+	public static inline var DROP_UNMATCHED_SOFT:Int = 0x0001;
+	public static inline var REMIX_UNMATCHED_SOFT:Int = 0x0002;
 	/* AL_SOFT_source_latency extension */
 	public static inline var SAMPLE_OFFSET_LATENCY_SOFT = 0x1200;
 	public static inline var SEC_OFFSET_LATENCY_SOFT = 0x1201;
+	#end
 
 	public static function removeDirectFilter(source:ALSource)
 	{
