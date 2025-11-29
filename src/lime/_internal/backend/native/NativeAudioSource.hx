@@ -168,7 +168,7 @@ class NativeAudioSource
 		}
 
 		if (hasDirectChannelsExt) {
-			AL.sourcei(handle, AL.DIRECT_CHANNELS_SOFT, AL.REMIX_UNMATCHED soft);
+			AL.sourcei(handle, AL.DIRECT_CHANNELS_SOFT, AL.REMIX_UNMATCHED, soft);
 		}
 		#end
 	}
