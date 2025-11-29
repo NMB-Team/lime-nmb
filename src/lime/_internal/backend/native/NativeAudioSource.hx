@@ -163,12 +163,12 @@ class NativeAudioSource
 	private function setDirectChannelsExt():Void {
 		#if lime_openalsoft
 		if (hasDirectChannelsExt == null) {
-			hasDirectChannelsExt = AL.isExtensionPresent("AL_soft_direct_channels")
-				&& AL.isExtensionPresent("AL_soft_direct_channels_remix");
+			hasDirectChannelsExt = AL.isExtensionPresent("AL_SOFT_direct_channels")
+				&& AL.isExtensionPresent("AL_SOFT_direct_channels_remix");
 		}
 
 		if (hasDirectChannelsExt) {
-			AL.sourcei(handle, AL.DIRECT_CHANNELS_SOFT, AL.REMIX_UNMATCHED, soft);
+			AL.sourcei(handle, AL.DIRECT_CHANNELS_SOFT, AL.REMIX_UNMATCHED_SOFT);
 		}
 		#end
 	}
