@@ -1,11 +1,16 @@
 package lime.media;
 
+import lime.system.CFFI;
+import lime.app.Application;
+
 import haxe.Timer;
+
 import lime._internal.backend.native.NativeCFFI;
 import lime.media.openal.AL;
 import lime.media.openal.ALC;
 import lime.media.openal.ALContext;
 import lime.media.openal.ALDevice;
+
 #if (js && html5)
 import js.Browser;
 #end
@@ -15,30 +20,39 @@ import js.Browser;
 @:noDebug
 #end
 @:access(lime._internal.backend.native.NativeCFFI)
-class AudioManager
-{
+class AudioManager {
 	public static var context:AudioContext;
 
-	public static function init(context:AudioContext = null)
-	{
-		if (AudioManager.context == null)
-		{
-			if (context == null)
-			{
+	public static function init(context:AudioContext = null) {
+		if (AudioManager.context == null) {
+			if (context == null) {
 				AudioManager.context = new AudioContext();
 				context = AudioManager.context;
 
 				#if !lime_doc_gen
-				if (context.type == OPENAL)
-				{
+				if (context.type == OPENAL) {
 					var alc = context.openal;
 
 					var device = alc.openDevice();
-					if (device != null)
-					{
+					if (device != null) {
 						var ctx = alc.createContext(device);
 						alc.makeContextCurrent(ctx);
 						alc.processContext(ctx);
+
+						#if lime_openalsoft
+						alc.disable(AL.STOP_SOURCES_ON_DISCONNECT_SOFT);
+
+						Application.current.onUpdate.add(function(_) {
+							AudioManager.update();
+						});
+
+						alc.eventControlSOFT(3, [
+							ALC.EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT,
+							ALC.EVENT_TYPE_DEVICE_ADDED_SOFT,
+							ALC.EVENT_TYPE_DEVICE_REMOVED_SOFT
+						], true);
+						alc.eventCallbackSOFT(__deviceEventCallback);
+						#end
 					}
 				}
 				#end
@@ -48,24 +62,38 @@ class AudioManager
 
 			#if (lime_cffi && !macro && lime_openal && (ios || tvos || mac))
 			var timer = new Timer(100);
-			timer.run = function()
-			{
+			timer.run = function() {
 				NativeCFFI.lime_al_cleanup();
 			};
 			#end
 		}
 	}
 
-	public static function resume():Void
-	{
+	public static function update():Void {
+		#if (!lime_doc_gen && lime_openalsoft)
+		if (context != null && context.type == OPENAL) {
+			if (__audioDeviceChanged) {
+				var alc = context.openal;
+				var context = alc.getCurrentContext();
+				if (context != null) {
+					var device = alc.getContextsDevice(context);
+					var reopened = alc.reopenDeviceSOFT(device, null, null);
+					if (reopened) {
+						__audioDeviceChanged = false;
+					}
+				}
+			}
+		}
+		#end
+	}
+
+	public static function resume():Void {
 		#if !lime_doc_gen
-		if (context != null && context.type == OPENAL)
-		{
+		if (context != null && context.type == OPENAL) {
 			var alc = context.openal;
 			var currentContext = alc.getCurrentContext();
 
-			if (currentContext != null)
-			{
+			if (currentContext != null) {
 				var device = alc.getContextsDevice(currentContext);
 				alc.resumeDevice(device);
 				alc.processContext(currentContext);
@@ -74,22 +102,18 @@ class AudioManager
 		#end
 	}
 
-	public static function shutdown():Void
-	{
+	public static function shutdown():Void {
 		#if !lime_doc_gen
-		if (context != null && context.type == OPENAL)
-		{
+		if (context != null && context.type == OPENAL) {
 			var alc = context.openal;
 			var currentContext = alc.getCurrentContext();
 
-			if (currentContext != null)
-			{
+			if (currentContext != null) {
 				var device = alc.getContextsDevice(currentContext);
 				alc.makeContextCurrent(null);
 				alc.destroyContext(currentContext);
 
-				if (device != null)
-				{
+				if (device != null) {
 					alc.closeDevice(device);
 				}
 			}
@@ -99,25 +123,40 @@ class AudioManager
 		context = null;
 	}
 
-	public static function suspend():Void
-	{
+	public static function suspend():Void {
 		#if !lime_doc_gen
-		if (context != null && context.type == OPENAL)
-		{
+		if (context != null && context.type == OPENAL) {
 			var alc = context.openal;
 			var currentContext = alc.getCurrentContext();
 
-			if (currentContext != null)
-			{
+			if (currentContext != null) {
 				alc.suspendContext(currentContext);
 				var device = alc.getContextsDevice(currentContext);
 
-				if (device != null)
-				{
+				if (device != null) {
 					alc.pauseDevice(device);
 				}
 			}
 		}
 		#end
 	}
+
+	#if lime_openalsoft
+	@:noCompletion static var __audioDeviceChanged:Bool = false;
+
+	@:noCompletion static function __deviceEventCallback(eventType:Int, deviceType:Int, device:Dynamic #if hl, message:hl.Bytes #else, message:String #end, userParam:Dynamic):Void {
+		#if !lime_doc_gen
+		#if hl
+		var message = CFFI.stringValue(message);
+		#end
+
+		if (eventType == ALC.EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT && deviceType == ALC.PLAYBACK_DEVICE_SOFT) {
+			// We can't make any calls to OpenAL here.
+			// Let's set a flag and then reopen the device in the update() function that gets
+			// called on the main thread.
+			__audioDeviceChanged = true;
+		}
+		#end
+	}
+	#end
 }

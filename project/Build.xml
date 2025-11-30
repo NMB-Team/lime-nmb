@@ -1,7 +1,10 @@
 <xml>
 
 	<set name="PLATFORM" value="android-21" if="android" />
-	<set name="HXCPP_CPP20" value="1" />
+	<set name="HXCPP_CPP_LATEST" value="1" />
+
+	<!-- Requirement for OpenAL Soft 1.24.0+ -->
+	<setenv name="MACOSX_DEPLOYMENT_TARGET" value="10.13" if="mac" />
 
 	<include name="${HXCPP}/build-tool/BuildCommon.xml" />
 
@@ -428,6 +431,7 @@
 				<lib name="shell32.lib" />
 				<lib name="comdlg32.lib" />
 				<lib name="setupapi.lib" />
+				<lib name="avrt.lib" if ="LIME_OPENALSOFT"/>
 
 				<lib name="usp10.lib" if="LIME_HARFBUZZ" />
 				<lib name="rpcrt4.lib" if="LIME_HARFBUZZ" />

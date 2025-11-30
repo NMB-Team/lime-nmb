@@ -1,6 +1,6 @@
 <xml>
 	<set name="PLATFORM" value="android-21" if="android" />
-	<set name="HXCPP_CPP20" value="1" />
+	<set name="HXCPP_CPP_LATEST" value="1" />
 
 	<include name="${HXCPP}/build-tool/BuildCommon.xml" />
 
@@ -105,7 +105,6 @@
 		<compilerflag value="-DMBEDTLS_THREADING_C"/>
 		<compilerflag value="-DMBEDTLS_THREADING_PTHREAD" unless="windows"/>
 		<compilerflag value="-DMBEDTLS_THREADING_ALT" if="windows"/>
-		<compilerflag value="/std:c11" if="windows"/>
 
 		<file name="${HASHLINK_PATH}/libs/ssl/ssl.c" />
 	</files>

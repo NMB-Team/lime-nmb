@@ -628,5 +628,22 @@ class OpenALAudioContext
 	{
 		ALC.captureSamples(device, buffer, samples);
 	}
+
+	#if lime_openalsoft
+	public function eventControlSOFT(count:Int, events:Array<Int>, enable:Bool):Void
+	{
+		ALC.eventControlSOFT(count, events, enable);
+	}
+
+	public function eventCallbackSOFT(callback:Dynamic):Void
+	{
+		ALC.eventCallbackSOFT(callback);
+	}
+
+	public function reopenDeviceSOFT(device:ALDevice, newDeviceName:String, attributes:Array<Int>):Bool
+	{
+		return ALC.reopenDeviceSOFT(device, newDeviceName, attributes);
+	}
+	#end
 }
 #end

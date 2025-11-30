@@ -13,6 +13,7 @@ namespace lime {
 			static void AddMapping (const char* content);
 			static std::string GetDeviceGUID(int id);
 			static std::string GetDeviceName(int id);
+			static void Rumble (int id, double lowFrequencyRumble, double highFrequencyRumble, int duration);
 
 	};
 
