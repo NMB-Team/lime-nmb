@@ -142,9 +142,11 @@ namespace lime {
 
 			VARIANT vtProp;
 
-			hr = pclsObj->Get (field, 0, &vtProp, 0, 0);
-			VariantClear (&vtProp);
-			result = new std::wstring (vtProp.bstrVal, SysStringLen (vtProp.bstrVal));
+			hr = pclsObj->Get(field, 0, &vtProp, 0, 0);
+			if (SUCCEEDED(hr) && vtProp.vt == VT_BSTR && vtProp.bstrVal != nullptr) {
+				result = new std::wstring(vtProp.bstrVal, SysStringLen(vtProp.bstrVal));
+			}
+			VariantClear(&vtProp);
 
 			pclsObj->Release ();
 
@@ -162,50 +164,46 @@ namespace lime {
 
 
 	std::wstring* System::GetDeviceModel () {
-
 		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
-		return GetWMIValue (bstr_t ("SELECT * FROM Win32_ComputerSystemProduct"), L"Version");
+			return GetWMIValue(_bstr_t(L"SELECT * FROM Win32_ComputerSystemProduct"),
+							_bstr_t(L"Version"));
 		#endif
 
 		return NULL;
-
 	}
 
 
 	std::wstring* System::GetDeviceVendor () {
-
 		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
-		return GetWMIValue (bstr_t ("SELECT * FROM Win32_ComputerSystemProduct"), L"Vendor");
+			return GetWMIValue(_bstr_t(L"SELECT * FROM Win32_ComputerSystemProduct"),
+							_bstr_t(L"Vendor"));
 		#endif
 
 		return NULL;
-
 	}
 
 
 	std::wstring* System::GetPlatformLabel () {
-
 		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
-		return GetWMIValue (bstr_t ("SELECT * FROM Win32_OperatingSystem"), L"Caption");
+			return GetWMIValue(_bstr_t(L"SELECT * FROM Win32_OperatingSystem"),
+							_bstr_t(L"Caption"));
 		#endif
 
 		return NULL;
-
-	}
-
-
-	std::wstring* System::GetPlatformName () {
-
-		return NULL;
-
 	}
 
 
 	std::wstring* System::GetPlatformVersion () {
-
 		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
-		return GetWMIValue (bstr_t ("SELECT * FROM Win32_OperatingSystem"), L"Version");
+			return GetWMIValue(_bstr_t(L"SELECT * FROM Win32_OperatingSystem"),
+							_bstr_t(L"Version"));
 		#endif
+
+		return NULL;
+	}
+
+
+	std::wstring* System::GetPlatformName () {
 
 		return NULL;
 
