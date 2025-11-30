@@ -40,7 +40,7 @@
 	shallow = true
 [submodule "project/lib/harfbuzz"]
 	path = project/lib/harfbuzz
-	url = https://github.com/openfl/libharfbuzz
+	url = https://github.com/dtwotwo/libharfbuzz
 	shallow = true
 [submodule "project/lib/cairo"]
 	path = project/lib/cairo
