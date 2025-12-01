@@ -1,8 +1,7 @@
 ---
 
-<br />
 <div align="center">
-    <img src="https://github.com/openfl/lime.openfl.org/blob/master/img/logonav.png" alt="Lime"/>
+    <img src="./lime.png" alt="Lime"/>
 </div>
 
 ---
