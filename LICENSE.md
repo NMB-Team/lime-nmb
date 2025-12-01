@@ -1,7 +1,8 @@
 MIT License
 ===========
 
-Copyright (c) 2013-2023 Joshua Granick and other Lime contributors
+Copyright (c) 2013-2023 Joshua Granick and other Lime contributors <br>
+Copyright (c) 2025 [NotMyBugs Team](https://github.com/orgs/NMB-Team/people) <br>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
