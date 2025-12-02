@@ -318,6 +318,7 @@ class HTML5Window {
 				context.canvas2D = cast canvas.getContext("2d");
 				context.type = CANVAS;
 				context.version = "";
+				context.attributes.hardware = false;
 			} else {
 				#if webgl_debug
 				webgl = untyped WebGLDebugUtils.makeDebugContext(webgl);
@@ -337,6 +338,7 @@ class HTML5Window {
 
 				context.type = WEBGL;
 				context.version = isWebGL2 ? "2" : "1";
+				context.attributes.hardware = true;
 			}
 		}
 
