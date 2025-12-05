@@ -433,29 +433,31 @@ class Window
 		return __backend.readPixels(rect);
 	}
 
+	inline function boundInt(value:Int, ?min:Int, ?max:Int):Int
+	{
+		final lowerBound:Int = (min != null && value < min) ? min : value;
+		return (max != null && lowerBound > max) ? max : lowerBound;
+	}
+
 	public function resize(width:Int, height:Int):Void
 	{
-		if (width < __minWidth)
-		{
-			width = __minWidth;
-		}
-		else if (width > __maxWidth)
-		{
-			width = __maxWidth;
-		}
-		if (height < __minHeight)
-		{
-			height = __minHeight;
-		}
-		else if (height > __maxHeight)
-		{
-			height = __maxHeight;
-		}
-
-		__backend.resize(width, height);
+		width = boundInt(width, __minWidth, __maxWidth);
+		height = boundInt(height, __minHeight, __maxHeight);
 
 		__width = width;
 		__height = height;
+
+		if (!fullscreen) {
+			__backend.resize(width, height);
+			center();
+		}
+	}
+
+	public function center() {
+		final centerWindowX:Int = Math.ceil((display.currentMode.width - width) * .5);
+		final centerWindowY:Int = Math.ceil((display.currentMode.height - height) * .5);
+
+		move(centerWindowX, centerWindowY);
 	}
 
 	public function setMinSize(width:Int, height:Int):Void
