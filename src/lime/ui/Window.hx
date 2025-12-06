@@ -447,17 +447,7 @@ class Window
 		__width = width;
 		__height = height;
 
-		if (!fullscreen) {
-			__backend.resize(width, height);
-			center();
-		}
-	}
-
-	public function center() {
-		final centerWindowX:Int = Math.ceil((display.currentMode.width - width) * .5);
-		final centerWindowY:Int = Math.ceil((display.currentMode.height - height) * .5);
-
-		move(centerWindowX, centerWindowY);
+		__backend.resize(__width, __height);
 	}
 
 	public function setMinSize(width:Int, height:Int):Void
