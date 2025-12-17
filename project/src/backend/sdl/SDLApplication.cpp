@@ -58,6 +58,16 @@ namespace lime {
 		initFlags |= SDL_INIT_AUDIO;
 		#endif
 
+		#ifdef HX_WINDOWS
+		// Set the DPI awareness of this app
+		printf("Setting DPI awareness \n");
+
+		// This will make everything small and not blurry in Windows apps (Windows and HL) - without this
+		// it will always treat everything like 1x DPI and will scale the contents of the window up
+		// making it look blurry and ugly.
+		SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+		#endif
+
 		if (SDL_Init (initFlags) != 0) {
 
 			printf ("Could not initialize SDL: %s.\n", SDL_GetError ());

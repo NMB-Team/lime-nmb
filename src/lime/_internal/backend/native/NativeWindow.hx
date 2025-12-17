@@ -549,10 +549,23 @@ class NativeWindow
 						case TEXT: TEXT;
 						case WAIT: WAIT;
 						case WAIT_ARROW: WAIT_ARROW;
+						case SPINNER: SPINNER;
+						case DRAG_DROP: DRAG_DROP;
+						case DRAG_DROP_COPY: DRAG_DROP_COPY;
+						case DRAG_DROP_MOVE: DRAG_DROP_MOVE;
+						case DRAG_DROP_NONE: DRAG_DROP_NONE;
+						case RESIZE_DOPE: RESIZE_DOPE;
+						case TRANS_DIAG: TRANS_DIAG;
+						case TRANS_HORZ: TRANS_HORZ;
+						case TRANS_ROTATE: TRANS_ROTATE;
+						case TRANS_VERT: TRANS_VERT;
+						case TRANS_MOVE: TRANS_MOVE;
+						case TRANS_DIAG2: TRANS_DIAG2;
 						default: DEFAULT;
 					}
 
-					NativeCFFI.lime_window_set_cursor(handle, type);
+					if (handle != null)
+						NativeCFFI.lime_window_set_cursor(handle, type);
 			}
 			#end
 
@@ -803,6 +816,18 @@ class NativeWindow
 	var TEXT = 10;
 	var WAIT = 11;
 	var WAIT_ARROW = 12;
+	var SPINNER = 13;
+	var DRAG_DROP = 14;
+	var DRAG_DROP_COPY = 15;
+	var DRAG_DROP_MOVE = 16;
+	var DRAG_DROP_NONE = 17;
+	var RESIZE_DOPE = 18;
+	var TRANS_DIAG = 19;
+	var TRANS_HORZ = 20;
+	var TRANS_ROTATE = 21;
+	var TRANS_VERT = 22;
+	var TRANS_MOVE = 23;
+	var TRANS_DIAG2 = 24;
 }
 
 #if (haxe_ver >= 4.0) enum #else @:enum #end abstract WindowFlags(Int)

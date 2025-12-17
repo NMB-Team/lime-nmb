@@ -208,18 +208,18 @@ import lime.system.System;
 class Timer {
 	private static var sRunningTimers:Array<Timer> = [];
 
-	private var mTime:Float;
+	private var mTime:Int;
 	private var mFireAt:Float;
 	private var mRunning:Bool;
 
-	public function new(time:Float) {
+	public function new(time:Int) {
 		mTime = time;
 		sRunningTimers.push(this);
 		mFireAt = getMS() + mTime;
 		mRunning = true;
 	}
 
-	public static function delay(f:Void -> Void, time:Float) {
+	public static function delay(f:Void -> Void, time:Int) {
 		final t = new Timer(time);
 
 		t.run = () -> {
