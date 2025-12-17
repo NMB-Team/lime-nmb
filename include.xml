@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension>
 
-	<log error="Lime ${lime} is not compatible with Haxe ${haxe} (version 3.2.0 or higher is required)" if="${haxe < 3.2.0}" />
-
-	<log error="Lime ${lime} requires Haxe 4 to target HashLink (version ${haxe} found)" if="hl ${${haxe} < 4.0}" />
+	<log error="Lime-nmb is not compatible with Haxe ${haxe} (version 4.3 or higher is required)" if="${haxe < 4.3.0}" />
 
 	<set name="lime" />
 
@@ -219,5 +217,8 @@
 		</config:project>
 
 	</section>
+
+	<haxeflag name="--macro" value="lime._internal.macros.DefineMacro.run()" />
+	<haxeflag name="--macro" value="haxe.macro.Compiler.addMetadata('@:autoBuild(lime._internal.macros.AssetsMacro.embedBytes())', 'haxe.io.Bytes')" />
 
 </extension>
