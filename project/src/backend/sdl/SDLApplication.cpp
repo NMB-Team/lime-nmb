@@ -60,7 +60,7 @@ namespace lime {
 
 		#ifdef HX_WINDOWS
 		// Set the DPI awareness of this app
-		printf("Setting DPI awareness \n");
+		// printf("Setting DPI awareness \n");
 
 		// This will make everything small and not blurry in Windows apps (Windows and HL) - without this
 		// it will always treat everything like 1x DPI and will scale the contents of the window up
