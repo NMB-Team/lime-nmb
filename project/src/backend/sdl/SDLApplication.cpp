@@ -937,7 +937,7 @@ namespace lime {
 				}
 			}
 
-			lastUpdate    = currentUpdate;
+			lastUpdate = currentUpdate;
 			currentUpdate = now;
 
 			PushUpdate();
@@ -946,7 +946,7 @@ namespace lime {
 
 		static bool firstFrame = true;
 		static double nextFrameTimeMs = 0.0;
-		const double  maxFrameTime = framePeriod * 4.0;
+		const double maxFrameTime = 100.0;
 
 		if (firstFrame) {
 			firstFrame = false;
@@ -982,7 +982,7 @@ namespace lime {
 		if (dt > maxFrameTime)
 			dt = maxFrameTime;
 
-		lastUpdate    = currentUpdate;
+		lastUpdate = currentUpdate;
 		currentUpdate = currentUpdate + dt;
 
 		PushUpdate();
