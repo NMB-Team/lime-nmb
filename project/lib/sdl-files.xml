@@ -112,6 +112,7 @@
 
 		<section if="windows">
 
+			<compilerflag value="-DHAVE_STRTOULL" />
 			<compilerflag value="-DNATIVE_TOOLKIT_SDL_ANGLE" if="NATIVE_TOOLKIT_SDL_ANGLE" />
 			<compilerflag value="-DNATIVE_TOOLKIT_STATIC_ANGLE" if="NATIVE_TOOLKIT_STATIC_ANGLE" />
 			<compilerflag value="-DSDL_VIDEO_STATIC_ANGLE" if="NATIVE_TOOLKIT_STATIC_ANGLE" />
@@ -483,6 +484,7 @@
 			<file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/direct3d11/SDL_render_d3d11.c" />
 			<file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/direct3d12/SDL_render_d3d12.c" />
 			<file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/SDL_d3dmath.c" />
+			<file name="${NATIVE_TOOLKIT_PATH}/sdl/src/sensor/windows/SDL_windowssensor.c" />
 			<file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/generic/SDL_syscond.c" />
 			<file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/windows/SDL_sysmutex.c" />
 			<file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/windows/SDL_syssem.c" />
