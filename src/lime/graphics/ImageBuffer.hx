@@ -218,4 +218,34 @@ class ImageBuffer
 	{
 		return width * Std.int(bitsPerPixel * .125);
 	}
+
+	/**
+		Disposes of this `ImageBuffer` and releases its resources.
+
+		After calling this method, the `ImageBuffer` should no longer be used.
+	**/
+	public function dispose():Void
+	{
+		#if (js && html5)
+		if (__srcCanvas != null)
+		{
+			// Setting width/height to 0 releases GPU memory
+			__srcCanvas.width = 0;
+			__srcCanvas.height = 0;
+			__srcCanvas = null;
+		}
+		__srcContext = null;
+		__srcImageData = null;
+		__srcImage = null;
+		#elseif flash
+		if (__srcBitmapData != null)
+		{
+			__srcBitmapData.dispose();
+			__srcBitmapData = null;
+		}
+		#else
+		__srcCustom = null;
+		#end
+		data = null;
+	}
 }

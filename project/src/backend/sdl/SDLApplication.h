@@ -60,20 +60,19 @@ namespace lime {
 			static SDLApplication* currentApplication;
 
 			bool active;
+			bool firstFrame;
 			ApplicationEvent applicationEvent;
 			ClipboardEvent clipboardEvent;
-			int64_t currentUpdate;
-			int64_t framePeriod;
+			double currentUpdate;
+			double framePeriod;
+			double nextFrameTime;
 			Uint32 initFlags;
 			DropEvent dropEvent;
 			GamepadEvent gamepadEvent;
 			JoystickEvent joystickEvent;
 			KeyEvent keyEvent;
 			double lastUpdate;
-
 			MouseEvent mouseEvent;
-			double nextUpdate;
-
 			RenderEvent renderEvent;
 			SensorEvent sensorEvent;
 			TextEvent textEvent;

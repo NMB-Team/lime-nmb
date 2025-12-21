@@ -290,6 +290,20 @@ class Image
 	}
 
 	/**
+		Disposes of this `Image` and releases its resources.
+
+		After calling this method, the `Image` should no longer be used.
+	**/
+	public function dispose():Void
+	{
+		if (buffer != null)
+		{
+			buffer.dispose();
+			buffer = null;
+		}
+	}
+
+	/**
 		Creates a duplicate copy of this `Image` and `ImageBuffer`
 		@return	A new `Image` instance
 	**/

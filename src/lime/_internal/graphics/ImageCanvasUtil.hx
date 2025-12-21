@@ -133,13 +133,14 @@ class ImageCanvasUtil
 			return;
 		}
 
+		var tempData:Image = null;
 		if (alphaImage != null && alphaImage.transparent)
 		{
 			if (alphaPoint == null) alphaPoint = new Vector2();
 
 			// TODO: use faster method
 
-			var tempData = sourceImage.clone();
+			tempData = sourceImage.clone();
 			tempData.copyChannel(alphaImage, new Rectangle(sourceRect.x + alphaPoint.x, sourceRect.y + alphaPoint.y, sourceRect.width, sourceRect.height),
 				new Vector2(sourceRect.x, sourceRect.y), ImageChannel.ALPHA, ImageChannel.ALPHA);
 			sourceImage = tempData;
@@ -172,6 +173,9 @@ class ImageCanvasUtil
 				Std.int(destPoint.y + image.offsetY), Std.int(sourceRect.width), Std.int(sourceRect.height));
 		}
 
+		if (tempData != null)
+			tempData.dispose();
+
 		image.dirty = true;
 		image.version++;
 	}
@@ -194,6 +198,20 @@ class ImageCanvasUtil
 
 			buffer.__srcContext = buffer.__srcCanvas.getContext("2d", {alpha: image.transparent, willReadFrequently: image.willReadFrequently});
 		}
+		#end
+	}
+
+	public static function disposeCanvas(buffer:ImageBuffer):Void
+	{
+		#if (js && html5)
+		if (buffer.__srcCanvas != null)
+		{
+			buffer.__srcCanvas.width = 0;
+			buffer.__srcCanvas.height = 0;
+			buffer.__srcCanvas = null;
+		}
+		buffer.__srcContext = null;
+		buffer.__srcImageData = null;
 		#end
 	}
 
@@ -303,6 +321,7 @@ class ImageCanvasUtil
 
 	public static function resize(image:Image, newWidth:Int, newHeight:Int):Void
 	{
+		#if (js && html5)
 		var buffer = image.buffer;
 
 		if (buffer.__srcCanvas == null)
@@ -315,8 +334,12 @@ class ImageCanvasUtil
 			convertToCanvas(image, true);
 			var sourceCanvas = buffer.__srcCanvas;
 			buffer.__srcCanvas = null;
+			buffer.__srcContext = null;
 			createCanvas(image, newWidth, newHeight);
 			buffer.__srcContext.drawImage(sourceCanvas, 0, 0, newWidth, newHeight);
+
+			sourceCanvas.width = 0;
+			sourceCanvas.height = 0;
 		}
 
 		buffer.__srcImageData = null;
@@ -324,6 +347,7 @@ class ImageCanvasUtil
 
 		image.dirty = true;
 		image.version++;
+		#end
 	}
 
 	public static function scroll(image:Image, x:Int, y:Int):Void
@@ -336,6 +360,8 @@ class ImageCanvasUtil
 
 		image.buffer.__srcContext.clearRect(x, y, image.width, image.height);
 		image.buffer.__srcContext.drawImage(copy.src, x, y);
+
+		copy.dispose();
 
 		image.dirty = true;
 		image.version++;

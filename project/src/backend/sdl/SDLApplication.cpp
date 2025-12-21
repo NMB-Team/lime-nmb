@@ -2,8 +2,6 @@
 #include "SDLGamepad.h"
 #include "SDLJoystick.h"
 #include <system/System.h>
-#include <thread>
-#include <cmath>
 
 #ifdef HX_MACOS
 #include <CoreFoundation/CoreFoundation.h>
@@ -12,24 +10,6 @@
 #ifdef EMSCRIPTEN
 #include "emscripten.h"
 #endif
-
-
-#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
-	#if defined(_MSC_VER)
-		#include <immintrin.h> // _mm_pause
-	#elif defined(__GNUC__) || defined(__clang__)
-		#include <x86intrin.h> // _mm_pause
-	#endif
-#endif
-
-
-inline void cpu_relax() noexcept {
-	#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
-		_mm_pause(); // x86 PAUSE instruction
-	#else
-		std::this_thread::yield(); // fallback
-	#endif
-}
 
 
 namespace lime {
@@ -81,23 +61,10 @@ namespace lime {
 		currentApplication = this;
 
 		framePeriod = 0.0;
-
+		firstFrame = true;
 		currentUpdate = 0.0;
-		lastUpdate    = 0.0;
-		nextUpdate    = 0.0;
-
-		ApplicationEvent applicationEvent;
-		ClipboardEvent clipboardEvent;
-		DropEvent dropEvent;
-		GamepadEvent gamepadEvent;
-		JoystickEvent joystickEvent;
-		KeyEvent keyEvent;
-		MouseEvent mouseEvent;
-		RenderEvent renderEvent;
-		SensorEvent sensorEvent;
-		TextEvent textEvent;
-		TouchEvent touchEvent;
-		WindowEvent windowEvent;
+		lastUpdate = 0.0;
+		nextFrameTime = 0.0;
 
 		#if defined(ANDROID) || defined (IPHONE)
 			SDL_EventState (SDL_SENSORUPDATE, SDL_ENABLE);
@@ -494,14 +461,13 @@ namespace lime {
 
 					break;
 
-				case SDL_CONTROLLERDEVICEREMOVED: {
+				case SDL_CONTROLLERDEVICEREMOVED:
 					gamepadEvent.type = GAMEPAD_DISCONNECT;
 					gamepadEvent.id = event->cdevice.which;
 					GamepadEvent::Dispatch (&gamepadEvent);
 					SDLGamepad::Disconnect (event->cdevice.which);
+					gamepadsAxisMap.erase (event->cdevice.which);
 					break;
-
-				}
 
 			}
 
@@ -922,75 +888,54 @@ namespace lime {
 
 
 	bool SDLApplication::Update () {
-		const double now = GetTimeMs();
+		SDL_Event event;
 
 		if (framePeriod <= 0.0) {
-			SDL_Event event;
-
 			if (SDL_WaitEvent(&event)) {
 				HandleEvent(&event);
-				if (!active) return false;
-
-				while (SDL_PollEvent(&event)) {
+				while (active && SDL_PollEvent(&event)) {
 					HandleEvent(&event);
-					if (!active) return false;
 				}
 			}
 
-			lastUpdate = currentUpdate;
-			currentUpdate = now;
-
-			PushUpdate();
+			if (active) {
+				lastUpdate = currentUpdate;
+				currentUpdate = GetTimeMs();
+				PushUpdate();
+			}
 			return active;
 		}
 
-		static bool firstFrame = true;
-		static double nextFrameTimeMs = 0.0;
-		const double maxFrameTime = 100.0;
+		const double now = GetTimeMs();
 
 		if (firstFrame) {
 			firstFrame = false;
-			nextFrameTimeMs = now;
+			nextFrameTime = now;
 		}
-
-		SDL_Event event;
 
 		while (SDL_PollEvent(&event)) {
 			HandleEvent(&event);
 			if (!active) return false;
 		}
 
-		if (now < nextFrameTimeMs) {
-			double remaining = nextFrameTimeMs - now;
-			Uint32 timeout = static_cast<Uint32>(remaining);
-			if (timeout < 1u) timeout = 1u;
-
-			if (SDL_WaitEventTimeout(&event, timeout)) {
+		if (now < nextFrameTime) {
+			const int timeout = static_cast<int>(nextFrameTime - now);
+			if (timeout > 0 && SDL_WaitEventTimeout(&event, timeout)) {
 				HandleEvent(&event);
-				if (!active) return false;
-
-				while (SDL_PollEvent(&event)) {
+				while (active && SDL_PollEvent(&event)) {
 					HandleEvent(&event);
-					if (!active) return false;
 				}
 			}
-
 			return active;
 		}
 
-		double dt = now - currentUpdate;
-		if (dt > maxFrameTime)
-			dt = maxFrameTime;
-
 		lastUpdate = currentUpdate;
-		currentUpdate = currentUpdate + dt;
-
+		currentUpdate = now;
 		PushUpdate();
 
-		nextFrameTimeMs += framePeriod;
-
-		if (now - nextFrameTimeMs > maxFrameTime)
-			nextFrameTimeMs = now;
+		nextFrameTime += framePeriod;
+		if (now - nextFrameTime > framePeriod * 2.0)
+			nextFrameTime = now;
 
 		return active;
 	}
