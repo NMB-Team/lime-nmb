@@ -93,10 +93,15 @@ namespace lime {
 
 		int stride = Stride ();
 
-		if (!this->data)
-			this->data = new ArrayBufferView (alloc_null ());
+		if (!this->data) {
 
-		this->data->Resize (height * stride);
+			//this->data = new ArrayBufferView (height * stride);
+
+		} else {
+
+			this->data->Resize (height * stride);
+
+		}
 
 	}
 

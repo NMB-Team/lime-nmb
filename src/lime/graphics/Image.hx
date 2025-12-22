@@ -1406,17 +1406,6 @@ class Image
 		return 0;
 	}
 
-	/**
-		Sets the maximum supported texture size for automatic downscaling when loading images.
-		This should be called when the OpenGL context is initialized.
-		@param	size	The maximum texture size (e.g. 16384). Pass 0 to disable downscaling.
-	**/
-	public static function setMaxTextureSize(size:Int):Void {
-		#if (lime_cffi && !macro)
-		NativeCFFI.lime_image_set_max_texture_size(size);
-		#end
-	}
-
 	@:noCompletion private function __clipRect(r:Rectangle):Rectangle
 	{
 		if (r == null) return null;

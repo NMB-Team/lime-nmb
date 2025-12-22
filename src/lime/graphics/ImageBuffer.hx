@@ -79,8 +79,6 @@ class ImageBuffer
 	**/
 	public var width:Int;
 
-	public var imageScale:Float = 1.0;
-
 	@:noCompletion private var __srcBitmapData:Dynamic;
 	@:noCompletion private var __srcCanvas:#if (js && html5) CanvasElement #else Dynamic #end;
 	@:noCompletion private var __srcContext:#if (js && html5) CanvasRenderingContext2D #else Dynamic #end;
