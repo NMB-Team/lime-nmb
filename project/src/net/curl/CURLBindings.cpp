@@ -58,6 +58,21 @@ namespace lime {
 	Mutex curl_gc_mutex;
 
 
+	void free_header_values (const std::vector<char*>* values) {
+
+		if (values) {
+
+			for (auto it = values->begin (); it != values->end (); ++it) {
+
+				free (*it);
+
+			}
+
+		}
+
+	}
+
+
 	void gc_curl (value handle) {
 
 		if (!val_is_null (handle)) {
@@ -121,6 +136,7 @@ namespace lime {
 				std::vector<char*>* values = headerValues[handle];
 				headerCallbacks.erase (handle);
 				headerValues.erase (handle);
+				free_header_values (values);
 				delete callback;
 				delete values;
 
@@ -254,6 +270,7 @@ namespace lime {
 				std::vector<char*>* values = headerValues[handle];
 				headerCallbacks.erase (handle);
 				headerValues.erase (handle);
+				free_header_values (values);
 				delete callback;
 				delete values;
 
@@ -581,6 +598,7 @@ namespace lime {
 
 				}
 
+				free_header_values (values);
 				values->clear ();
 
 			}
@@ -688,6 +706,7 @@ namespace lime {
 
 				}
 
+				free_header_values (values);
 				values->clear ();
 
 			}
@@ -1071,6 +1090,11 @@ namespace lime {
 		writeBufferPosition[handle] = 0;
 		writeBufferSize[handle] = 0;
 
+		CURLcode setopt_result = curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
+		if(setopt_result != CURLE_OK) {
+			printf("Failed to set CURLOPT_ACCEPT_ENCODING: %s\n", curl_easy_strerror(setopt_result));
+		}
+
 		curl_gc_mutex.Unlock ();
 
 		return handle;
@@ -1121,6 +1145,11 @@ namespace lime {
 		writeBuffers[handle] = NULL;
 		writeBufferPosition[handle] = 0;
 		writeBufferSize[handle] = 0;
+
+		CURLcode setopt_result = curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
+		if(setopt_result != CURLE_OK) {
+			printf("Failed to set CURLOPT_ACCEPT_ENCODING: %s\n", curl_easy_strerror(setopt_result));
+		}
 
 		curl_gc_mutex.Unlock ();
 
@@ -1678,8 +1707,9 @@ namespace lime {
 			{
 				curl_gc_mutex.Lock ();
 
-				if (headerCallbacks.find (handle) == headerCallbacks.end ()) {
+				if (headerCallbacks.find (handle) != headerCallbacks.end ()) {
 
+					free_header_values (headerValues[handle]);
 					delete headerCallbacks[handle];
 					delete headerValues[handle];
 
@@ -2105,8 +2135,9 @@ namespace lime {
 			{
 				curl_gc_mutex.Lock ();
 
-				if (headerCallbacks.find (handle) == headerCallbacks.end ()) {
+				if (headerCallbacks.find (handle) != headerCallbacks.end ()) {
 
+					free_header_values (headerValues[handle]);
 					delete headerCallbacks[handle];
 					delete headerValues[handle];
 
