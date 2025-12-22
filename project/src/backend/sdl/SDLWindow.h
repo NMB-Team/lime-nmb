@@ -1,85 +1,80 @@
 #ifndef LIME_SDL_WINDOW_H
 #define LIME_SDL_WINDOW_H
 
-
 #include <SDL_syswm.h>
 #include <SDL.h>
 #include <graphics/ImageBuffer.h>
 #include <ui/Cursor.h>
 #include <ui/Window.h>
 
-
 namespace lime {
 
-
 	class SDLWindow : public Window {
-
 		public:
+			SDLWindow(Application* application, int width, int height, int flags, const char* title);
+			~SDLWindow();
 
-			SDLWindow (Application* application, int width, int height, int flags, const char* title);
-			~SDLWindow ();
+			virtual void Alert(const char* message, const char* title) override;
+			virtual void Close() override;
+			virtual void Focus() override;
+			virtual void Move(int x, int y) override;
+			virtual void Resize(int width, int height) override;
 
-			virtual void Alert (const char* message, const char* title);
-			virtual void Close ();
-			virtual void ContextFlip ();
-			virtual void* ContextLock (bool useCFFIValue);
-			virtual void ContextMakeCurrent ();
-			virtual void ContextUnlock ();
-			virtual void Focus ();
-			virtual void* GetHandle ();
-			virtual void* GetContext ();
-			virtual const char* GetContextType ();
-			// virtual Cursor GetCursor ();
-			virtual int GetDisplay ();
-			virtual void GetDisplayMode (DisplayMode* displayMode);
-			virtual int GetHeight ();
-			virtual uint32_t GetID ();
-			virtual bool GetMouseLock ();
-			virtual float GetOpacity ();
-			virtual double GetScale ();
-			virtual bool GetTextInputEnabled ();
-			virtual int GetWidth ();
-			virtual int GetX ();
-			virtual int GetY ();
-			virtual void GetMousePosition (int* x, int* y);
-			virtual void Move (int x, int y);
-			virtual void ReadPixels (ImageBuffer *buffer, Rectangle *rect);
-			virtual void Resize (int width, int height);
-			virtual void SetMinimumSize (int width, int height);
-			virtual void SetMaximumSize (int width, int height);
-			virtual bool SetBorderless (bool borderless);
-			virtual void SetCursor (Cursor cursor);
-			virtual void SetCursorDirectly (void* cursor);
-			virtual void SetDisplayMode (DisplayMode* displayMode);
-			virtual bool SetFullscreen (bool fullscreen);
-			virtual bool SetFullscreenExclusiveMode (bool exclusive);
-			virtual void SetIcon (ImageBuffer *imageBuffer);
-			virtual bool SetMaximized (bool maximized);
-			virtual bool SetMinimized (bool minimized);
-			virtual void SetMouseLock (bool mouseLock);
-			virtual void SetOpacity (float opacity);
-			virtual bool SetResizable (bool resizable);
-			virtual void SetTextInputEnabled (bool enabled);
-			virtual void SetTextInputRect (Rectangle *rect);
-			virtual const char* SetTitle (const char* title);
-			virtual bool SetVisible (bool visible);
-			virtual bool SetAlwaysOnTop (bool alwaysOnTop);
-			virtual bool SetVSync (bool vsync);
-			virtual void WarpMouse (int x, int y);
+			virtual void ContextFlip() override;
+			virtual void* ContextLock(bool useCFFIValue) override;
+			virtual void ContextMakeCurrent() override;
+			virtual void ContextUnlock() override;
+
+			virtual void* GetHandle() override;
+			virtual void* GetContext() override;
+			virtual const char* GetContextType() override;
+			virtual int GetDisplay() override;
+			virtual void GetDisplayMode(DisplayMode* displayMode) override;
+			virtual int GetHeight() override;
+			virtual uint32_t GetID() override;
+			virtual bool GetMouseLock() override;
+			virtual float GetOpacity() override;
+			virtual double GetScale() override;
+			virtual bool GetTextInputEnabled() override;
+			virtual int GetWidth() override;
+			virtual int GetX() override;
+			virtual int GetY() override;
+			virtual void GetMousePosition(int* x, int* y) override;
+
+			virtual void SetMinimumSize(int width, int height) override;
+			virtual void SetMaximumSize(int width, int height) override;
+			virtual bool SetBorderless(bool borderless) override;
+			virtual void SetCursor(Cursor cursor) override;
+			virtual void SetCursorDirectly(void* cursor) override;
+			virtual void SetDisplayMode(DisplayMode* displayMode) override;
+			virtual bool SetFullscreen(bool fullscreen) override;
+			virtual bool SetFullscreenExclusiveMode(bool exclusive) override;
+			virtual void SetIcon(ImageBuffer* imageBuffer) override;
+			virtual bool SetMaximized(bool maximized) override;
+			virtual bool SetMinimized(bool minimized) override;
+			virtual void SetMouseLock(bool mouseLock) override;
+			virtual void SetOpacity(float opacity) override;
+			virtual bool SetResizable(bool resizable) override;
+			virtual void SetTextInputEnabled(bool enabled) override;
+			virtual void SetTextInputRect(Rectangle* rect) override;
+			virtual const char* SetTitle(const char* title) override;
+			virtual bool SetVisible(bool visible) override;
+			virtual bool SetAlwaysOnTop(bool alwaysOnTop) override;
+			virtual bool SetVSync(bool vsync) override;
+			virtual void WarpMouse(int x, int y) override;
+
+			virtual void ReadPixels(ImageBuffer* buffer, Rectangle* rect) override;
+
 			SDL_Renderer* sdlRenderer;
 			SDL_Texture* sdlTexture;
 			SDL_Window* sdlWindow;
 
 		private:
-
 			SDL_GLContext context;
-			int contextHeight;
 			int contextWidth;
-
+			int contextHeight;
 	};
 
-
 }
-
 
 #endif

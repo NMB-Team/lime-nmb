@@ -1,7 +1,6 @@
 #ifndef LIME_SDL_APPLICATION_H
 #define LIME_SDL_APPLICATION_H
 
-
 #include <SDL.h>
 #include <app/Application.h>
 #include <app/ApplicationEvent.h>
@@ -18,71 +17,68 @@
 #include <ui/WindowEvent.h>
 #include "SDLWindow.h"
 
-
 namespace lime {
 
-
 	class SDLApplication : public Application {
-
 		public:
+			SDLApplication();
+			~SDLApplication();
 
-			SDLApplication ();
-			~SDLApplication ();
+			virtual int Exec() override;
+			virtual void Init() override;
+			virtual int Quit() override;
+			virtual void SetFrameRate(double frameRate) override;
+			virtual bool Update() override;
 
-			virtual int Exec ();
-			virtual void Init ();
-			virtual int Quit ();
-			virtual void SetFrameRate (double frameRate);
-			virtual bool Update ();
-
-			void RegisterWindow (SDLWindow *window);
+			void RegisterWindow(SDLWindow* window);
 
 		private:
+			void HandleEvent(SDL_Event* event);
+			void HandleWindowEvent(SDL_Event* event);
+			void ProcessClipboardEvent(SDL_Event* event);
+			void ProcessDropEvent(SDL_Event* event);
+			void ProcessGamepadEvent(SDL_Event* event);
+			void ProcessJoystickEvent(SDL_Event* event);
+			void ProcessKeyEvent(SDL_Event* event);
+			void ProcessMouseEvent(SDL_Event* event);
 
-			void HandleEvent (SDL_Event* event);
-			void ProcessClipboardEvent (SDL_Event* event);
-			void ProcessDropEvent (SDL_Event* event);
-			void ProcessGamepadEvent (SDL_Event* event);
-			void ProcessJoystickEvent (SDL_Event* event);
-			void ProcessKeyEvent (SDL_Event* event);
-			void ProcessMouseEvent (SDL_Event* event);
-			#if defined(ANDROID) || defined (IPHONE)
-			void InitializeSensors ();
-			void ProcessSensorEvent (SDL_Event* event);
+			#if defined(ANDROID) || defined(IPHONE)
+			void InitializeSensors();
+			void ProcessSensorEvent(SDL_Event* event);
 			#endif
-			void ProcessTextEvent (SDL_Event* event);
-			void ProcessTouchEvent (SDL_Event* event);
-			void ProcessWindowEvent (SDL_Event* event);
 
-			static void UpdateFrame ();
-			static void UpdateFrame (void*);
+			void ProcessTextEvent(SDL_Event* event);
+			void ProcessTouchEvent(SDL_Event* event);
+			void ProcessWindowEvent(SDL_Event* event);
+
+			static void UpdateFrame();
+			static void UpdateFrame(void*);
 
 			static SDLApplication* currentApplication;
 
 			bool active;
 			bool firstFrame;
+			Uint32 initFlags;
+
+			double framePeriod;
+			double currentUpdate;
+			double lastUpdate;
+			double nextFrameTime;
+
 			ApplicationEvent applicationEvent;
 			ClipboardEvent clipboardEvent;
-			double currentUpdate;
-			double framePeriod;
-			double nextFrameTime;
-			Uint32 initFlags;
 			DropEvent dropEvent;
 			GamepadEvent gamepadEvent;
 			JoystickEvent joystickEvent;
 			KeyEvent keyEvent;
-			double lastUpdate;
 			MouseEvent mouseEvent;
 			RenderEvent renderEvent;
 			SensorEvent sensorEvent;
 			TextEvent textEvent;
 			TouchEvent touchEvent;
 			WindowEvent windowEvent;
-
 	};
 
-
 }
-
 
 #endif
