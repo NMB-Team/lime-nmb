@@ -177,6 +177,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_image_load_file(path:Dynamic, buffer:Dynamic):Dynamic;
 
+	@:cffi private static function lime_image_set_max_texture_size(size:Int):Void;
+
 	@:cffi private static function lime_image_data_util_color_transform(image:Dynamic, rect:Dynamic, colorMatrix:Dynamic):Void;
 
 	@:cffi private static function lime_image_data_util_copy_channel(image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic,
@@ -490,6 +492,7 @@ class NativeCFFI
 		"ooo", false));
 	private static var lime_image_load_file = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_image_load_file", "ooo",
 		false));
+	private static var lime_image_set_max_texture_size = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_image_set_max_texture_size", "iv", false));
 	private static var lime_image_data_util_color_transform = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_image_data_util_color_transform", "ooov", false));
 	private static var lime_image_data_util_copy_channel = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object->Int->Int->
@@ -735,6 +738,7 @@ class NativeCFFI
 	private static var lime_image_load = CFFI.load("lime", "lime_image_load", 2);
 	private static var lime_image_load_bytes = CFFI.load("lime", "lime_image_load_bytes", 2);
 	private static var lime_image_load_file = CFFI.load("lime", "lime_image_load_file", 2);
+	private static var lime_image_set_max_texture_size = CFFI.load("lime", "lime_image_set_max_texture_size", 1);
 	private static var lime_image_data_util_color_transform = CFFI.load("lime", "lime_image_data_util_color_transform", 3);
 	private static var lime_image_data_util_copy_channel = CFFI.load("lime", "lime_image_data_util_copy_channel", -1);
 	private static var lime_image_data_util_copy_pixels = CFFI.load("lime", "lime_image_data_util_copy_pixels", -1);
@@ -1102,6 +1106,8 @@ class NativeCFFI
 	{
 		return null;
 	}
+
+	@:hlNative("lime", "hl_image_set_max_texture_size") private static function lime_image_set_max_texture_size(size:Int):Void {}
 
 	@:hlNative("lime", "hl_image_data_util_color_transform") private static function lime_image_data_util_color_transform(image:Image, rect:Rectangle,
 		colorMatrix:ArrayBufferView):Void {}

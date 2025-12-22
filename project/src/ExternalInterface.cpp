@@ -53,6 +53,8 @@
 #include <SDL.h>
 #include "SDL_mouse.h"
 
+#include "graphics/opengl/OpenGLBindings.h"
+
 #ifdef HX_WINDOWS
 #include <locale>
 #include <codecvt>
@@ -1903,26 +1905,104 @@ namespace lime {
 	}
 
 
+	static int gMaxTextureSize = 0;
+
+
+	void lime_image_set_max_texture_size (int size) {
+
+		gMaxTextureSize = size;
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_image_set_max_texture_size) (int size) {
+
+		gMaxTextureSize = size;
+
+	}
+
+
 	value lime_image_load_file (value data, value buffer) {
 
 		Resource resource = Resource (val_string (data));
 		ImageBuffer imageBuffer = ImageBuffer (buffer);
+		bool decoded = false;
 
 		#ifdef LIME_PNG
 		if (PNG::Decode (&resource, &imageBuffer)) {
 
-			return imageBuffer.Value (buffer);
+			decoded = true;
 
 		}
 		#endif
 
 		#ifdef LIME_JPEG
-		if (JPEG::Decode (&resource, &imageBuffer)) {
+		if (!decoded && JPEG::Decode (&resource, &imageBuffer)) {
 
-			return imageBuffer.Value (buffer);
+			decoded = true;
 
 		}
 		#endif
+
+		if (decoded) {
+
+			int maxTextureSize = gMaxTextureSize;
+
+			float scale = 1.0;
+
+			if (maxTextureSize > 0 && (imageBuffer.width > maxTextureSize || imageBuffer.height > maxTextureSize)) {
+
+				float scaleW = (imageBuffer.width > maxTextureSize) ? (float)maxTextureSize / imageBuffer.width : 1.0;
+				float scaleH = (imageBuffer.height > maxTextureSize) ? (float)maxTextureSize / imageBuffer.height : 1.0;
+
+				scale = (scaleW < scaleH) ? scaleW : scaleH;
+
+				int newWidth = (int)(imageBuffer.width * scale);
+				int newHeight = (int)(imageBuffer.height * scale);
+
+				Image* srcImage = new Image (alloc_empty_object ());
+
+				srcImage->width = imageBuffer.width;
+				srcImage->height = imageBuffer.height;
+
+				if (!srcImage->buffer) {
+					srcImage->buffer = new ImageBuffer (alloc_null ());
+				}
+
+				srcImage->buffer->width = imageBuffer.width;
+				srcImage->buffer->height = imageBuffer.height;
+				srcImage->buffer->bitsPerPixel = imageBuffer.bitsPerPixel;
+				srcImage->buffer->format = imageBuffer.format;
+				srcImage->buffer->premultiplied = imageBuffer.premultiplied;
+				srcImage->buffer->transparent = imageBuffer.transparent;
+
+				if (srcImage->buffer->data) {
+					delete srcImage->buffer->data;
+				}
+				srcImage->buffer->data = imageBuffer.data;
+				imageBuffer.data = 0;
+
+				ImageBuffer* destBuffer = new ImageBuffer (alloc_empty_object ());
+				destBuffer->Resize (newWidth, newHeight, imageBuffer.bitsPerPixel);
+
+				ImageDataUtil::Resize (srcImage, destBuffer, newWidth, newHeight);
+
+				imageBuffer.data = destBuffer->data;
+				destBuffer->data = 0;
+
+				imageBuffer.width = newWidth;
+				imageBuffer.height = newHeight;
+
+				delete destBuffer;
+				delete srcImage;
+
+			}
+
+			value ret = imageBuffer.Value (buffer);
+			alloc_field (ret, val_id ("imageScale"), alloc_float (scale));
+			return ret;
+
+		}
 
 		return alloc_null ();
 
@@ -4237,6 +4317,7 @@ namespace lime {
 	DEFINE_PRIME2 (lime_image_load);
 	DEFINE_PRIME2 (lime_image_load_bytes);
 	DEFINE_PRIME2 (lime_image_load_file);
+	DEFINE_PRIME1v (lime_image_set_max_texture_size);
 	DEFINE_PRIME0 (lime_jni_getenv);
 	DEFINE_PRIME2v (lime_joystick_event_manager_register);
 	DEFINE_PRIME1 (lime_joystick_get_device_guid);
@@ -4439,6 +4520,7 @@ namespace lime {
 	// DEFINE_PRIME2 (lime_image_load);
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, hl_image_load_bytes, _TBYTES _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, hl_image_load_file, _STRING _TIMAGEBUFFER);
+	DEFINE_HL_PRIM (_VOID, hl_image_set_max_texture_size, _I32);
 	DEFINE_HL_PRIM (_F64, hl_jni_getenv, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, hl_joystick_event_manager_register, _FUN(_VOID, _NO_ARG) _TJOYSTICK_EVENT);
 	DEFINE_HL_PRIM (_BYTES, hl_joystick_get_device_guid, _I32);
