@@ -301,6 +301,20 @@ class System
 		return null;
 	}
 
+	public static function getSDLVersion():String {
+		#if (lime_cffi && !macro)
+			var result:Dynamic = NativeCFFI.lime_sdl_get_version();
+
+			#if hl
+			if (result != null) return @:privateAccess String.fromUTF8(result);
+			#else
+			return Std.string(result);
+			#end
+		#end
+
+		return null;
+	}
+
 	/**
 		The number of milliseconds since the application was initialized.
 	**/

@@ -388,6 +388,8 @@ class NativeCFFI
 	@:cffi private static function lime_zlib_compress(data:Dynamic, bytes:Dynamic):Dynamic;
 
 	@:cffi private static function lime_zlib_decompress(data:Dynamic, bytes:Dynamic):Dynamic;
+
+	@:cffi private static function lime_sdl_get_version():Dynamic;
 	#else
 	private static var lime_application_create = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_application_create", "o", false));
 	private static var lime_application_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
@@ -671,6 +673,7 @@ class NativeCFFI
 		false));
 	private static var lime_zlib_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_zlib_decompress", "ooo",
 		false));
+	private static var lime_sdl_get_version = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_sdl_get_version", "o", false));
 	#end
 	#end
 	#if (neko || cppia)
@@ -839,6 +842,7 @@ class NativeCFFI
 	private static var lime_window_event_manager_register = CFFI.load("lime", "lime_window_event_manager_register", 2);
 	private static var lime_zlib_compress = CFFI.load("lime", "lime_zlib_compress", 2);
 	private static var lime_zlib_decompress = CFFI.load("lime", "lime_zlib_decompress", 2);
+	private static var lime_sdl_get_version = CFFI.load("lime", "lime_sdl_get_version", 0);
 	#end
 
 	#if hl
@@ -1518,6 +1522,11 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_zlib_decompress") private static function lime_zlib_decompress(data:Bytes, bytes:Bytes):Bytes
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_sdl_get_version") private static function lime_sdl_get_version():Bytes
 	{
 		return null;
 	}

@@ -4163,6 +4163,35 @@ namespace lime {
 	}
 
 
+	value lime_sdl_get_version () {
+
+		SDL_version v;
+		SDL_GetVersion (&v);
+
+		char buffer[64];
+		sprintf (buffer, "%d.%d.%d", v.major, v.minor, v.patch);
+
+		return alloc_string (buffer);
+
+	}
+
+	HL_PRIM vbyte* HL_NAME(hl_sdl_get_version) () {
+
+		SDL_version v;
+		SDL_GetVersion (&v);
+
+		char buffer[64];
+		sprintf (buffer, "%d.%d.%d", v.major, v.minor, v.patch);
+
+		int size = strlen (buffer);
+		char* result = (char*)malloc (size + 1);
+		strcpy (result, buffer);
+
+		return (vbyte*)result;
+
+	}
+
+
 	DEFINE_PRIME0 (lime_application_create);
 	DEFINE_PRIME2v (lime_application_event_manager_register);
 	DEFINE_PRIME1 (lime_application_exec);
@@ -4333,6 +4362,7 @@ namespace lime {
 	DEFINE_PRIME2v (lime_window_set_opacity);
 	DEFINE_PRIME2 (lime_zlib_compress);
 	DEFINE_PRIME2 (lime_zlib_decompress);
+	DEFINE_PRIME0 (lime_sdl_get_version);
 
 
 	#define _ENUM "?"
@@ -4535,6 +4565,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_set_opacity, _TCFFIPOINTER _F64);
 	DEFINE_HL_PRIM (_TBYTES, hl_zlib_compress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_zlib_decompress, _TBYTES _TBYTES);
+	DEFINE_HL_PRIM (_BYTES, hl_sdl_get_version, _NO_ARG);
 
 
 }
