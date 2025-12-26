@@ -1526,7 +1526,7 @@ class NativeCFFI
 		return null;
 	}
 
-	@:hlNative("lime", "hl_sdl_get_version") private static function lime_sdl_get_version():Bytes
+	@:hlNative("lime", "hl_sdl_get_version") private static function lime_sdl_get_version():hl.Bytes
 	{
 		return null;
 	}
