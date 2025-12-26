@@ -302,7 +302,7 @@ class System
 	}
 
 	public static function getSDLVersion():String {
-		#if (lime_cffi && !macro)
+		#if (lime_cffi && !macro && desktop)
 			var result:Dynamic = NativeCFFI.lime_sdl_get_version();
 
 			#if hl
