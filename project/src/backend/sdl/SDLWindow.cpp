@@ -248,7 +248,7 @@ namespace lime {
 
 				int versionm = 0;
 				glGetIntegerv(GL_MINOR_VERSION, &versionm);
-				printf("GL Version %i.%i\n", version, versionm);
+				// printf("GL Version %i.%i\n", version, versionm);
 
 				if (version == 0) {
 					float versionScan = 0;
