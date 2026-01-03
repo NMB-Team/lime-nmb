@@ -3576,7 +3576,7 @@ namespace lime {
 		while (*result != '\0') {
 
 			int length = strlen (result) + 1;
-			char* _result = (char*)malloc (length);
+			char* _result = (char*)hl_alloc_bytes (length);
 			strcpy (_result, result);
 
 			*listData = (vbyte*)_result;

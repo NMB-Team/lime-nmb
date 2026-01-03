@@ -13,6 +13,11 @@
 #include "emscripten.h"
 #endif
 
+#ifdef LIME_SDL_SOUND
+#include "media/SDLSound.h"
+#include "SDL_sound.h"
+#endif
+
 namespace lime {
 
 	AutoGCRoot* Application::callback = nullptr;
@@ -66,6 +71,10 @@ namespace lime {
 			printf("Could not initialize SDL: %s.\n", SDL_GetError());
 			return;
 		}
+
+		#ifdef LIME_SDL_SOUND
+		Sound_Init();
+		#endif
 
 		if (!performanceInitialized) {
 			performanceFrequency = static_cast<double>(SDL_GetPerformanceFrequency());
@@ -650,6 +659,10 @@ namespace lime {
 	int SDLApplication::Quit() {
 		applicationEvent.type = EXIT;
 		ApplicationEvent::Dispatch(&applicationEvent);
+
+		#ifdef LIME_SDL_SOUND
+		Sound_Quit();
+		#endif
 
 		SDL_QuitSubSystem(initFlags);
 		SDL_Quit();
