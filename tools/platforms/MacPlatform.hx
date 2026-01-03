@@ -127,7 +127,7 @@ class MacPlatform extends PlatformTarget
 		else if (project.targetFlags.exists("hl"))
 		{
 			targetType = "hl";
-						var hlVer = project.haxedefs.get("hl-ver");
+			var hlVer = project.haxedefs.get("hl-ver");
 			if (hlVer == null)
 			{
 				var hlPath = project.defines.get("HL_PATH");
