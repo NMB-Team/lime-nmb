@@ -3459,7 +3459,7 @@ namespace lime {
 		ALCdevice* alcDevice = device ? (ALCdevice*)device->ptr : NULL;
 		const char* result = alcGetString (alcDevice, param);
 		int length = strlen (result);
-		char* _result = (char*)malloc (length + 1);
+		char* _result = (char*)hl_alloc_bytes (length + 1);
 		strcpy (_result, result);
 		return (vbyte*)_result;
 
