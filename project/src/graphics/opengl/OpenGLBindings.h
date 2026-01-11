@@ -3,7 +3,7 @@
 
 #if defined(LIME_GLAD)
 	#include <glad/gles2.h>
-#elif defined(LIME_ANGLE) || defined(__EMSCRIPTEN__) || defined(__ANDROID__)
+#elif defined(LIME_ANGLE)
 	#include <GLES3/gl3.h>
 #endif
 

@@ -32,7 +32,7 @@
 	<set name="LIME_PNG" value="1" />
 	<set name="LIME_SDL" value="1" />
 	<set name="LIME_ANGLE" value="1" if="iphone || tvos" />
-	<set name="LIME_GLAD" value="1" unless="LIME_ANGLE || emscripten || android" />
+	<set name="LIME_GLAD" value="1" unless="LIME_ANGLE" />
 	<set name="LIME_SDL_SOUND" value="1" />
 	<set name="LIME_TINYFILEDIALOGS" value="1" if="windows || mac || linux" unless="winrt || emscripten" />
 	<set name="LIME_VORBIS" value="1" />
