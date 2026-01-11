@@ -83,9 +83,6 @@ class ProjectXMLParser extends HXProject
 			defines.set("targetType", "hl");
 			defines.set("native", "1");
 			defines.set("hl", "1");
-			if (targetFlags.exists("hlc")) {
-				defines.set("hlc", "1");
-			}
 		}
 		else if (targetFlags.exists("java"))
 		{
@@ -681,7 +678,7 @@ class ProjectXMLParser extends HXProject
 
 					var asset = new Asset(path + childPath, targetPath + childTargetPath, childType, childEmbed);
 					asset.library = childLibrary;
-
+					
 					if (childElement.has.id)
 					{
 						asset.id = substitute(childElement.att.id);

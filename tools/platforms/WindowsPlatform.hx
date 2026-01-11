@@ -326,7 +326,6 @@ class WindowsPlatform extends PlatformTarget
 					{
 						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "", ".hdll", applicationDirectory, project.debug,
 							targetSuffix);
-						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "", ".lib", applicationDirectory, project.debug, ".lib");
 					}
 					else
 					{
@@ -344,61 +343,6 @@ class WindowsPlatform extends PlatformTarget
 				System.runCommand("", "haxe", [hxml]);
 
 				if (noOutput) return;
-
-				if (project.targetFlags.exists("hlc")) {
-					var command:Array<String> = null;
-					if (project.targetFlags.exists("gcc")) {
-						command = [
-							"gcc",
-							"-O3",
-							"-o",
-							executablePath,
-							"-std=c11",
-							"-Wl,-subsystem,windows",
-							"-I",
-							Path.combine(targetDirectory, "obj"),
-							Path.combine(targetDirectory, "obj/ApplicationMain.c"),
-							"C:/Windows/System32/dbghelp.dll"
-						];
-						for (file in System.readDirectory(applicationDirectory)) {
-							switch Path.extension(file) {
-								case "dll", "hdll":
-									// ensure the executable knows about every library
-									command.push(file);
-								default:
-							}
-						}
-					} else {
-						command = [
-							"cl.exe",
-							"/Ox",
-							"/Fe:" + executablePath,
-							"-I",
-							Path.combine(targetDirectory, "obj"),
-							Path.combine(targetDirectory, "obj/ApplicationMain.c")
-						];
-						for (file in System.readDirectory(applicationDirectory)) {
-							switch Path.extension(file) {
-								case "lib":
-									// ensure the executable knows about every library
-									command.push(file);
-								default:
-							}
-						}
-						command.push("/link");
-						command.push("/subsystem:windows");
-					}
-					System.runCommand("", command.shift(), command);
-				}
-
-				for (file in System.readDirectory(applicationDirectory)) {
-					switch Path.extension(file) {
-						case "lib":
-							// lib files required only for hlc compilation
-							System.deleteFile(file);
-						default:
-					}
-				}
 
 				var iconPath = Path.combine(applicationDirectory, "icon.ico");
 
@@ -665,7 +609,7 @@ class WindowsPlatform extends PlatformTarget
 		{
 			context.NEKO_FILE = targetDirectory + "/obj/ApplicationMain.n";
 			context.NODE_FILE = targetDirectory + "/bin/ApplicationMain.js";
-			context.HL_FILE = targetDirectory + "/obj/ApplicationMain" + (project.defines.exists("hlc") ? ".c" : ".hl");
+			context.HL_FILE = targetDirectory + "/obj/ApplicationMain.hl";
 			context.CPPIA_FILE = targetDirectory + "/obj/ApplicationMain.cppia";
 			context.CPP_DIR = targetDirectory + "/obj";
 			context.BUILD_DIR = project.app.path + "/windows" + (is64 ? "64" : "");
