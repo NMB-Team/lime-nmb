@@ -1094,7 +1094,7 @@ class CommandLineTools
 			Log.println("\x1b[37m            888                                   \x1b[0m");
 
 			Log.println("");
-			Log.println("\x1b[1mOpenFL Command-Line Tools\x1b[0;1m (" + getToolsVersion() + ")\x1b[0m");
+			Log.println("\x1b[1mOpenFL-nmb Command-Line Tools\x1b[0;1m (" + getToolsVersion() + " NMB)\x1b[0m");
 		}
 		else
 		{
