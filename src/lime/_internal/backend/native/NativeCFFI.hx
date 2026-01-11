@@ -5366,7 +5366,6 @@ class NativeCFFI
 		return 0;
 	}
 
-
 	@:hlNative("lime", "hl_gl_get_context_attributes") private static function lime_gl_get_context_attributes():Dynamic
 	{
 		return null;
