@@ -485,15 +485,14 @@ class CommandLineTools
 				}
 
 			case MAC:
-				// if (System.hostArchitecture == X64) {
-
-				untyped $loader.path = $array(path + "Mac64/", $loader.path);
-
-			// } else {
-
-			//	untyped $loader.path = $array (path + "Mac/", $loader.path);
-
-			// }
+				if (System.hostArchitecture == X64)
+				{
+					untyped $loader.path = $array(path + "Mac64/", $loader.path);
+				}
+				else if (System.hostArchitecture == ARM64)
+				{
+					untyped $loader.path = $array(path + "MacArm64/", $loader.path);
+				}
 
 			case LINUX:
 				var arguments = Sys.args();
@@ -915,6 +914,7 @@ class CommandLineTools
 			Log.println("  \x1b[1mjava\x1b[0m -- Alias for host platform (using \x1b[1m-java\x1b[0m)");
 			Log.println("  \x1b[1mcs\x1b[0m -- Alias for host platform (using \x1b[1m-cs\x1b[0m)");
 			Log.println("  \x1b[1mhl/hashlink\x1b[0m -- Alias for host platform (using \x1b[1m-hl\x1b[0m)");
+			Log.println("  \x1b[1mhlc\x1b[0m -- Alias for host platform (using \x1b[1m-hlc\x1b[0m)");
 			#if (lime >= "7.6.0")
 			// Log.println("  \x1b[1mcppia\x1b[0m -- Alias for host platform (using \x1b[1m-cppia\x1b[0m)");
 			#end
@@ -931,6 +931,11 @@ class CommandLineTools
 		Log.println("");
 		Log.println(" " + Log.accentColor + "Options:" + Log.resetColor);
 		Log.println("");
+
+		if (command == "setup") {
+			Log.println("  \x1b[1m-cli\x1b[0;3m/\x1b[0m\x1b[1m-alias\x1b[0m -- Set up " + defaultLibraryName + " alias only, skipping haxelib installs");
+			Log.println("  \x1b[1m-noalias\x1b[0m -- Do not set up " + defaultLibraryName + " alias");
+		}
 
 		if (isBuildCommand)
 		{
@@ -1500,6 +1505,11 @@ class CommandLineTools
 				target = cast System.hostPlatform;
 				targetFlags.set("hl", "");
 
+			case "hlc":
+				target = cast System.hostPlatform;
+				targetFlags.set("hl", "");
+				targetFlags.set("hlc", "");
+
 			case "cppia":
 				target = cast System.hostPlatform;
 				targetFlags.set("cppia", "");
@@ -1781,6 +1791,14 @@ class CommandLineTools
 					}
 
 					args.push("-notoolscheck");
+
+					var projectDirectory = Path.directory(projectFile);
+					var localRepository = Path.combine(projectDirectory, ".haxelib");
+					if (FileSystem.exists(localRepository)
+						&& FileSystem.isDirectory(localRepository)
+						&& StringTools.startsWith(path, localRepository)) {
+						args.push("-nolocalrepocheck");
+					}
 
 					Sys.setCwd(path);
 					var args = [Path.combine(path, "run.n")].concat(args);
