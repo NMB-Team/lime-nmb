@@ -5,11 +5,6 @@
 #include <cstring>
 #include <algorithm>
 
-#ifdef HX_WINDOWS
-#include <Windows.h>
-#undef CreateWindow
-#endif
-
 namespace lime {
 
 	static Cursor currentCursor = DEFAULT;
@@ -105,26 +100,6 @@ namespace lime {
 		if (flags & WINDOW_FLAG_ALWAYS_ON_TOP) sdlWindowFlags |= SDL_WINDOW_ALWAYS_ON_TOP;
 		#endif
 
-		#if defined(HX_WINDOWS) && defined(NATIVE_TOOLKIT_SDL_ANGLE) && !defined(HX_WINRT)
-		{
-			OSVERSIONINFOEXW osvi = { sizeof(osvi), 0, 0, 0, 0, {0}, 0, 0 };
-			DWORDLONG const dwlConditionMask = VerSetConditionMask(
-				VerSetConditionMask(
-					VerSetConditionMask(0, VER_MAJORVERSION, VER_GREATER_EQUAL),
-					VER_MINORVERSION, VER_GREATER_EQUAL
-				),
-				VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL
-			);
-			osvi.dwMajorVersion = HIBYTE(_WIN32_WINNT_VISTA);
-			osvi.dwMinorVersion = LOBYTE(_WIN32_WINNT_VISTA);
-			osvi.wServicePackMajor = 0;
-
-			if (VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR, dwlConditionMask) == FALSE) {
-				flags &= ~WINDOW_FLAG_HARDWARE;
-			}
-		}
-		#endif
-
 		#if !defined(EMSCRIPTEN) && !defined(LIME_SWITCH)
 		if (!sdlHintsInitialized) {
 			SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "0");
@@ -137,6 +112,12 @@ namespace lime {
 		}
 		#endif
 
+		#ifdef HX_WINDOWS
+		SDL_SetHint (SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
+		#endif
+
+		SDL_SetHint (SDL_HINT_OPENGL_ES_DRIVER, "1");
+
 		if (flags & WINDOW_FLAG_HARDWARE) {
 			sdlWindowFlags |= SDL_WINDOW_OPENGL;
 
@@ -144,15 +125,9 @@ namespace lime {
 				sdlWindowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 			}
 
-			#ifdef LIME_GLES
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-			#endif
-
-			#if LIME_GL
-			SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-			#endif
 
 			if (flags & WINDOW_FLAG_DEPTH_BUFFER) {
 				const int depthBits = (flags & WINDOW_FLAG_STENCIL_BUFFER) ? 24 : 32;
@@ -192,39 +167,10 @@ namespace lime {
 
 		sdlWindow = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
 
-		#if defined(IPHONE) || defined(APPLETV)
-		if (sdlWindow && !SDL_GL_CreateContext(sdlWindow)) {
-			SDL_DestroyWindow(sdlWindow);
-			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-			sdlWindow = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
-		}
-		#endif
-
 		if (!sdlWindow) {
 			printf("Could not create SDL window: %s.\n", SDL_GetError());
 			return;
 		}
-
-		#if defined(HX_WINDOWS) && !defined(HX_WINRT)
-		{
-			HINSTANCE handle = ::GetModuleHandle(nullptr);
-			HICON icon = ::LoadIcon(handle, MAKEINTRESOURCE(1));
-
-			if (icon != nullptr) {
-				SDL_SysWMinfo wminfo;
-				SDL_VERSION(&wminfo.version);
-
-				if (SDL_GetWindowWMInfo(sdlWindow, &wminfo) == 1) {
-					HWND hwnd = wminfo.info.win.window;
-					#ifdef _WIN64
-					::SetClassLongPtr(hwnd, GCLP_HICON, reinterpret_cast<LONG_PTR>(icon));
-					#else
-					::SetClassLong(hwnd, GCL_HICON, reinterpret_cast<LONG>(icon));
-					#endif
-				}
-			}
-		}
-		#endif
 
 		int sdlRendererFlags = 0;
 
@@ -241,29 +187,6 @@ namespace lime {
 				SDL_GL_SetSwapInterval((flags & WINDOW_FLAG_VSYNC) ? 1 : 0);
 
 				OpenGLBindings::Init();
-
-				#ifndef LIME_GLES
-				int version = 0;
-				glGetIntegerv(GL_MAJOR_VERSION, &version);
-
-				int versionm = 0;
-				glGetIntegerv(GL_MINOR_VERSION, &versionm);
-				// printf("GL Version %i.%i\n", version, versionm);
-
-				if (version == 0) {
-					float versionScan = 0;
-					sscanf(reinterpret_cast<const char*>(glGetString(GL_VERSION)), "%f", &versionScan);
-					version = static_cast<int>(versionScan);
-				}
-
-				if (version < 2 && !strstr(reinterpret_cast<const char*>(glGetString(GL_VERSION)), "OpenGL ES")) {
-					SDL_GL_DeleteContext(context);
-					context = nullptr;
-				}
-				#elif defined(IPHONE) || defined(APPLETV)
-				glGetIntegerv(GL_FRAMEBUFFER_BINDING, &OpenGLBindings::defaultFramebuffer);
-				glGetIntegerv(GL_RENDERBUFFER_BINDING, &OpenGLBindings::defaultRenderbuffer);
-				#endif
 			} else {
 				SDL_GL_DeleteContext(context);
 				context = nullptr;
@@ -308,22 +231,6 @@ namespace lime {
 	}
 
 	void SDLWindow::Alert(const char* message, const char* title) {
-		#if defined(HX_WINDOWS) && !defined(HX_WINRT)
-		{
-			SDL_SysWMinfo info;
-			SDL_VERSION(&info.version);
-			SDL_GetWindowWMInfo(sdlWindow, &info);
-
-			FLASHWINFO fi;
-			fi.cbSize = sizeof(FLASHWINFO);
-			fi.hwnd = info.info.win.window;
-			fi.dwFlags = FLASHW_ALL | FLASHW_TIMERNOFG;
-			fi.uCount = 0;
-			fi.dwTimeout = 0;
-			FlashWindowEx(&fi);
-		}
-		#endif
-
 		if (message) {
 			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, title, message, sdlWindow);
 		}

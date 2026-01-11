@@ -1,16 +1,10 @@
 #ifndef LIME_GRAPHICS_OPENGL_OPENGL_BINDINGS_H
 #define LIME_GRAPHICS_OPENGL_OPENGL_BINDINGS_H
 
-#ifdef LIME_GL
-#include <glad/gl.h>
-#endif
-
-#ifdef LIME_GLES2
-#include <glad/gles2.h>
-#endif
-
-#ifdef LIME_EGL
-#include <glad/egl.h>
+#if defined(LIME_GLAD)
+	#include <glad/gles2.h>
+#elif defined(LIME_ANGLE) || defined(__EMSCRIPTEN__) || defined(__ANDROID__)
+	#include <GLES3/gl3.h>
 #endif
 
 
@@ -23,13 +17,9 @@ namespace lime {
 
 			static void Init ();
 
-			static int defaultFramebuffer;
-			static int defaultRenderbuffer;
-
 		private:
 
 			static bool initialized;
-
 
 	};
 

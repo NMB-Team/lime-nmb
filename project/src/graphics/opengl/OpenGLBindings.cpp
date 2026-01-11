@@ -16,9 +16,6 @@ namespace lime {
 
 	bool OpenGLBindings::initialized = false;
 
-	int OpenGLBindings::defaultFramebuffer = 0;
-	int OpenGLBindings::defaultRenderbuffer = 0;
-
 	std::map<GLObjectType, std::map <GLuint, void*> > glObjects;
 	std::map<void*, GLuint> glObjectIDs;
 	std::map<void*, void*> glObjectPtrs;
@@ -275,24 +272,12 @@ namespace lime {
 
 	void lime_gl_bind_framebuffer (int target, int framebuffer) {
 
-		if (!framebuffer) {
-
-			framebuffer = OpenGLBindings::defaultFramebuffer;
-
-		}
-
 		glBindFramebuffer (target, framebuffer);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_bind_framebuffer) (int target, int framebuffer) {
-
-		if (!framebuffer) {
-
-			framebuffer = OpenGLBindings::defaultFramebuffer;
-
-		}
 
 		glBindFramebuffer (target, framebuffer);
 
@@ -301,24 +286,12 @@ namespace lime {
 
 	void lime_gl_bind_renderbuffer (int target, int renderbuffer) {
 
-		if (!renderbuffer) {
-
-			renderbuffer = OpenGLBindings::defaultRenderbuffer;
-
-		}
-
 		glBindRenderbuffer (target, renderbuffer);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_bind_renderbuffer) (int target, int renderbuffer) {
-
-		if (!renderbuffer) {
-
-			renderbuffer = OpenGLBindings::defaultRenderbuffer;
-
-		}
 
 		glBindRenderbuffer (target, renderbuffer);
 
@@ -1818,20 +1791,6 @@ namespace lime {
 		uintptr_t result = 0;
 		glGetBufferPointerv (target, pname, (void**)result);
 		return (double)result;
-
-	}
-
-
-	void lime_gl_get_buffer_sub_data (int target, double offset, int size, double data) {
-
-		glGetBufferSubData (target, (GLintptr)(uintptr_t)offset, size, (void*)(uintptr_t)data);
-
-	}
-
-
-	HL_PRIM void HL_NAME(hl_gl_get_buffer_sub_data) (int target, double offset, int size, double data) {
-
-		glGetBufferSubData (target, (GLintptr)(uintptr_t)offset, size, (void*)(uintptr_t)data);
 
 	}
 
@@ -4642,16 +4601,8 @@ namespace lime {
 
 		if (!initialized) {
 
-			#ifdef LIME_EGL
-			gladLoaderLoadEGL(EGL_NO_DISPLAY);
-			#endif
-
-			#ifdef LIME_GLES2
-			gladLoaderLoadGLES2 ();
-			#endif
-
-			#ifdef LIME_GL
-			gladLoaderLoadGL ();
+			#if defined(LIME_GLAD) && defined(LIME_SDL)
+			gladLoadGLES2((GLADloadfunc)SDL_GL_GetProcAddress);
 			#endif
 
 			initialized = true;
@@ -4763,7 +4714,6 @@ namespace lime {
 	DEFINE_PRIME3v (lime_gl_get_buffer_parameteriv);
 	DEFINE_PRIME3v (lime_gl_get_buffer_parameteri64v);
 	DEFINE_PRIME2 (lime_gl_get_buffer_pointerv);
-	DEFINE_PRIME4v (lime_gl_get_buffer_sub_data);
 	DEFINE_PRIME0 (lime_gl_get_context_attributes);
 	DEFINE_PRIME0 (lime_gl_get_error);
 	DEFINE_PRIME1 (lime_gl_get_extension);
@@ -5040,7 +4990,6 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_gl_get_buffer_parameteriv, _I32 _I32 _F64);
 	DEFINE_HL_PRIM (_VOID, hl_gl_get_buffer_parameteri64v, _I32 _I32 _F64);
 	DEFINE_HL_PRIM (_F64, hl_gl_get_buffer_pointerv, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, hl_gl_get_buffer_sub_data, _I32 _F64 _I32 _F64);
 	DEFINE_HL_PRIM (_DYN, hl_gl_get_context_attributes, _NO_ARG);
 	DEFINE_HL_PRIM (_I32, hl_gl_get_error, _NO_ARG);
 	DEFINE_HL_PRIM (_DYN, hl_gl_get_extension, _STRING);
