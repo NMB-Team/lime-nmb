@@ -2,7 +2,7 @@
 #define LIME_GRAPHICS_OPENGL_OPENGL_BINDINGS_H
 
 #if defined(LIME_GLAD)
-	#include <glad/gles2.h>
+	#include <glad/gl.h>
 #elif defined(LIME_ANGLE)
 	#include <GLES3/gl3.h>
 #endif

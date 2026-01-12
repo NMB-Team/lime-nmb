@@ -4597,12 +4597,21 @@ namespace lime {
 
 	void OpenGLBindings::Init () {
 
-		static bool result = true;
-
 		if (!initialized) {
 
 			#if defined(LIME_GLAD) && defined(LIME_SDL)
-			gladLoadGLES2((GLADloadfunc)SDL_GL_GetProcAddress);
+			int profile_mask = 0;
+
+			SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &profile_mask);
+
+			if (profile_mask == SDL_GL_CONTEXT_PROFILE_ES)
+			{
+				gladLoadGLES2((GLADloadfunc)SDL_GL_GetProcAddress);
+			}
+			else
+			{
+				gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
+			}
 			#endif
 
 			initialized = true;

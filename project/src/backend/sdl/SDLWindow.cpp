@@ -37,6 +37,32 @@ namespace lime {
 	static bool firstContext = true;
 	static bool sdlHintsInitialized = false;
 
+	static int CheckForAngle() {
+		static int angleAvailable = -1;
+
+		if (angleAvailable != -1)
+			return angleAvailable;
+
+		void* eglHandle = SDL_LoadObject(SDL_getenv("SDL_VIDEO_EGL_DRIVER"));
+		void* glesHandle = SDL_LoadObject(SDL_getenv("SDL_VIDEO_GL_DRIVER"));
+
+		if (eglHandle && glesHandle) {
+			angleAvailable = 1;
+
+			SDL_UnloadObject(eglHandle);
+			SDL_UnloadObject(glesHandle);
+		} else {
+			angleAvailable = 0;
+
+			if (eglHandle)
+				SDL_UnloadObject(eglHandle);
+			if (glesHandle)
+				SDL_UnloadObject(glesHandle);
+		}
+
+		return angleAvailable;
+	}
+
 	static SDL_Cursor* CreateCustomCursor(const char* image[]) {
 		Uint8 data[4 * 32];
 		Uint8 mask[4 * 32];
@@ -108,15 +134,11 @@ namespace lime {
 			SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "1");
 			SDL_SetHint(SDL_HINT_RENDER_BATCHING, "1");
 			SDL_SetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION, "1");
+			SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
+			SDL_SetHint(SDL_HINT_IME_SUPPORT_EXTENDED_TEXT, "1");
 			sdlHintsInitialized = true;
 		}
 		#endif
-
-		#ifdef HX_WINDOWS
-		SDL_SetHint (SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
-		#endif
-
-		SDL_SetHint (SDL_HINT_OPENGL_ES_DRIVER, "1");
 
 		if (flags & WINDOW_FLAG_HARDWARE) {
 			sdlWindowFlags |= SDL_WINDOW_OPENGL;
@@ -124,10 +146,6 @@ namespace lime {
 			if (flags & WINDOW_FLAG_ALLOW_HIGHDPI) {
 				sdlWindowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 			}
-
-			SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
 			if (flags & WINDOW_FLAG_DEPTH_BUFFER) {
 				const int depthBits = (flags & WINDOW_FLAG_STENCIL_BUFFER) ? 24 : 32;
@@ -163,6 +181,35 @@ namespace lime {
 		#ifdef HX_WINDOWS
 		SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, firstContext ? 0 : 1);
 		if (firstContext) firstContext = false;
+		#endif
+
+		#if defined(HX_WINDOWS) || defined(HX_MACOS) || defined(HX_LINUX)
+			#if defined(HX_WINDOWS)
+			SDL_setenv ("SDL_VIDEO_GL_DRIVER", "libGLESv2.dll", 1);
+			SDL_setenv ("SDL_VIDEO_EGL_DRIVER", "libEGL.dll", 1);
+			#elif defined(HX_MACOS)
+			SDL_setenv ("SDL_VIDEO_GL_DRIVER", "libGLESv2.dylib", 1);
+			SDL_setenv ("SDL_VIDEO_EGL_DRIVER", "libEGL.dylib", 1);
+			#elif defined(HX_LINUX)
+			SDL_setenv ("SDL_VIDEO_GL_DRIVER", "libGLESv2.so", 1);
+			SDL_setenv ("SDL_VIDEO_EGL_DRIVER", "libEGL.so", 1);
+			#endif
+
+			if (CheckForAngle()) {
+				#ifdef HX_WINDOWS
+				SDL_SetHint(SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
+				#endif
+
+				SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
+
+				SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+				SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+				SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+			}
+		#else
+			SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 		#endif
 
 		sdlWindow = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);

@@ -108,6 +108,8 @@
 		<section if="linux">
 			<dependency path="dependencies/angle/Linux/libEGL.so" />
 			<dependency path="dependencies/angle/Linux/libGLESv2.so" />
+			<dependency path="dependencies/angle/Linux/libvk_swiftshader.so" />
+			<dependency path="dependencies/angle/Linux/libVkICD_mock_icd.so" />
 		</section>
 
 		<!-- TODO: Move to template or move all template dependencies to XML? -->
