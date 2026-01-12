@@ -591,6 +591,23 @@ namespace lime {
 				textEvent.start = event->edit.start;
 				textEvent.length = event->edit.length;
 				break;
+
+			case SDL_TEXTEDITING_EXT:
+				textEvent.type = TEXT_EDIT;
+				textEvent.start = event->editExt.start;
+				textEvent.length = event->editExt.length;
+				if (textEvent.text)
+					free(textEvent.text);
+
+				const char* extText = event->editExt.text;
+				size_t n = strlen(extText);
+				textEvent.text = (vbyte*)malloc(n + 1);
+				memcpy(textEvent.text, extText, n + 1);
+				SDL_free(event->editExt.text);
+
+				textEvent.windowID = event->editExt.windowID;
+				TextEvent::Dispatch(&textEvent);
+				return;
 		}
 
 		const size_t textLen = std::strlen(event->text.text) + 1;
