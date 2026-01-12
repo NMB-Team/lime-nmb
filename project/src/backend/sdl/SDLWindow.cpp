@@ -107,7 +107,16 @@ namespace lime {
 		sdlTexture = nullptr;
 		sdlRenderer = nullptr;
 		sdlWindow = nullptr;
+
+		#if defined(LIME_ANGLE) && defined(IPHONE)
+		eglMetalView = 0;
+		eglDisplay = EGL_NO_DISPLAY;
+		eglContext = EGL_NO_CONTEXT;
+		eglSurface = EGL_NO_SURFACE;
+		#else
 		context = nullptr;
+		#endif
+
 		contextWidth = 0;
 		contextHeight = 0;
 		currentApplication = application;
@@ -140,16 +149,88 @@ namespace lime {
 		}
 		#endif
 
+		#if defined(LIME_ANGLE) && defined(IPHONE)
+			egl_display_attribs.push_back(EGL_PLATFORM_ANGLE_TYPE_ANGLE);
+			egl_display_attribs.push_back(EGL_PLATFORM_ANGLE_TYPE_METAL_ANGLE);
+			egl_display_attribs.push_back(EGL_POWER_PREFERENCE_ANGLE);
+			egl_display_attribs.push_back(EGL_HIGH_POWER_ANGLE);
+			egl_display_attribs.push_back(EGL_NONE);
+		#endif
+
 		if (flags & WINDOW_FLAG_HARDWARE) {
+			#if defined(LIME_ANGLE) && defined(IPHONE)
+			sdlWindowFlags |= SDL_WINDOW_METAL;
+			#else
 			sdlWindowFlags |= SDL_WINDOW_OPENGL;
+			#endif
 
 			if (flags & WINDOW_FLAG_ALLOW_HIGHDPI) {
 				sdlWindowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 			}
 
+			#if defined(LIME_ANGLE) && defined(IPHONE)
+				if (flags & WINDOW_FLAG_COLOR_DEPTH_32_BIT) {
+					egl_config_attribs.push_back(EGL_RED_SIZE);
+					egl_config_attribs.push_back(8);
+					egl_config_attribs.push_back(EGL_GREEN_SIZE);
+					egl_config_attribs.push_back(8);
+					egl_config_attribs.push_back(EGL_BLUE_SIZE);
+					egl_config_attribs.push_back(8);
+					egl_config_attribs.push_back(EGL_ALPHA_SIZE);
+					egl_config_attribs.push_back(8);
+				} else {
+					egl_config_attribs.push_back(EGL_RED_SIZE);
+					egl_config_attribs.push_back(5);
+					egl_config_attribs.push_back(EGL_GREEN_SIZE);
+					egl_config_attribs.push_back(6);
+					egl_config_attribs.push_back(EGL_BLUE_SIZE);
+					egl_config_attribs.push_back(5);
+					egl_config_attribs.push_back(EGL_ALPHA_SIZE);
+					egl_config_attribs.push_back(0);
+				}
+
+				if (flags & WINDOW_FLAG_DEPTH_BUFFER) {
+					egl_config_attribs.push_back(EGL_DEPTH_SIZE);
+					egl_config_attribs.push_back((flags & WINDOW_FLAG_STENCIL_BUFFER) ? 24 : 32);
+				}
+
+				if (flags & WINDOW_FLAG_STENCIL_BUFFER) {
+					egl_config_attribs.push_back(EGL_STENCIL_SIZE);
+					egl_config_attribs.push_back(8);
+				}
+
+				if (flags & WINDOW_FLAG_HW_AA_HIRES) {
+					egl_config_attribs.push_back(EGL_SAMPLE_BUFFERS);
+					egl_config_attribs.push_back(1);
+					egl_config_attribs.push_back(EGL_SAMPLES);
+					egl_config_attribs.push_back(4);
+				} else if (flags & WINDOW_FLAG_HW_AA) {
+					egl_config_attribs.push_back(EGL_SAMPLE_BUFFERS);
+					egl_config_attribs.push_back(1);
+					egl_config_attribs.push_back(EGL_SAMPLES);
+					egl_config_attribs.push_back(2);
+				}
+
+				egl_config_attribs.push_back(EGL_SURFACE_TYPE);
+				egl_config_attribs.push_back(EGL_WINDOW_BIT);
+				egl_config_attribs.push_back(EGL_RENDERABLE_TYPE);
+				egl_config_attribs.push_back(EGL_OPENGL_ES3_BIT);
+				egl_config_attribs.push_back(EGL_NONE);
+			#else
+			if (flags & WINDOW_FLAG_COLOR_DEPTH_32_BIT) {
+				SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+				SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+				SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+				SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+			} else {
+				SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+				SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
+				SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+				SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 0);
+			}
+
 			if (flags & WINDOW_FLAG_DEPTH_BUFFER) {
-				const int depthBits = (flags & WINDOW_FLAG_STENCIL_BUFFER) ? 24 : 32;
-				SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, depthBits);
+				SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, (flags & WINDOW_FLAG_STENCIL_BUFFER) ? 24 : 32);
 			}
 
 			if (flags & WINDOW_FLAG_STENCIL_BUFFER) {
@@ -164,18 +245,8 @@ namespace lime {
 				SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
 			}
 
-			if (flags & WINDOW_FLAG_COLOR_DEPTH_32_BIT) {
-				SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-				SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-				SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-				SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-			} else {
-				SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-				SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
-				SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-			}
-
 			SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+			#endif
 		}
 
 		#ifdef HX_WINDOWS
@@ -183,14 +254,20 @@ namespace lime {
 		if (firstContext) firstContext = false;
 		#endif
 
-		#if defined(HX_WINDOWS) || defined(HX_MACOS) || defined(HX_LINUX)
-			#if defined(HX_WINDOWS)
+		#if defined(LIME_ANGLE) && defined(IPHONE)
+			egl_context_attribs.push_back(EGL_CONTEXT_CLIENT_VERSION);
+			egl_context_attribs.push_back(3);
+			egl_context_attribs.push_back(EGL_NONE);
+		#endif
+
+		#if defined (HX_WINDOWS) || defined (HX_MACOS) || defined (HX_LINUX)
+			#if defined (HX_WINDOWS)
 			SDL_setenv ("SDL_VIDEO_GL_DRIVER", "libGLESv2.dll", 1);
 			SDL_setenv ("SDL_VIDEO_EGL_DRIVER", "libEGL.dll", 1);
-			#elif defined(HX_MACOS)
+			#elif defined (HX_MACOS)
 			SDL_setenv ("SDL_VIDEO_GL_DRIVER", "libGLESv2.dylib", 1);
 			SDL_setenv ("SDL_VIDEO_EGL_DRIVER", "libEGL.dylib", 1);
-			#elif defined(HX_LINUX)
+			#elif defined (HX_LINUX)
 			SDL_setenv ("SDL_VIDEO_GL_DRIVER", "libGLESv2.so", 1);
 			SDL_setenv ("SDL_VIDEO_EGL_DRIVER", "libEGL.so", 1);
 			#endif
@@ -206,7 +283,7 @@ namespace lime {
 				SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 				SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 			}
-		#else
+		#elif !(defined (LIME_ANGLE) && defined (IPHONE))
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
@@ -219,56 +296,113 @@ namespace lime {
 			return;
 		}
 
-		int sdlRendererFlags = 0;
-
 		if (flags & WINDOW_FLAG_HARDWARE) {
-			sdlRendererFlags |= SDL_RENDERER_ACCELERATED;
+			#if defined(LIME_ANGLE) && defined(IPHONE)
+				eglMetalView = SDL_Metal_CreateView(sdlWindow);
+				eglDisplay = eglGetPlatformDisplay(EGL_PLATFORM_ANGLE_ANGLE, (void *)EGL_DEFAULT_DISPLAY, egl_display_attribs.data());
 
-			#ifdef EMSCRIPTEN
-			sdlRendererFlags |= SDL_RENDERER_PRESENTVSYNC;
+				if (eglDisplay == EGL_NO_DISPLAY) {
+					printf("Failed to get EGL display (EGL error: 0x%04X)\n", eglGetError());
+				}
+
+				if (eglInitialize (eglDisplay, NULL, NULL) == false) {
+					printf("Failed to initialize EGL (EGL error: 0x%04X)\n", eglGetError());
+				}
+
+				EGLConfig eglConfig;
+				EGLint eglConfigCount;
+
+				if (!eglChooseConfig (eglDisplay, egl_config_attribs.data(), &eglConfig, 1, &eglConfigCount)) {
+					printf("Failed to choose EGL config (EGL error: 0x%04X)\n", eglGetError());
+				}
+
+				eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, SDL_Metal_GetLayer(eglMetalView), NULL);
+
+				if (eglSurface == EGL_NO_SURFACE) {
+					printf("Failed to create EGL surface (EGL error: 0x%04X)\n", eglGetError());
+				}
+
+				eglContext = eglCreateContext(eglDisplay, eglConfig, EGL_NO_CONTEXT, egl_context_attribs.data());
+
+				if (eglContext == EGL_NO_CONTEXT) {
+					printf("Failed to create EGL context (EGL error: 0x%04X)\n", eglGetError());
+				}
+
+				if (!eglMakeCurrent (eglDisplay, eglSurface, eglSurface, eglContext)) {
+					printf("Failed to make EGL context current (EGL error: 0x%04X)\n", eglGetError());
+				} else {
+					SetVSync((flags & WINDOW_FLAG_VSYNC));
+				}
+			#else
+				context = SDL_GL_CreateContext(sdlWindow);
+
+				if (context && SDL_GL_MakeCurrent(sdlWindow, context) == 0) {
+					SetVSync((flags & WINDOW_FLAG_VSYNC));
+
+					OpenGLBindings::Init();
+				} else {
+					if (context)
+						SDL_GL_DeleteContext(context);
+
+					context = nullptr;
+				}
 			#endif
+		}
 
-			context = SDL_GL_CreateContext(sdlWindow);
-
-			if (context && SDL_GL_MakeCurrent(sdlWindow, context) == 0) {
-				SDL_GL_SetSwapInterval((flags & WINDOW_FLAG_VSYNC) ? 1 : 0);
-
-				OpenGLBindings::Init();
-			} else {
-				SDL_GL_DeleteContext(context);
-				context = nullptr;
+		#if defined(LIME_ANGLE) && defined(IPHONE)
+			if (eglContext == EGL_NO_CONTEXT) {
+				sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_SOFTWARE);
 			}
-		}
 
-		if (!context) {
-			sdlRendererFlags &= ~SDL_RENDERER_ACCELERATED;
-			sdlRendererFlags &= ~SDL_RENDERER_PRESENTVSYNC;
-			sdlRendererFlags |= SDL_RENDERER_SOFTWARE;
+			if (eglContext != EGL_NO_CONTEXT || sdlRenderer) {
+				((SDLApplication*)currentApplication) -> RegisterWindow(this);
+			} else {
+				printf("Could not create SDL renderer: %s.\n", SDL_GetError());
+			}
+		#else
+			if (!context) {
+				sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_SOFTWARE);
+			}
 
-			sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, sdlRendererFlags);
-		}
-
-		if (context || sdlRenderer) {
-			static_cast<SDLApplication*>(currentApplication)->RegisterWindow(this);
-		} else {
-			printf("Could not create SDL renderer: %s.\n", SDL_GetError());
-		}
+			if (context || sdlRenderer) {
+				static_cast<SDLApplication*>(currentApplication) -> RegisterWindow(this);
+			} else {
+				printf("Could not create SDL renderer: %s.\n", SDL_GetError());
+			}
+		#endif
 	}
 
 	SDLWindow::~SDLWindow() {
-		if (sdlTexture) {
-			SDL_DestroyTexture(sdlTexture);
-			sdlTexture = nullptr;
-		}
-
 		if (sdlRenderer) {
 			SDL_DestroyRenderer(sdlRenderer);
 			sdlRenderer = nullptr;
-		}
+		} else {
+			#if defined(LIME_ANGLE) && defined(IPHONE)
+				if (eglDisplay != EGL_NO_DISPLAY) {
+					eglMakeCurrent(eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
-		if (context) {
-			SDL_GL_DeleteContext(context);
-			context = nullptr;
+					if (eglContext != EGL_NO_CONTEXT) {
+						eglDestroyContext(eglDisplay, eglContext);
+						eglContext = EGL_NO_CONTEXT;
+					}
+
+					if (eglSurface != EGL_NO_SURFACE) {
+						eglDestroySurface(eglDisplay, eglSurface);
+						eglSurface = EGL_NO_SURFACE;
+					}
+
+					eglTerminate(eglDisplay);
+					eglDisplay = EGL_NO_DISPLAY;
+				}
+
+				if (eglMetalView)
+					SDL_Metal_DestroyView(eglMetalView);
+			#else
+				if (context) {
+					SDL_GL_DeleteContext(context);
+					context = nullptr;
+				}
+			#endif
 		}
 
 		if (sdlWindow) {
@@ -300,8 +434,16 @@ namespace lime {
 	}
 
 	void SDLWindow::ContextFlip() {
-		if (context && !sdlRenderer) {
-			SDL_GL_SwapWindow(sdlWindow);
+		if (!sdlRenderer) {
+			#if defined(LIME_ANGLE) && defined(IPHONE)
+				if (eglDisplay != EGL_NO_DISPLAY && eglSurface != EGL_NO_SURFACE) {
+					eglSwapBuffers(eglDisplay, eglSurface);
+				}
+			#else
+				if (context) {
+					SDL_GL_SwapWindow(sdlWindow);
+				}
+			#endif
 		} else if (sdlRenderer) {
 			SDL_RenderPresent(sdlRenderer);
 		}
@@ -354,8 +496,16 @@ namespace lime {
 	}
 
 	void SDLWindow::ContextMakeCurrent() {
-		if (sdlWindow && context) {
-			SDL_GL_MakeCurrent(sdlWindow, context);
+		if (sdlWindow) {
+			#if defined(LIME_ANGLE) && defined(IPHONE)
+				if (eglDisplay != EGL_NO_DISPLAY && eglSurface != EGL_NO_SURFACE && eglContext != EGL_NO_CONTEXT) {
+					eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
+				}
+			#else
+				if (context) {
+					SDL_GL_MakeCurrent(sdlWindow, context);
+				}
+			#endif
 		}
 	}
 
@@ -398,17 +548,28 @@ namespace lime {
 	}
 
 	void* SDLWindow::GetContext() {
+		#if defined(LIME_ANGLE) && defined(IPHONE)
+		return eglContext;
+		#else
 		return context;
+		#endif
 	}
 
 	const char* SDLWindow::GetContextType() {
-		if (context) {
-			return "opengl";
-		} else if (sdlRenderer) {
+		if (sdlRenderer) {
 			SDL_RendererInfo info;
 			SDL_GetRendererInfo(sdlRenderer, &info);
 			return (info.flags & SDL_RENDERER_SOFTWARE) ? "software" : "opengl";
+		} else {
+			#if defined(LIME_ANGLE) && defined(IPHONE)
+				if (eglDisplay != EGL_NO_DISPLAY)
+					return "opengl";
+			#else
+				if (context)
+					return "opengl";
+			#endif
 		}
+
 		return "none";
 	}
 
@@ -467,7 +628,7 @@ namespace lime {
 			SDL_GetWindowSize(sdlWindow, &width, &height);
 
 			return static_cast<double>(outputWidth) / width;
-		} else if (context) {
+		} else {
 			#ifdef HX_WINDOWS
 			float dpi = 0.0f;
 			if (SDL_GetDisplayDPI(0, &dpi, nullptr, nullptr) == 0) {
@@ -476,7 +637,13 @@ namespace lime {
 			return 1.0;
 			#else
 			int outputWidth, outputHeight;
+
+			#if defined(LIME_ANGLE) && defined(IPHONE)
+			eglQuerySurface(eglDisplay, eglSurface, EGL_WIDTH, &outputWidth);
+			eglQuerySurface(eglDisplay, eglSurface, EGL_HEIGHT, &outputHeight);
+			#else
 			SDL_GL_GetDrawableSize(sdlWindow, &outputWidth, &outputHeight);
+			#endif
 
 			int width, height;
 			SDL_GetWindowSize(sdlWindow, &width, &height);
@@ -804,7 +971,12 @@ namespace lime {
 	}
 
 	bool SDLWindow::SetVSync(bool vsync) {
+		#if defined(LIME_ANGLE) && defined(IPHONE)
+		eglSwapInterval(eglDisplay, vsync ? 1 : 0) == EGL_TRUE;
+		#else
 		SDL_GL_SetSwapInterval(vsync ? 1 : 0);
+		#endif
+
 		return vsync;
 	}
 

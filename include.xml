@@ -112,6 +112,15 @@
 			<dependency path="dependencies/angle/Linux/libVkICD_mock_icd.so" />
 		</section>
 
+		<section if="ios">
+			<dependency path="dependencies/angle/iPhone/arm64/libEGL.framework" embed="true" unless="simulator" />
+			<dependency path="dependencies/angle/iPhone/arm64/libGLESv2.framework" embed="true" unless="simulator" />
+
+			<dependency path="dependencies/angle/iPhone/arm64_x86_64-simulator/libEGL.framework" embed="true" if="simulator" />
+			<dependency path="dependencies/angle/iPhone/arm64_x86_64-simulator/libGLESv2.framework" embed="true" if="simulator" />
+		</section>
+
+
 		<!-- TODO: Move to template or move all template dependencies to XML? -->
 		<!-- <dependency name="CoreBluetooth.framework" if="ios" /> -->
 

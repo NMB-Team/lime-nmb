@@ -3,8 +3,8 @@
 
 #if defined(LIME_GLAD)
 	#include <glad/gl.h>
-#elif defined(LIME_ANGLE)
-	#include <GLES3/gl3.h>
+#elif defined(LIME_ANGLE) && defined(IPHONE)
+	#include <libGLESv2/gl3.h>
 #endif
 
 

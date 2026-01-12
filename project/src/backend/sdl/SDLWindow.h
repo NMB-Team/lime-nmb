@@ -7,6 +7,13 @@
 #include <ui/Cursor.h>
 #include <ui/Window.h>
 
+#if defined (LIME_ANGLE) && defined (IPHONE)
+	#include <libEGL/egl.h>
+	#include <libEGL/eglext.h>
+#endif
+
+#include <vector>
+
 namespace lime {
 
 	class SDLWindow : public Window {
@@ -70,7 +77,18 @@ namespace lime {
 			SDL_Window* sdlWindow;
 
 		private:
+			#if defined (LIME_ANGLE) && defined (IPHONE)
+			std::vector<EGLAttrib> egl_display_attribs;
+			std::vector<EGLint> egl_config_attribs;
+			std::vector<EGLint> egl_context_attribs;
+
+			EGLDisplay eglDisplay;
+			EGLContext eglContext;
+			EGLSurface eglSurface;
+			#else
 			SDL_GLContext context;
+			#endif
+
 			int contextWidth;
 			int contextHeight;
 	};
