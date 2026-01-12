@@ -64,7 +64,16 @@ namespace lime {
 		#endif
 
 		#ifdef HX_WINDOWS
-		SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+		HMODULE user32 = GetModuleHandleA("user32.dll");
+		if (user32) {
+			typedef BOOL (WINAPI * SetProcessDpiAwarenessContextFunc)(DPI_AWARENESS_CONTEXT);
+
+			SetProcessDpiAwarenessContextFunc pSetProcessDpiAwarenessContext =
+				(SetProcessDpiAwarenessContextFunc)GetProcAddress(user32, "SetProcessDpiAwarenessContext");
+
+			if (pSetProcessDpiAwarenessContext)
+				pSetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+		}
 		#endif
 
 		if (SDL_Init(initFlags) != 0) {
