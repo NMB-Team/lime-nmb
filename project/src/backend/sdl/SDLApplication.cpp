@@ -9,6 +9,11 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#ifdef HX_WINDOWS
+#include <windows.h>
+#include <shellapi.h>
+#endif
+
 #ifdef EMSCRIPTEN
 #include "emscripten.h"
 #endif
@@ -64,7 +69,16 @@ namespace lime {
 		#endif
 
 		#ifdef HX_WINDOWS
+		// Define DPI awareness types if not available
+		#ifndef DPI_AWARENESS_CONTEXT
+		DECLARE_HANDLE(DPI_AWARENESS_CONTEXT);
+		#define DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 ((DPI_AWARENESS_CONTEXT)-4)
+		#endif
+
+		// Windows 10 1607+ DPI awareness
 		HMODULE user32 = GetModuleHandleA("user32.dll");
+		BOOL dpiSet = FALSE;
+
 		if (user32) {
 			typedef BOOL (WINAPI * SetProcessDpiAwarenessContextFunc)(DPI_AWARENESS_CONTEXT);
 
@@ -72,7 +86,35 @@ namespace lime {
 				(SetProcessDpiAwarenessContextFunc)GetProcAddress(user32, "SetProcessDpiAwarenessContext");
 
 			if (pSetProcessDpiAwarenessContext)
-				pSetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+				dpiSet = pSetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+		}
+
+		// Windows 8.1+ SetProcessDpiAwareness
+		if (!dpiSet) {
+			HMODULE shcore = LoadLibraryA("shcore.dll");
+			if (shcore) {
+				typedef enum { PROCESS_DPI_UNAWARE = 0, PROCESS_SYSTEM_DPI_AWARE = 1, PROCESS_PER_MONITOR_DPI_AWARE = 2 } PROCESS_DPI_AWARENESS;
+				typedef HRESULT (WINAPI * SetProcessDpiAwarenessFunc)(PROCESS_DPI_AWARENESS);
+
+				SetProcessDpiAwarenessFunc pSetProcessDpiAwareness =
+					(SetProcessDpiAwarenessFunc)GetProcAddress(shcore, "SetProcessDpiAwareness");
+
+				if (pSetProcessDpiAwareness)
+					dpiSet = SUCCEEDED(pSetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE));
+
+				FreeLibrary(shcore);
+			}
+		}
+
+		// Windows Vista+ SetProcessDPIAware
+		if (!dpiSet && user32) {
+			typedef BOOL (WINAPI * SetProcessDPIAwareFunc)(void);
+			SetProcessDPIAwareFunc pSetProcessDPIAware =
+				(SetProcessDPIAwareFunc)GetProcAddress(user32, "SetProcessDPIAware");
+
+			if (pSetProcessDPIAware)
+				pSetProcessDPIAware();
+
 		}
 		#endif
 
