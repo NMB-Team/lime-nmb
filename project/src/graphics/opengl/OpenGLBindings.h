@@ -2,7 +2,7 @@
 #define LIME_GRAPHICS_OPENGL_OPENGL_BINDINGS_H
 
 #if defined(LIME_GLAD)
-	#include <glad/gl.h>
+	#include <glad/gles2.h>
 #elif defined(LIME_ANGLE) && defined(IPHONE)
 	#include <libGLESv2/gl3.h>
 #endif
@@ -16,6 +16,7 @@ namespace lime {
 		public:
 
 			static void Init ();
+			static void APIENTRY LogGLDebugMessage (GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
 
 		private:
 

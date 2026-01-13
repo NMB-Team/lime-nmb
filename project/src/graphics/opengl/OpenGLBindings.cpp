@@ -4600,24 +4600,43 @@ namespace lime {
 		if (!initialized) {
 
 			#if defined(LIME_GLAD) && defined(LIME_SDL)
-			int profile_mask = 0;
-
-			SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &profile_mask);
-
-			if (profile_mask == SDL_GL_CONTEXT_PROFILE_ES)
-			{
-				gladLoadGLES2((GLADloadfunc)SDL_GL_GetProcAddress);
-			}
-			else
-			{
-				gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
-			}
+			gladLoadGLES2((GLADloadfunc)SDL_GL_GetProcAddress);
 			#endif
+
+			glEnable(GL_DEBUG_OUTPUT);
+			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+
+			glDebugMessageControlKHR(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
+			glDebugMessageControlKHR(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_MEDIUM, 0, nullptr, GL_TRUE);
+			glDebugMessageControlKHR(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW, 0, nullptr, GL_FALSE);
+			glDebugMessageControlKHR(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+			glDebugMessageCallbackKHR(OpenGLBindings::LogGLDebugMessage, nullptr);
 
 			initialized = true;
 
 		}
 
+	}
+
+
+	void APIENTRY OpenGLBindings::LogGLDebugMessage(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam)
+	{
+		printf(
+			"\n[GL DEBUG]\n"
+			"\tsource=0x%X\n"
+			"\ttype=0x%X\n"
+			"\tid=0x%X\n"
+			"\tseverity=0x%X\n"
+			"\tmessage=%.*s\n",
+			source,
+			type,
+			id,
+			severity,
+			length,
+			message
+		);
+
+		fflush(stdout);
 	}
 
 

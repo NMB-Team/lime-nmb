@@ -37,32 +37,6 @@ namespace lime {
 	static bool firstContext = true;
 	static bool sdlHintsInitialized = false;
 
-	static int CheckForAngle() {
-		static int angleAvailable = -1;
-
-		if (angleAvailable != -1)
-			return angleAvailable;
-
-		void* eglHandle = SDL_LoadObject(SDL_getenv("SDL_VIDEO_EGL_DRIVER"));
-		void* glesHandle = SDL_LoadObject(SDL_getenv("SDL_VIDEO_GL_DRIVER"));
-
-		if (eglHandle && glesHandle) {
-			angleAvailable = 1;
-
-			SDL_UnloadObject(eglHandle);
-			SDL_UnloadObject(glesHandle);
-		} else {
-			angleAvailable = 0;
-
-			if (eglHandle)
-				SDL_UnloadObject(eglHandle);
-			if (glesHandle)
-				SDL_UnloadObject(glesHandle);
-		}
-
-		return angleAvailable;
-	}
-
 	static SDL_Cursor* CreateCustomCursor(const char* image[]) {
 		Uint8 data[4 * 32];
 		Uint8 mask[4 * 32];
@@ -107,6 +81,14 @@ namespace lime {
 		sdlTexture = nullptr;
 		sdlRenderer = nullptr;
 		sdlWindow = nullptr;
+
+		#ifdef HX_WINDOWS
+		SDL_SetHint(SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
+		#endif
+
+		#if !(defined (LIME_ANGLE) && defined (IPHONE))
+		SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
+		#endif
 
 		#if defined(LIME_ANGLE) && defined(IPHONE)
 		eglMetalView = 0;
@@ -260,30 +242,7 @@ namespace lime {
 			egl_context_attribs.push_back(EGL_NONE);
 		#endif
 
-		#if defined (HX_WINDOWS) || defined (HX_MACOS) || defined (HX_LINUX)
-			#if defined (HX_WINDOWS)
-			SDL_setenv ("SDL_VIDEO_GL_DRIVER", "libGLESv2.dll", 1);
-			SDL_setenv ("SDL_VIDEO_EGL_DRIVER", "libEGL.dll", 1);
-			#elif defined (HX_MACOS)
-			SDL_setenv ("SDL_VIDEO_GL_DRIVER", "libGLESv2.dylib", 1);
-			SDL_setenv ("SDL_VIDEO_EGL_DRIVER", "libEGL.dylib", 1);
-			#elif defined (HX_LINUX)
-			SDL_setenv ("SDL_VIDEO_GL_DRIVER", "libGLESv2.so", 1);
-			SDL_setenv ("SDL_VIDEO_EGL_DRIVER", "libEGL.so", 1);
-			#endif
-
-			if (CheckForAngle()) {
-				#ifdef HX_WINDOWS
-				SDL_SetHint(SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
-				#endif
-
-				SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
-
-				SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-				SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-				SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-			}
-		#elif !(defined (LIME_ANGLE) && defined (IPHONE))
+		#if !(defined (LIME_ANGLE) && defined (IPHONE))
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
@@ -332,13 +291,13 @@ namespace lime {
 					printf("Failed to make EGL context current (EGL error: 0x%04X)\n", eglGetError());
 				} else {
 					SetVSync((flags & WINDOW_FLAG_VSYNC));
+					OpenGLBindings::Init();
 				}
 			#else
 				context = SDL_GL_CreateContext(sdlWindow);
 
 				if (context && SDL_GL_MakeCurrent(sdlWindow, context) == 0) {
 					SetVSync((flags & WINDOW_FLAG_VSYNC));
-
 					OpenGLBindings::Init();
 				} else {
 					if (context)

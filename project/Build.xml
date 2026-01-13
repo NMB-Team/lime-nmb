@@ -31,7 +31,7 @@
 	<set name="LIME_PIXMAN" value="1" />
 	<set name="LIME_PNG" value="1" />
 	<set name="LIME_SDL" value="1" />
-	<set name="LIME_ANGLE" value="1" if="iphone || tvos" />
+	<set name="LIME_ANGLE" value="1" if="iphone" />
 	<set name="LIME_GLAD" value="1" unless="LIME_ANGLE" />
 	<set name="LIME_SDL_SOUND" value="1" />
 	<set name="LIME_TINYFILEDIALOGS" value="1" if="windows || mac || linux" unless="winrt || emscripten" />
@@ -273,7 +273,7 @@
 			</section>
 
 			<section if="simulator">
-				<compilerflag value="-F../dependencies/angle/iPhone/arm64_x86_64-simulator" if="HXCPP_ARM64 || HXCPP_X86_64" />
+				<compilerflag value="-F../dependencies/angle/iPhone/arm64_x86_64-simulator" if="HXCPP_ARM64 || HXCPP_M64" />
 			</section>
 
 			<compilerflag value="-DLIME_ANGLE" />
@@ -495,7 +495,6 @@
 				<vflag name="-framework" value="ForceFeedback" />
 				<vflag name="-framework" value="Carbon" />
 				<vflag name="-framework" value="AppKit" />
-				<vflag name="-framework" value="OpenAL" />
 				<vflag name="-framework" value="SystemConfiguration" />
 
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
@@ -539,7 +538,7 @@
 				<vflag name="-framework" value="CoreVideo" />
 				<vflag name="-framework" value="AudioToolbox" />
 				<vflag name="-framework" value="AudioUnit" />
-				<vflag name="-framework" value="OpenAL" />
+				<vflag name="-framework" value="OpenGLES" />
 				<vflag name="-framework" value="GameController" />
 				<!-- <vflag name="-framework" value="CoreBluetooth" /> -->
 
@@ -555,7 +554,6 @@
 				<vflag name="-framework" value="CoreVideo" />
 				<vflag name="-framework" value="AudioToolbox" />
 				<vflag name="-framework" value="AudioUnit" />
-				<vflag name="-framework" value="OpenAL" />
 				<vflag name="-framework" value="CoreMotion" />
 				<vflag name="-framework" value="CoreText" />
 				<!-- <vflag name="-framework" value="CoreBluetooth" /> -->
