@@ -372,10 +372,10 @@
 	<include name="lib/efsw/files.xml" />
 	<include name="lib/faudio/files.xml" if="LIME_FAUDIO" />
 	<include name="lib/freetype/files.xml" />
-	<include name="lib/harfbuzz/files.xml" />
+	<include name="lib/harfbuzz-files.xml" />
 	<include name="lib/glad-files.xml" if="LIME_GLAD" />
 	<include name="lib/jpeg/files.xml" />
-	<include name="lib/lzma/files.xml" />
+	<include name="lib/lzma-files.xml" />
 	<include name="lib/mbedtls-files.xml" />
 	<include name="lib/mojoal-files.xml" />
 	<include name="lib/neko/files.xml" />

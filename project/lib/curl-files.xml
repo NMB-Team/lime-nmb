@@ -9,7 +9,7 @@
 		<depend name="${NATIVE_TOOLKIT_PATH}/curl/include/curl/multi.h" />
 		<depend name="${NATIVE_TOOLKIT_PATH}/curl/include/curl/stdcheaders.h" />
 		<depend name="${NATIVE_TOOLKIT_PATH}/curl/include/curl/typecheck-gcc.h" />
- 	</files>
+	</files>
 
 	<files id="native-toolkit-curl" tags="">
 
