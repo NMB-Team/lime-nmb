@@ -193,6 +193,8 @@ namespace lime {
 					egl_config_attribs.push_back(2);
 				}
 
+				egl_config_attribs.push_back (EGL_COLOR_BUFFER_TYPE);
+				egl_config_attribs.push_back (EGL_RGB_BUFFER);
 				egl_config_attribs.push_back(EGL_SURFACE_TYPE);
 				egl_config_attribs.push_back(EGL_WINDOW_BIT);
 				egl_config_attribs.push_back(EGL_RENDERABLE_TYPE);

@@ -1209,7 +1209,7 @@ class HTML5Window {
 							div.style.height = elementHeight + "px";
 						}
 
-						parent.onResize.dispatch(elementWidth, elementHeight);
+						parent.onResize.dispatch(Math.floor(elementWidth), Math.floor(elementHeight));
 					}
 				} else {
 					var scaleX = (setWidth != 0) ? (elementWidth / setWidth) : 1;
