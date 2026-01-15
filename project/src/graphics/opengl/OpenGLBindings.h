@@ -4,7 +4,9 @@
 #if defined(LIME_GLAD)
 	#include <glad/gles2.h>
 #elif defined(LIME_ANGLE) && defined(IPHONE)
-	#include <libGLESv2/gl3.h>
+	#define GL_GLEXT_PROTOTYPES 1
+	#include <GLES3/gl3.h>
+	#include <GLES2/gl2ext.h>
 #endif
 
 
@@ -16,7 +18,12 @@ namespace lime {
 		public:
 
 			static void Init ();
+
+			#if defined(LIME_ANGLE) && defined(IPHONE)
+			static void GL_APIENTRY LogGLDebugMessage (GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
+			#else
 			static void APIENTRY LogGLDebugMessage (GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
+			#endif
 
 		private:
 
