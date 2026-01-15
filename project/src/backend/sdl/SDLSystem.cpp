@@ -175,9 +175,9 @@ namespace lime {
 				Windows::Storage::StorageFolder^ folder = Windows::Storage::KnownFolders::HomeGroup;
 				result = MakeWStringPtr(std::wstring(folder->Path->Data()));
 				#elif defined(HX_WINDOWS)
-				char folderPath[MAX_PATH] = "";
-				if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_DESKTOPDIRECTORY, nullptr, SHGFP_TYPE_CURRENT, folderPath))) {
-					result = MakeWStringPtr(Utf8ToWString(folderPath));
+				WCHAR folderPath[MAX_PATH] = L"";
+				if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_DESKTOPDIRECTORY, nullptr, SHGFP_TYPE_CURRENT, folderPath))) {
+					result = MakeWStringPtr(folderPath);
 				}
 				#elif defined(IPHONE)
 				result = System::GetIOSDirectory(type);
@@ -196,9 +196,9 @@ namespace lime {
 				Windows::Storage::StorageFolder^ folder = Windows::Storage::KnownFolders::DocumentsLibrary;
 				result = MakeWStringPtr(std::wstring(folder->Path->Data()));
 				#elif defined(HX_WINDOWS)
-				char folderPath[MAX_PATH] = "";
-				if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_MYDOCUMENTS, nullptr, SHGFP_TYPE_CURRENT, folderPath))) {
-					result = MakeWStringPtr(Utf8ToWString(folderPath));
+				WCHAR folderPath[MAX_PATH] = L"";
+				if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_MYDOCUMENTS, nullptr, SHGFP_TYPE_CURRENT, folderPath))) {
+					result = MakeWStringPtr(folderPath);
 				}
 				#elif defined(IPHONE)
 				result = System::GetIOSDirectory(type);
@@ -218,9 +218,9 @@ namespace lime {
 				#if defined(HX_WINRT)
 				// TODO
 				#elif defined(HX_WINDOWS)
-				char folderPath[MAX_PATH] = "";
-				if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_FONTS, nullptr, SHGFP_TYPE_CURRENT, folderPath))) {
-					result = MakeWStringPtr(Utf8ToWString(folderPath));
+				WCHAR folderPath[MAX_PATH] = L"";
+				if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_FONTS, nullptr, SHGFP_TYPE_CURRENT, folderPath))) {
+					result = MakeWStringPtr(folderPath);
 				}
 				#elif defined(HX_MACOS)
 				result = MakeWStringPtr(std::wstring(L"/Library/Fonts"));
@@ -241,9 +241,9 @@ namespace lime {
 				Windows::Storage::StorageFolder^ folder = Windows::Storage::ApplicationData::Current->RoamingFolder;
 				result = MakeWStringPtr(std::wstring(folder->Path->Data()));
 				#elif defined(HX_WINDOWS)
-				char folderPath[MAX_PATH] = "";
-				if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_PROFILE, nullptr, SHGFP_TYPE_CURRENT, folderPath))) {
-					result = MakeWStringPtr(Utf8ToWString(folderPath));
+				WCHAR folderPath[MAX_PATH] = L"";
+				if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_PROFILE, nullptr, SHGFP_TYPE_CURRENT, folderPath))) {
+					result = MakeWStringPtr(folderPath);
 				}
 				#elif defined(IPHONE)
 				result = System::GetIOSDirectory(type);

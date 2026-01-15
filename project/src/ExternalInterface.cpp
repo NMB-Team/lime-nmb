@@ -1070,7 +1070,7 @@ namespace lime {
 
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
-		return font->GetGlyphIndex ((char*)character.c_str ());
+		return font->GetGlyphIndex (character.c_str ());
 		#else
 		return -1;
 		#endif
@@ -1227,6 +1227,54 @@ namespace lime {
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)fontHandle->ptr;
 		return font->GetUnderlineThickness ();
+		#else
+		return 0;
+		#endif
+
+	}
+
+
+	int lime_font_get_strikethrough_position (value fontHandle) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)val_data (fontHandle);
+		return font->GetStrikethroughPosition ();
+		#else
+		return 0;
+		#endif
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_font_get_strikethrough_position) (HL_CFFIPointer* fontHandle) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)fontHandle->ptr;
+		return font->GetStrikethroughPosition ();
+		#else
+		return 0;
+		#endif
+
+	}
+
+
+	int lime_font_get_strikethrough_thickness (value fontHandle) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)val_data (fontHandle);
+		return font->GetStrikethroughThickness ();
+		#else
+		return 0;
+		#endif
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_font_get_strikethrough_thickness) (HL_CFFIPointer* fontHandle) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)fontHandle->ptr;
+		return font->GetStrikethroughThickness ();
 		#else
 		return 0;
 		#endif
@@ -1474,21 +1522,21 @@ namespace lime {
 	}
 
 
-	void lime_font_set_size (value fontHandle, int fontSize) {
+	void lime_font_set_size (value fontHandle, int fontSize, int dpi) {
 
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
-		font->SetSize (fontSize);
+		font->SetSize (fontSize, dpi);
 		#endif
 
 	}
 
 
-	HL_PRIM void HL_NAME(hl_font_set_size) (HL_CFFIPointer* fontHandle, int fontSize) {
+	HL_PRIM void HL_NAME(hl_font_set_size) (HL_CFFIPointer* fontHandle, int fontSize, int dpi) {
 
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)fontHandle->ptr;
-		font->SetSize (fontSize);
+		font->SetSize (fontSize, dpi);
 		#endif
 
 	}
@@ -2224,20 +2272,6 @@ namespace lime {
 	HL_PRIM int HL_NAME(hl_joystick_get_num_hats) (int id) {
 
 		return Joystick::GetNumHats (id);
-
-	}
-
-
-	int lime_joystick_get_num_trackballs (int id) {
-
-		return Joystick::GetNumTrackballs (id);
-
-	}
-
-
-	HL_PRIM int HL_NAME(hl_joystick_get_num_trackballs) (int id) {
-
-		return Joystick::GetNumTrackballs (id);
 
 	}
 
@@ -3106,8 +3140,8 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_window_alert) (HL_CFFIPointer* window, hl_vstring* message, hl_vstring* title) {
 
 		Window* targetWindow = (Window*)window->ptr;
-		const char *cmessage = message ? hl_to_utf8(message->bytes) : NULL;
-		const char *ctitle = title ? hl_to_utf8(title->bytes) : NULL;
+		const char *cmessage = message ? hl_to_utf8(message->bytes) : nullptr;
+		const char *ctitle = title ? hl_to_utf8(title->bytes) : nullptr;
 		targetWindow->Alert (cmessage, ctitle);
 
 	}
@@ -4132,6 +4166,8 @@ namespace lime {
 	DEFINE_PRIME1 (lime_font_get_num_glyphs);
 	DEFINE_PRIME1 (lime_font_get_underline_position);
 	DEFINE_PRIME1 (lime_font_get_underline_thickness);
+	DEFINE_PRIME1 (lime_font_get_strikethrough_position);
+	DEFINE_PRIME1 (lime_font_get_strikethrough_thickness);
 	DEFINE_PRIME1 (lime_font_get_units_per_em);
 	DEFINE_PRIME1 (lime_font_load);
 	DEFINE_PRIME1 (lime_font_load_bytes);
@@ -4139,7 +4175,7 @@ namespace lime {
 	DEFINE_PRIME2 (lime_font_outline_decompose);
 	DEFINE_PRIME3 (lime_font_render_glyph);
 	DEFINE_PRIME3 (lime_font_render_glyphs);
-	DEFINE_PRIME2v (lime_font_set_size);
+	DEFINE_PRIME3v (lime_font_set_size);
 	DEFINE_PRIME1v (lime_gamepad_add_mappings);
 	DEFINE_PRIME2v (lime_gamepad_event_manager_register);
 	DEFINE_PRIME1 (lime_gamepad_get_device_guid);
@@ -4172,7 +4208,6 @@ namespace lime {
 	DEFINE_PRIME1 (lime_joystick_get_num_axes);
 	DEFINE_PRIME1 (lime_joystick_get_num_buttons);
 	DEFINE_PRIME1 (lime_joystick_get_num_hats);
-	DEFINE_PRIME1 (lime_joystick_get_num_trackballs);
 	DEFINE_PRIME3 (lime_jpeg_decode_bytes);
 	DEFINE_PRIME3 (lime_jpeg_decode_file);
 	DEFINE_PRIME1 (lime_key_code_from_scan_code);
@@ -4335,6 +4370,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_font_get_num_glyphs, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_font_get_underline_position, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_font_get_underline_thickness, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_font_get_strikethrough_position, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_font_get_strikethrough_thickness, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_font_get_units_per_em, _TCFFIPOINTER);
 	// DEFINE_PRIME1 (lime_font_load);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_font_load_bytes, _TBYTES);
@@ -4342,7 +4379,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_DYN, hl_font_outline_decompose, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_TBYTES, hl_font_render_glyph, _TCFFIPOINTER _I32 _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_font_render_glyphs, _TCFFIPOINTER _ARR _TBYTES);
-	DEFINE_HL_PRIM (_VOID, hl_font_set_size, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, hl_font_set_size, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_gamepad_add_mappings, _ARR);
 	DEFINE_HL_PRIM (_VOID, hl_gamepad_event_manager_register, _FUN(_VOID, _NO_ARG) _TGAMEPAD_EVENT);
 	DEFINE_HL_PRIM (_BYTES, hl_gamepad_get_device_guid, _I32);
@@ -4375,7 +4412,6 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_joystick_get_num_axes, _I32);
 	DEFINE_HL_PRIM (_I32, hl_joystick_get_num_buttons, _I32);
 	DEFINE_HL_PRIM (_I32, hl_joystick_get_num_hats, _I32);
-	DEFINE_HL_PRIM (_I32, hl_joystick_get_num_trackballs, _I32);
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, hl_jpeg_decode_bytes, _TBYTES _BOOL _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, hl_jpeg_decode_file, _STRING _BOOL _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_I32, hl_key_code_from_scan_code, _I32);

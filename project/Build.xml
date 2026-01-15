@@ -1,6 +1,5 @@
 <xml>
 
-	<set name="PLATFORM" value="android-21" if="android" />
 	<set name="HXCPP_CPP_LATEST" value="1" />
 
 	<!-- Requirement for OpenAL Soft 1.24.0+ -->
@@ -61,11 +60,12 @@
 
 		<section if="LIME_CAIRO">
 
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include" />
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/default/" unless="windows || mac || linux" />
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/linux/" if="linux" />
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/windows/" if="windows" />
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/mac/" if="mac" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/cairo/src/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/cairo/configs/default/" unless="windows || mac || linux" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/cairo/configs/linux/" if="linux" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/cairo/configs/windows/" if="windows" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/cairo/configs/mac/" if="mac" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/src/" />
 			<compilerflag value="-DLIME_CAIRO" />
 			<compilerflag value="-DHAVE_CONFIG_H" />
 			<compilerflag value="-DCAIRO_WIN32_STATIC_BUILD" if="windows" />
@@ -99,14 +99,18 @@
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/faudio/src" />
 			<compilerflag value="-DLIME_FAUDIO" />
 
-			<!-- <file name="src/graphics/format/PNG.cpp" /> -->
-
 		</section>
 
 		<section if="LIME_FREETYPE">
 
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/freetype/include" />
 			<compilerflag value="-DLIME_FREETYPE" />
+
+			<!--
+				prefer FreeType's font metrics algorithm from 2.9.1
+				it behaves more like SWF than the new algorithm
+			-->
+			<compilerflag value="-DLIME_FREETYPE_LEGACY_METRICS" />
 
 			<file name="src/text/Font.cpp" />
 
@@ -137,6 +141,7 @@
 
 		<section if="LIME_JPEG">
 
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/jpeg/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/jpeg/" />
 			<compilerflag value="-DLIME_JPEG" />
 
@@ -164,6 +169,7 @@
 
 		<section if="LIME_OGG">
 
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/ogg/include/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/ogg/include/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/include/" />
 			<compilerflag value="-DLIME_OGG" />
@@ -197,6 +203,7 @@
 
 		<section if="LIME_PNG">
 
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/png/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/png/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
 			<compilerflag value="-DLIME_PNG" />
@@ -230,12 +237,16 @@
 
 			<section if="rpi">
 
-				<compilerflag value="-I/opt/vc/include" />
-				<compilerflag value="-I/opt/vc/include/interface/vcos/pthreads" />
-				<compilerflag value="-I/opt/vc/include/interface/vmcs_host/linux" />
-				<compilerflag value="-lbrcmGLESv2" />
-				<compilerflag value="-lbrcmEGL" />
-				<compilerflag value="-Wl,--no-undefined -lm -L/opt/vc/lib -lbcm_host -ldl -lpthread -lrt" />
+				<compilerflag value="-I/usr/include/libdrm" />
+				<compilerflag value="-I/usr/include/dbus-1.0" />
+				<compilerflag value="-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include" unless="HXCPP_ARM64" />
+				<compilerflag value="-I/usr/lib/aarch64-linux-gnu/dbus-1.0/include" if="HXCPP_ARM64" />
+				<compilerflag value="-I/usr/local/include" />
+
+				<compilerflag value="-ldrm" />
+				<compilerflag value="-lgbm" />
+
+				<compilerflag value="-Wl,--no-undefined -lm -ldl -ldrm -lpthread -lrt" />
 
 			</section>
 
@@ -355,7 +366,6 @@
 		<file name="src/ui/WindowEvent.cpp" />
 		<file name="src/utils/ArrayBufferView.cpp" />
 		<file name="src/utils/Bytes.cpp" />
-
 		<file name="src/hx/CFFIExt.cpp" />
 
 	</files>
@@ -367,29 +377,29 @@
 
 	</files>
 
-	<include name="lib/cairo/files.xml" />
+	<include name="lib/cairo-files.xml" />
 	<include name="lib/curl-files.xml" />
-	<include name="lib/efsw/files.xml" />
-	<include name="lib/faudio/files.xml" if="LIME_FAUDIO" />
-	<include name="lib/freetype/files.xml" />
+	<include name="lib/efsw-files.xml" />
+	<include name="lib/faudio-files.xml" if="LIME_FAUDIO" />
+	<include name="lib/freetype-files.xml" />
 	<include name="lib/harfbuzz-files.xml" />
 	<include name="lib/glad-files.xml" if="LIME_GLAD" />
-	<include name="lib/jpeg/files.xml" />
+	<include name="lib/jpeg-files.xml" />
 	<include name="lib/lzma-files.xml" />
 	<include name="lib/mbedtls-files.xml" />
 	<include name="lib/mojoal-files.xml" />
-	<include name="lib/neko/files.xml" />
+	<include name="lib/neko-files.xml" />
 	<include name="lib/ogg-files.xml" />
 	<include name="lib/openal-files.xml" />
-	<include name="lib/pixman/files.xml" />
-	<include name="lib/png/files.xml" />
+	<include name="lib/pixman-files.xml" />
+	<include name="lib/png-files.xml" />
 	<include name="lib/sdl-files.xml" />
 	<include name="lib/sdl_sound-files.xml" />
 	<include name="lib/tinyfiledialogs-files.xml" />
 	<include name="lib/vorbis-files.xml" />
-	<include name="lib/vpx/files.xml" />
-	<include name="lib/webm/files.xml" />
-	<include name="lib/zlib/files.xml" />
+	<include name="lib/vpx-files.xml" />
+	<include name="lib/webm-files.xml" />
+	<include name="lib/zlib-files.xml" />
 
 	<set name="DEBUGEXTRA" value="-debug" if="fulldebug" />
 	<set name="LIBSUFFIX" value="${HX_TARGET_SUFFIX}" if="HX_TARGET_SUFFIX" />
@@ -483,6 +493,7 @@
 			</section>
 
 			<section if="mac">
+				<vflag name="-install_name" value="@executable_path/lime.hdll" if="LIME_HASHLINK"/>
 
 				<vflag name="-l" value="iconv" />
 				<vflag name="-framework" value="IOKit" />
@@ -574,5 +585,6 @@
 		<target id="lime-legacy" if="lime-legacy" />
 
 	</target>
+	<copyFile name="lime.lib" from="obj/lib/" overwrite="true" toolId="dll" if="windows LIME_HASHLINK" />
 
 </xml>

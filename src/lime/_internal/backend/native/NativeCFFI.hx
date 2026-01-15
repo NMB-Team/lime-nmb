@@ -137,6 +137,10 @@ class NativeCFFI
 
 	@:cffi private static function lime_font_get_underline_thickness(handle:Dynamic):Int;
 
+	@:cffi private static function lime_font_get_strikethrough_position(handle:Dynamic):Int;
+
+	@:cffi private static function lime_font_get_strikethrough_thickness(handle:Dynamic):Int;
+
 	@:cffi private static function lime_font_get_units_per_em(handle:Dynamic):Int;
 
 	@:cffi private static function lime_font_load(data:Dynamic):Dynamic;
@@ -151,7 +155,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_font_render_glyphs(handle:Dynamic, indices:Dynamic, data:Dynamic):Dynamic;
 
-	@:cffi private static function lime_font_set_size(handle:Dynamic, size:Int):Void;
+	@:cffi private static function lime_font_set_size(handle:Dynamic, size:Int, dpi:Int):Void;
 
 	@:cffi private static function lime_gamepad_add_mappings(mappings:Dynamic):Void;
 
@@ -216,8 +220,6 @@ class NativeCFFI
 	@:cffi private static function lime_joystick_get_num_buttons(id:Int):Int;
 
 	@:cffi private static function lime_joystick_get_num_hats(id:Int):Int;
-
-	@:cffi private static function lime_joystick_get_num_trackballs(id:Int):Int;
 
 	@:cffi private static function lime_joystick_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
 
@@ -459,6 +461,10 @@ class NativeCFFI
 		"oi", false));
 	private static var lime_font_get_underline_thickness = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_underline_thickness",
 		"oi", false));
+	private static var lime_font_get_strikethrough_position = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_strikethrough_position",
+		"oi", false));
+	private static var lime_font_get_strikethrough_thickness = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_strikethrough_thickness",
+		"oi", false));
 	private static var lime_font_get_units_per_em = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_units_per_em", "oi", false));
 	private static var lime_font_load = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_font_load", "oo", false));
 	private static var lime_font_load_bytes = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_font_load_bytes", "oo", false));
@@ -469,7 +475,7 @@ class NativeCFFI
 		"lime_font_render_glyph", "oioo", false));
 	private static var lime_font_render_glyphs = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
 		"lime_font_render_glyphs", "oooo", false));
-	private static var lime_font_set_size = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_font_set_size", "oiv", false));
+	private static var lime_font_set_size = new cpp.Callable<cpp.Object->Int->Int->ccpp.Void>(cpp.Prime._loadPrime("lime", "lime_font_set_size", "oiiv", false));
 	private static var lime_gamepad_add_mappings = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gamepad_add_mappings", "ov",
 		false));
 	private static var lime_gamepad_get_device_guid = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gamepad_get_device_guid", "io",
@@ -525,8 +531,6 @@ class NativeCFFI
 	private static var lime_joystick_get_num_axes = new cpp.Callable<Int->Int>(cpp.Prime._loadPrime("lime", "lime_joystick_get_num_axes", "ii", false));
 	private static var lime_joystick_get_num_buttons = new cpp.Callable<Int->Int>(cpp.Prime._loadPrime("lime", "lime_joystick_get_num_buttons", "ii", false));
 	private static var lime_joystick_get_num_hats = new cpp.Callable<Int->Int>(cpp.Prime._loadPrime("lime", "lime_joystick_get_num_hats", "ii", false));
-	private static var lime_joystick_get_num_trackballs = new cpp.Callable<Int->Int>(cpp.Prime._loadPrime("lime", "lime_joystick_get_num_trackballs", "ii",
-		false));
 	private static var lime_joystick_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_joystick_event_manager_register", "oov", false));
 	private static var lime_jpeg_decode_bytes = new cpp.Callable<cpp.Object->Bool->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
@@ -718,6 +722,8 @@ class NativeCFFI
 	private static var lime_font_get_num_glyphs = CFFI.load("lime", "lime_font_get_num_glyphs", 1);
 	private static var lime_font_get_underline_position = CFFI.load("lime", "lime_font_get_underline_position", 1);
 	private static var lime_font_get_underline_thickness = CFFI.load("lime", "lime_font_get_underline_thickness", 1);
+	private static var lime_font_get_strikethrough_position = CFFI.load("lime", "lime_font_get_strikethrough_position", 1);
+	private static var lime_font_get_strikethrough_thickness = CFFI.load("lime", "lime_font_get_strikethrough_thickness", 1);
 	private static var lime_font_get_units_per_em = CFFI.load("lime", "lime_font_get_units_per_em", 1);
 	private static var lime_font_load = CFFI.load("lime", "lime_font_load", 1);
 	private static var lime_font_load_bytes = CFFI.load("lime", "lime_font_load_bytes", 1);
@@ -725,7 +731,7 @@ class NativeCFFI
 	private static var lime_font_outline_decompose = CFFI.load("lime", "lime_font_outline_decompose", 2);
 	private static var lime_font_render_glyph = CFFI.load("lime", "lime_font_render_glyph", 3);
 	private static var lime_font_render_glyphs = CFFI.load("lime", "lime_font_render_glyphs", 3);
-	private static var lime_font_set_size = CFFI.load("lime", "lime_font_set_size", 2);
+	private static var lime_font_set_size = CFFI.load("lime", "lime_font_set_size", 3);
 	private static var lime_gamepad_add_mappings = CFFI.load("lime", "lime_gamepad_add_mappings", 1);
 	private static var lime_gamepad_get_device_guid = CFFI.load("lime", "lime_gamepad_get_device_guid", 1);
 	private static var lime_gamepad_get_device_name = CFFI.load("lime", "lime_gamepad_get_device_name", 1);
@@ -756,7 +762,6 @@ class NativeCFFI
 	private static var lime_joystick_get_num_axes = CFFI.load("lime", "lime_joystick_get_num_axes", 1);
 	private static var lime_joystick_get_num_buttons = CFFI.load("lime", "lime_joystick_get_num_buttons", 1);
 	private static var lime_joystick_get_num_hats = CFFI.load("lime", "lime_joystick_get_num_hats", 1);
-	private static var lime_joystick_get_num_trackballs = CFFI.load("lime", "lime_joystick_get_num_trackballs", 1);
 	private static var lime_joystick_event_manager_register = CFFI.load("lime", "lime_joystick_event_manager_register", 2);
 	private static var lime_jpeg_decode_bytes = CFFI.load("lime", "lime_jpeg_decode_bytes", 3);
 	private static var lime_jpeg_decode_file = CFFI.load("lime", "lime_jpeg_decode_file", 3);
@@ -1028,6 +1033,16 @@ class NativeCFFI
 		return 0;
 	}
 
+	@:hlNative("lime", "hl_font_get_strikethrough_position") private static function lime_font_get_strikethrough_position(handle:CFFIPointer):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_font_get_strikethrough_thickness") private static function lime_font_get_strikethrough_thickness(handle:CFFIPointer):Int
+	{
+		return 0;
+	}
+
 	@:hlNative("lime", "hl_font_get_units_per_em") private static function lime_font_get_units_per_em(handle:CFFIPointer):Int
 	{
 		return 0;
@@ -1060,7 +1075,7 @@ class NativeCFFI
 		return null;
 	}
 
-	@:hlNative("lime", "hl_font_set_size") private static function lime_font_set_size(handle:CFFIPointer, size:Int):Void {}
+	@:hlNative("lime", "hl_font_set_size") private static function lime_font_set_size(handle:CFFIPointer, size:Int, dpi:Int):Void {}
 
 	@:hlNative("lime", "hl_gamepad_add_mappings") private static function lime_gamepad_add_mappings(mappings:hl.NativeArray<String>):Void {}
 
@@ -1173,11 +1188,6 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_joystick_get_num_hats") private static function lime_joystick_get_num_hats(id:Int):Int
-	{
-		return 0;
-	}
-
-	@:hlNative("lime", "hl_joystick_get_num_trackballs") private static function lime_joystick_get_num_trackballs(id:Int):Int
 	{
 		return 0;
 	}
@@ -5905,6 +5915,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_hb_buffer_add(buffer:CFFIPointer, codepoint:Int, cluster:Int):Void;
 
+	@:cffi private static function lime_hb_buffer_add_hxstring(buffer:CFFIPointer, text:String, itemOffset:Int, itemLength:Int):Void;
+
 	@:cffi private static function lime_hb_buffer_add_codepoints(buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void;
 
 	@:cffi private static function lime_hb_buffer_add_utf8(buffer:CFFIPointer, text:String, itemOffset:Int, itemLength:Int):Void;
@@ -6121,6 +6133,8 @@ class NativeCFFI
 		false));
 	private static var lime_hb_buffer_add = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_add", "oiiv",
 		false));
+	private static var lime_hb_buffer_add_hxstring = new cpp.Callable<cpp.Object->String->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_add_hxstring", "osiiv", false));
 	private static var lime_hb_buffer_add_codepoints = new cpp.Callable<cpp.Object->lime.utils.DataPointer->Int->Int->Int->
 		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_add_codepoints", "odiiiv", false));
 	private static var lime_hb_buffer_add_utf8 = new cpp.Callable<cpp.Object->String->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
@@ -6301,6 +6315,7 @@ class NativeCFFI
 	private static var lime_hb_blob_is_immutable:Dynamic->Bool = CFFI.load("lime", "lime_hb_blob_is_immutable", 1);
 	private static var lime_hb_blob_make_immutable:Dynamic->Void = CFFI.load("lime", "lime_hb_blob_make_immutable", 1);
 	private static var lime_hb_buffer_add:Dynamic->Int->Int->Void = CFFI.load("lime", "lime_hb_buffer_add", 3);
+	private static var lime_hb_buffer_add_hxstring:Dynamic->String->Int->Int->Void = CFFI.load("lime", "lime_hb_buffer_add_hxstring", 4);
 	private static var lime_hb_buffer_add_codepoints:Dynamic->lime.utils.DataPointer->Int->Int->Int->Void = CFFI.load("lime", "lime_hb_buffer_add_codepoints",
 		5);
 	private static var lime_hb_buffer_add_utf8:Dynamic->String->Int->Int->Void = CFFI.load("lime", "lime_hb_buffer_add_utf8", 4);
@@ -6450,6 +6465,9 @@ class NativeCFFI
 	@:hlNative("lime", "hl_hb_blob_make_immutable") private static function lime_hb_blob_make_immutable(blob:CFFIPointer):Void {}
 
 	@:hlNative("lime", "hl_hb_buffer_add") private static function lime_hb_buffer_add(buffer:CFFIPointer, codepoint:Int, cluster:Int):Void {}
+
+	@:hlNative("lime", "hl_hb_buffer_add_hxstring") private static function lime_hb_buffer_add_hxstring(buffer:CFFIPointer, text:String, itemOffset:Int,
+		itemLength:Int):Void {}
 
 	@:hlNative("lime", "hl_hb_buffer_add_codepoints") private static function lime_hb_buffer_add_codepoints(buffer:CFFIPointer, text:DataPointer,
 		textLength:Int, itemOffset:Int, itemLength:Int):Void {}
