@@ -246,10 +246,6 @@
 			"type": "TypeName"
 		},
 		{
-			"props": {},
-			"type": "UnnecessaryConstructor"
-		},
-		{
 			"props": {
 				"tokens": [",", ";"],
 				"allowTrailingComma": false

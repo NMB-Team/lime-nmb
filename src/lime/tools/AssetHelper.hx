@@ -214,7 +214,7 @@ class AssetHelper
 
 		if (project.target == FLASH || project.target == AIR)
 		{
-			if (asset.embed != false || asset.type == FONT)
+			if (asset.embed || asset.type == FONT)
 			{
 				assetData.className = "__ASSET__" + asset.flatName;
 			}
@@ -223,7 +223,7 @@ class AssetHelper
 				assetData.path = asset.resourceName;
 			}
 
-			if (asset.embed == false && asset.library != null && libraries.exists(asset.library))
+			if (asset.embed && asset.library != null && libraries.exists(asset.library))
 			{
 				assetData.preload = libraries[asset.library].preload;
 			}
@@ -239,7 +239,7 @@ class AssetHelper
 			{
 				assetData.path = asset.resourceName;
 
-				if (asset.embed != false || (asset.library != null && libraries.exists(asset.library) && libraries[asset.library].preload))
+				if (asset.embed || (asset.library != null && libraries.exists(asset.library) && libraries[asset.library].preload))
 				{
 					assetData.preload = true;
 				}
@@ -266,13 +266,12 @@ class AssetHelper
 		else
 		{
 			if (project.target == WEB_ASSEMBLY
-				&& (asset.embed != false
-					|| (asset.library != null && libraries.exists(asset.library) && libraries[asset.library].preload)))
+				&& (asset.embed || (asset.library != null && libraries.exists(asset.library) && libraries[asset.library].preload)))
 			{
 				assetData.preload = true;
 			}
 
-			if (asset.embed == true || asset.type == FONT)
+			if (asset.embed || asset.type == FONT)
 			{
 				assetData.className = "__ASSET__" + asset.flatName;
 			}
@@ -391,7 +390,7 @@ class AssetHelper
 
 	private static function isPackedLibrary(project:HXProject, library:Library)
 	{
-		if (project.target == FLASH && library.embed != false) return false;
+		if (project.target == FLASH && library.embed) return false;
 
 		return switch (library.type)
 		{
@@ -552,7 +551,7 @@ class AssetHelper
 		{
 			if (library.type == null
 				|| (project.target == FLASH
-					&& library.embed != false
+					&& library.embed
 					&& ["pak", "pack", "gzip", "zip", "deflate"].indexOf(library.type) > -1))
 			{
 				if (library.name == DEFAULT_LIBRARY_NAME)

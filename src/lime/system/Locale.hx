@@ -54,7 +54,6 @@ abstract Locale(String) from String to String
 		{
 			var locale = null;
 
-
 			#if (js && html5)
 			locale = untyped navigator.language;
 			#elseif (android)

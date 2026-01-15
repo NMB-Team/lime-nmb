@@ -131,7 +131,9 @@ class HTTPRequestMacro
 								args: [
 									{name: "uri", type: macro:String, opt: true}],
 								expr: macro
-								{super(uri);},
+								{
+									super(uri);
+								},
 								params: [],
 								ret: macro:Void
 							}),
