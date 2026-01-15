@@ -37,7 +37,7 @@ namespace lime {
 		SizeT inputBufferSize = data->length;
 		Byte* inputBufferData = data->b;
 
-		SizeT outputBufferSize = inputBufferSize + inputBufferSize / 5 + (1 << 16);
+		SizeT outputBufferSize = inputBufferSize + inputBufferSize * .2 + (1 << 16);
 		Byte* outputBufferData = (Byte *)malloc (outputBufferSize);
 		SizeT propsSize = 100;
 		Byte* propsData = (Byte *)malloc (propsSize);

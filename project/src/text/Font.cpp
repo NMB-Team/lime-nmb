@@ -766,7 +766,7 @@ namespace lime {
 
 					} else if ((sfnt_name.platform_id == TT_PLATFORM_MICROSOFT) && (sfnt_name.encoding_id == TT_MS_ID_UNICODE_CS)) {
 
-						len = sfnt_name.string_len / 2;
+						len = sfnt_name.string_len * .5;
 						family_name = (wchar_t*)malloc ((len + 1) * sizeof (wchar_t));
 
 						for (i = 0; i < len; i++) {

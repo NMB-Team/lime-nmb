@@ -127,8 +127,8 @@ namespace lime {
 
 		bool sourcePremultiplied = sourceImage->buffer->premultiplied;
 		bool destPremultiplied = image->buffer->premultiplied;
-		int sourceBytesPerPixel = sourceImage->buffer->bitsPerPixel / 8;
-		int destBytesPerPixel = image->buffer->bitsPerPixel / 8;
+		int sourceBytesPerPixel = sourceImage->buffer->bitsPerPixel * .125;
+		int destBytesPerPixel = image->buffer->bitsPerPixel * .125;
 
 		bool useAlphaImage = (alphaImage && alphaImage->buffer->transparent);
 		bool blend = (mergeAlpha || (useAlphaImage && !image->buffer->transparent) || (!mergeAlpha && !image->buffer->transparent && sourceImage->buffer->transparent));
@@ -480,7 +480,7 @@ namespace lime {
 
 		PixelFormat format = image->buffer->format;
 		uint8_t* data = (uint8_t*)image->buffer->data->buffer->b;
-		int length = int (image->buffer->data->length / 4);
+		int length = int (image->buffer->data->length * .25);
 		RGBA pixel;
 
 		for (int i = 0; i < length; i++) {
@@ -553,7 +553,7 @@ namespace lime {
 	void ImageDataUtil::SetFormat (Image* image, PixelFormat format) {
 
 		int index;
-		int length = image->buffer->data->length / 4;
+		int length = image->buffer->data->length * .25;
 		int r1, g1, b1, a1, r2, g2, b2, a2;
 		int r, g, b, a;
 
@@ -796,7 +796,7 @@ namespace lime {
 
 		PixelFormat format = image->buffer->format;
 		uint8_t* data = (uint8_t*)image->buffer->data->buffer->b;
-		int length = int (image->buffer->data->length / 4);
+		int length = int (image->buffer->data->length * .25);
 		RGBA pixel;
 
 		for (int i = 0; i < length; i++) {
