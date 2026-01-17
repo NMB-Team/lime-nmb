@@ -19,11 +19,11 @@ namespace lime {
 
 			static void Init ();
 
-			#if defined(LIME_ANGLE) && defined(IPHONE)
-			static void GL_APIENTRY LogGLDebugMessage (GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
-			#else
-			static void APIENTRY LogGLDebugMessage (GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
-			#endif
+			// #if defined(LIME_ANGLE) && defined(IPHONE)
+			// static void GL_APIENTRY LogGLDebugMessage (GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
+			// #else
+			// static void APIENTRY LogGLDebugMessage (GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
+			// #endif
 
 		private:
 
