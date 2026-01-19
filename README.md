@@ -1,9 +1,7 @@
 ---
-
 <div align="center">
-    <img src="./lime.png" alt="Lime"/>
+<img src="./lime.png" alt="Lime"/>
 </div>
-
 ---
 
 > [!WARNING]
@@ -15,50 +13,45 @@
 ---
 
 <div align="center">
-    
+
 # Lime is a flexible, lightweight layer for Haxe cross-platform developers.
 
 </div>
 
-### Lime supports native, Flash and HTML5 targets with unified support for:
+### Lime supports native and HTML5 targets with unified support for:
 
- * Windowing
- * Input
- * Events
- * Audio
- * Render contexts
- * Network access
- * Assets
+- Windowing
+- Input
+- Events
+- Audio
+- Render contexts
+- Network access
+- Assets
 
 ### Lime does not include a renderer, but exposes the current context:
 
- * Cairo
- * Canvas
- * DOM
- * Flash
- * GL
+- Cairo
+- Canvas
+- DOM
+- GL
 
 <div align="center">
 
 #### The GL context is based upon the WebGL standard, implemented for both OpenGL and OpenGL ES as needed.
+
 #### Lime provides a unified audio API, but also provides access to OpenAL for advanced audio on native targets.
 
 </div>
 
-License
-=======
+# License
 
 Lime is free, open-source software under the [MIT license](LICENSE.md).
 
-
-Installation
-============
+# Installation
 
 First install the latest version of [Haxe](http://www.haxe.org/download).
 
-
-Development Builds
-==================
+# Development Builds
 
 When there are changes, Lime is built nightly. Builds are available for download [here](https://github.com/openfl/lime/actions?query=branch%3Adevelop+is%3Asuccess).
 
@@ -66,9 +59,7 @@ To install a development build, use the "haxelib local" command:
 
     haxelib local lime-haxelib.zip
 
-
-Building from Source
-====================
+# Building from Source
 
 Clone the Lime repository, as well as the submodules:
 
@@ -101,9 +92,7 @@ To switch away from a source build, use:
 
     haxelib dev lime
 
-
-Sample
-======
+# Sample
 
 You can build a sample Lime project with the following commands:
 
@@ -113,9 +102,7 @@ You can build a sample Lime project with the following commands:
 
 You can also list other projects that are available using "lime create".
 
-
-Targets
-=======
+# Targets
 
 Lime currently supports the following targets:
 
