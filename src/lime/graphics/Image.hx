@@ -469,8 +469,23 @@ class Image
 
 		if (sourceImage == this && destPoint.x < sourceRect.right && destPoint.y < sourceRect.bottom)
 		{
-			// TODO: Optimize further?
-			sourceImage = clone();
+			var srcWidth = Std.int(sourceRect.width);
+			var srcHeight = Std.int(sourceRect.height);
+			if (srcWidth > 0 && srcHeight > 0)
+			{
+				var pixelData = getPixels(sourceRect, format);
+				if (pixelData != null)
+				{
+					sourceImage = new Image(null, 0, 0, srcWidth, srcHeight, null, DATA);
+					sourceImage.setPixels(sourceImage.rect, new BytePointer(pixelData), format);
+					sourceRect.x = 0;
+					sourceRect.y = 0;
+				}
+				else
+				{
+					sourceImage = clone();
+				}
+			}
 		}
 
 		if (alphaImage == sourceImage && (alphaPoint == null || (alphaPoint.x == 0 && alphaPoint.y == 0)))
@@ -1171,7 +1186,7 @@ class Image
 				copyPixels(this, rect, new Vector2(x, y));
 
 			case FLASH:
-				buffer.__srcBitmapData.scroll(x + offsetX, y + offsetX);
+				buffer.__srcBitmapData.scroll(x + offsetX, y + offsetY);
 
 			default:
 		}
@@ -1208,7 +1223,7 @@ class Image
 					default: (color : RGBA);
 				}
 
-				buffer.__srcBitmapData.setPixel(x + offsetX, y + offsetX, argb);
+				buffer.__srcBitmapData.setPixel(x + offsetX, y + offsetY, argb);
 
 			default:
 		}

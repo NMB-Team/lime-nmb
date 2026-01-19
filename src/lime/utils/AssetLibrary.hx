@@ -164,109 +164,80 @@ class AssetLibrary
 
 	public function getAudioBuffer(id:String):AudioBuffer
 	{
-		if (cachedAudioBuffers.exists(id))
-		{
-			return cachedAudioBuffers.get(id);
-		}
-		else if (classTypes.exists(id))
-		{
-			return AudioBuffer.fromBytes(cast(Type.createInstance(classTypes.get(id), []), Bytes));
-		}
-		else
-		{
-			return AudioBuffer.fromFile(getPath(id));
-		}
+		var cached = cachedAudioBuffers.get(id);
+		if (cached != null) return cached;
+
+		var classType = classTypes.get(id);
+		if (classType != null)
+			return AudioBuffer.fromBytes(cast(Type.createInstance(classType, []), Bytes));
+
+		return AudioBuffer.fromFile(getPath(id));
 	}
 
 	public function getBytes(id:String):Bytes
 	{
-		if (cachedBytes.exists(id))
+		var cached = cachedBytes.get(id);
+		if (cached != null) return cached;
+
+		var text = cachedText.get(id);
+		if (text != null)
 		{
-			return cachedBytes.get(id);
-		}
-		else if (cachedText.exists(id))
-		{
-			var bytes = Bytes.ofString(cachedText.get(id));
+			var bytes = Bytes.ofString(text);
 			cachedBytes.set(id, bytes);
 			return bytes;
 		}
-		else if (classTypes.exists(id))
-		{
-			return cast(Type.createInstance(classTypes.get(id), []), Bytes);
-		}
-		else
-		{
-			return Bytes.fromFile(getPath(id));
-		}
+
+		var classType = classTypes.get(id);
+		if (classType != null)
+			return cast(Type.createInstance(classType, []), Bytes);
+
+		return Bytes.fromFile(getPath(id));
 	}
 
 	public function getFont(id:String):Font
 	{
-		if (cachedFonts.exists(id))
-		{
-			return cachedFonts.get(id);
-		}
-		else if (classTypes.exists(id))
-		{
-			return cast(Type.createInstance(classTypes.get(id), []), Font);
-		}
-		else
-		{
-			return Font.fromFile(getPath(id));
-		}
+		var cached = cachedFonts.get(id);
+		if (cached != null) return cached;
+
+		var classType = classTypes.get(id);
+		if (classType != null)
+			return cast(Type.createInstance(classType, []), Font);
+
+		return Font.fromFile(getPath(id));
 	}
 
 	public function getImage(id:String):Image
 	{
-		if (cachedImages.exists(id))
-		{
-			return cachedImages.get(id);
-		}
-		else if (classTypes.exists(id))
-		{
-			return cast(Type.createInstance(classTypes.get(id), []), Image);
-		}
-		else
-		{
-			return Image.fromFile(getPath(id));
-		}
+		var cached = cachedImages.get(id);
+		if (cached != null) return cached;
+
+		var classType = classTypes.get(id);
+		if (classType != null)
+			return cast(Type.createInstance(classType, []), Image);
+
+		return Image.fromFile(getPath(id));
 	}
 
 	public function getPath(id:String):String
 	{
-		if (paths.exists(id))
-		{
-			return paths.get(id);
-		}
-		else if (pathGroups.exists(id))
-		{
-			return pathGroups.get(id)[0];
-		}
-		else
-		{
-			return null;
-		}
+		var path = paths.get(id);
+		if (path != null) return path;
+
+		var group = pathGroups.get(id);
+		if (group != null) return group[0];
+
+		return null;
 	}
 
 	public function getText(id:String):String
 	{
-		if (cachedText.exists(id))
-		{
-			return cachedText.get(id);
-		}
-		else
-		{
-			var bytes = getBytes(id);
+		var cached = cachedText.get(id);
+		if (cached != null) return cached;
 
-			if (bytes == null)
-			{
-				return null;
-			}
-			else
-			{
-				return bytes.getString(0, bytes.length);
-			}
-		}
+		var bytes = getBytes(id);
+		if (bytes == null) return null;
+
+		return bytes.getString(0, bytes.length);
 	}
 
 	public function isLocal(id:String, type:String):Bool
@@ -406,67 +377,51 @@ class AssetLibrary
 
 	public function loadAudioBuffer(id:String):Future<AudioBuffer>
 	{
-		if (cachedAudioBuffers.exists(id))
-		{
-			return Future.withValue(cachedAudioBuffers.get(id));
-		}
-		else if (classTypes.exists(id))
-		{
-			return Future.withValue(AudioBuffer.fromBytes(cast(Type.createInstance(classTypes.get(id), []), Bytes)));
-		}
-		else
-		{
-			if (pathGroups.exists(id))
-			{
-				return AudioBuffer.loadFromFiles(pathGroups.get(id));
-			}
-			else
-			{
-				return AudioBuffer.loadFromFile(paths.get(id));
-			}
-		}
+		var cached = cachedAudioBuffers.get(id);
+		if (cached != null) return Future.withValue(cached);
+
+		var classType = classTypes.get(id);
+		if (classType != null)
+			return Future.withValue(AudioBuffer.fromBytes(cast(Type.createInstance(classType, []), Bytes)));
+
+		var group = pathGroups.get(id);
+		if (group != null) return AudioBuffer.loadFromFiles(group);
+
+		return AudioBuffer.loadFromFile(paths.get(id));
 	}
 
 	public function loadBytes(id:String):Future<Bytes>
 	{
-		if (cachedBytes.exists(id))
-		{
-			return Future.withValue(cachedBytes.get(id));
-		}
-		else if (classTypes.exists(id))
-		{
-			return Future.withValue(Type.createInstance(classTypes.get(id), []));
-		}
-		else
-		{
-			return Bytes.loadFromFile(getPath(id));
-		}
+		var cached = cachedBytes.get(id);
+		if (cached != null) return Future.withValue(cached);
+
+		var classType = classTypes.get(id);
+		if (classType != null) return Future.withValue(Type.createInstance(classType, []));
+
+		return Bytes.loadFromFile(getPath(id));
 	}
 
 	public function loadFont(id:String):Future<Font>
 	{
-		if (cachedFonts.exists(id))
-		{
-			return Future.withValue(cachedFonts.get(id));
-		}
-		else if (classTypes.exists(id))
-		{
-			var font:Font = Type.createInstance(classTypes.get(id), []);
+		var cached = cachedFonts.get(id);
+		if (cached != null) return Future.withValue(cached);
 
+		var classType = classTypes.get(id);
+		if (classType != null)
+		{
+			var font:Font = Type.createInstance(classType, []);
 			#if (js && html5)
 			return font.__loadFromName(font.name);
 			#else
 			return Future.withValue(font);
 			#end
 		}
-		else
-		{
-			#if (js && html5)
-			return Font.loadFromName(getPath(id));
-			#else
-			return Font.loadFromFile(getPath(id));
-			#end
-		}
+
+		#if (js && html5)
+		return Font.loadFromName(getPath(id));
+		#else
+		return Font.loadFromFile(getPath(id));
+		#end
 	}
 
 	public static function loadFromBytes(bytes:Bytes, rootPath:String = null):Future<AssetLibrary>
@@ -501,55 +456,43 @@ class AssetLibrary
 
 	public function loadImage(id:String):Future<Image>
 	{
-		if (cachedImages.exists(id))
+		var cached = cachedImages.get(id);
+		if (cached != null) return Future.withValue(cached);
+
+		var classType = classTypes.get(id);
+		if (classType != null) return Future.withValue(Type.createInstance(classType, []));
+
+		var bytes = cachedBytes.get(id);
+		if (bytes != null)
 		{
-			return Future.withValue(cachedImages.get(id));
-		}
-		else if (classTypes.exists(id))
-		{
-			return Future.withValue(Type.createInstance(classTypes.get(id), []));
-		}
-		else if (cachedBytes.exists(id))
-		{
-			return Image.loadFromBytes(cachedBytes.get(id)).then(function(image)
+			return Image.loadFromBytes(bytes).then(function(image)
 			{
 				cachedBytes.remove(id);
 				cachedImages.set(id, image);
 				return Future.withValue(image);
 			});
 		}
-		else
-		{
-			return Image.loadFromFile(getPath(id));
-		}
+
+		return Image.loadFromFile(getPath(id));
 	}
 
 	public function loadText(id:String):Future<String>
 	{
-		if (cachedText.exists(id))
-		{
-			return Future.withValue(cachedText.get(id));
-		}
-		else if (cachedBytes.exists(id) || classTypes.exists(id))
+		var cached = cachedText.get(id);
+		if (cached != null) return Future.withValue(cached);
+
+		if (cachedBytes.get(id) != null || classTypes.get(id) != null)
 		{
 			var bytes = getBytes(id);
+			if (bytes == null) return cast Future.withValue(null);
 
-			if (bytes == null)
-			{
-				return cast Future.withValue(null);
-			}
-			else
-			{
-				var text = bytes.getString(0, bytes.length);
-				cachedText.set(id, text);
-				return Future.withValue(text);
-			}
+			var text = bytes.getString(0, bytes.length);
+			cachedText.set(id, text);
+			return Future.withValue(text);
 		}
-		else
-		{
-			var request = new HTTPRequest<String>();
-			return request.load(getPath(id));
-		}
+
+		var request = new HTTPRequest<String>();
+		return request.load(getPath(id));
 	}
 
 	public function unload():Void
@@ -576,33 +519,21 @@ class AssetLibrary
 		if (id != null)
 		{
 			Log.verbose("Loaded asset: " + id + " [" + types.get(id) + "] (" + (assetsLoaded - 1) + "/" + (assetsTotal - 1) + ")");
-		}
 
-		if (id != null)
-		{
-			var size = sizes.exists(id) ? sizes.get(id) : 0;
+			var size = sizes.get(id);
+			if (size == null) size = 0;
 
-			if (!bytesLoadedCache.exists(id))
-			{
+			var cache = bytesLoadedCache.get(id);
+			if (cache == null)
 				bytesLoaded += size;
-			}
-			else
-			{
-				var cache = bytesLoadedCache.get(id);
-
-				if (cache < size)
-				{
-					bytesLoaded += (size - cache);
-				}
-			}
+			else if (cache < size)
+				bytesLoaded += (size - cache);
 
 			bytesLoadedCache.set(id, size);
 		}
 
 		if (assetsLoaded < assetsTotal)
-		{
 			promise.progress(bytesLoaded, bytesTotal);
-		}
 		else
 		{
 			loaded = true;
@@ -872,40 +803,34 @@ class AssetLibrary
 
 	@:noCompletion private function load_onProgress(id:String, bytesLoaded:Int, bytesTotal:Int):Void
 	{
-		if (bytesLoaded > 0)
+		if (bytesLoaded <= 0) return;
+
+		var size = sizes.get(id);
+		if (size == null) size = 0;
+
+		if (bytesTotal > 0)
 		{
-			var size = sizes.get(id);
-			var percent;
-
-			if (bytesTotal > 0)
-			{
-				// Use a ratio in case the real bytesTotal is different than our precomputed total
-
-				percent = (bytesLoaded / bytesTotal);
-				if (percent > 1) percent = 1;
-				bytesLoaded = Math.floor(percent * size);
-			}
-			else if (bytesLoaded > size)
-			{
-				bytesLoaded = size;
-			}
-
-			if (bytesLoadedCache.exists(id))
-			{
-				var cache = bytesLoadedCache.get(id);
-
-				if (bytesLoaded != cache)
-				{
-					this.bytesLoaded += (bytesLoaded - cache);
-				}
-			}
-			else
-			{
-				this.bytesLoaded += bytesLoaded;
-			}
-
-			bytesLoadedCache.set(id, bytesLoaded);
-			promise.progress(this.bytesLoaded, this.bytesTotal);
+			var percent = bytesLoaded / bytesTotal;
+			if (percent > 1) percent = 1;
+			bytesLoaded = Math.floor(percent * size);
 		}
+		else if (bytesLoaded > size)
+		{
+			bytesLoaded = size;
+		}
+
+		var cache = bytesLoadedCache.get(id);
+		if (cache != null)
+		{
+			if (bytesLoaded != cache)
+				this.bytesLoaded += (bytesLoaded - cache);
+		}
+		else
+		{
+			this.bytesLoaded += bytesLoaded;
+		}
+
+		bytesLoadedCache.set(id, bytesLoaded);
+		promise.progress(this.bytesLoaded, this.bytesTotal);
 	}
 }

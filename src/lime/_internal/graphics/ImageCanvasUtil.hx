@@ -138,12 +138,15 @@ class ImageCanvasUtil
 		{
 			if (alphaPoint == null) alphaPoint = new Vector2();
 
-			// TODO: use faster method
-
-			tempData = sourceImage.clone();
+			var srcWidth = Std.int(sourceRect.width);
+			var srcHeight = Std.int(sourceRect.height);
+			tempData = new Image(null, 0, 0, srcWidth, srcHeight);
+			tempData.copyPixels(sourceImage, sourceRect, new Vector2(0, 0));
 			tempData.copyChannel(alphaImage, new Rectangle(sourceRect.x + alphaPoint.x, sourceRect.y + alphaPoint.y, sourceRect.width, sourceRect.height),
-				new Vector2(sourceRect.x, sourceRect.y), ImageChannel.ALPHA, ImageChannel.ALPHA);
+				new Vector2(0, 0), ImageChannel.ALPHA, ImageChannel.ALPHA);
 			sourceImage = tempData;
+			sourceRect.x = 0;
+			sourceRect.y = 0;
 		}
 
 		convertToCanvas(image, true);

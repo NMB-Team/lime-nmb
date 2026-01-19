@@ -603,10 +603,7 @@ namespace lime {
 
 			const char* text = Clipboard::GetText ();
 			value _text = alloc_string (text);
-
-			// TODO: Should we free for all backends? (SDL requires it)
-
-			free ((char*)text);
+			SDL_free ((char*)text);
 			return _text;
 
 		} else {
@@ -623,7 +620,11 @@ namespace lime {
 		if (Clipboard::HasText ()) {
 
 			const char* text = Clipboard::GetText ();
-			return (vbyte*)text;
+			size_t len = strlen (text) + 1;
+			vbyte* result = (vbyte*)hl_gc_alloc_noptr (len);
+			memcpy (result, text, len);
+			SDL_free ((char*)text);
+			return result;
 
 		} else {
 

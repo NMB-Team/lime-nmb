@@ -1246,17 +1246,15 @@ namespace lime {
 	value lime_hb_font_get_face (value font) {
 
 		hb_face_t* face = hb_font_get_face ((hb_font_t*)val_data (font));
-		return CFFIPointer (face, gc_hb_face);
+		return CFFIPointer (hb_face_reference (face), gc_hb_face);
 
 	}
 
 
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_hb_font_get_face) (HL_CFFIPointer* font) {
 
-		// TODO: Manage memory differently here?
-
 		hb_face_t* face = hb_font_get_face ((hb_font_t*)font->ptr);
-		return HLCFFIPointer (face, (hl_finalizer)hl_gc_hb_face);
+		return HLCFFIPointer (hb_face_reference (face), (hl_finalizer)hl_gc_hb_face);
 
 	}
 

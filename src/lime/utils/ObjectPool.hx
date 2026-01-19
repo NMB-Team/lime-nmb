@@ -287,14 +287,12 @@ import haxe.ds.ObjectMap;
 
 		if (count == 0 || inactiveObjects == 0) return;
 
-		for (object in __inactiveObjectList)
+		while (count > 0 && __inactiveObjectList.length > 0)
 		{
+			var object = __inactiveObjectList.pop();
 			__pool.remove(object);
-			__inactiveObjectList.remove(object);
 			inactiveObjects--;
 			count--;
-
-			if (count == 0 || inactiveObjects == 0) return;
 		}
 	}
 

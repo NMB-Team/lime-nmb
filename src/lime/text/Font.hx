@@ -60,31 +60,7 @@ class Font {
 		}
 
 		if (!__init) {
-			#if js if (ascender == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined")) #end ascender = 0;
-			#if js
-			if (descender == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined"))
-			#end
-			descender = 0;
-			#if js
-			if (height == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined"))
-			#end
-			height = 0;
-			#if js
-			if (numGlyphs == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined"))
-			#end
-			numGlyphs = 0;
-			#if js
-			if (underlinePosition == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined"))
-			#end
-			underlinePosition = 0;
-			#if js
-			if (underlineThickness == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined"))
-			#end
-			underlineThickness = 0;
-			#if js
-			if (unitsPerEM == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined"))
-			#end
-			unitsPerEM = 0;
+			__initDefaultValues();
 
 			if (__fontID != null) {
 				if (Assets.isLocal(__fontID)) {
@@ -94,6 +70,27 @@ class Font {
 				__fromFile(__fontPath);
 			}
 		}
+	}
+
+	@:noCompletion private inline function __initDefaultValues():Void {
+		#if js
+		var undef = untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined");
+		if (ascender == undef) ascender = 0;
+		if (descender == undef) descender = 0;
+		if (height == undef) height = 0;
+		if (numGlyphs == undef) numGlyphs = 0;
+		if (underlinePosition == undef) underlinePosition = 0;
+		if (underlineThickness == undef) underlineThickness = 0;
+		if (unitsPerEM == undef) unitsPerEM = 0;
+		#else
+		ascender = 0;
+		descender = 0;
+		height = 0;
+		numGlyphs = 0;
+		underlinePosition = 0;
+		underlineThickness = 0;
+		unitsPerEM = 0;
+		#end
 	}
 
 	public function decompose():NativeFontData {
@@ -271,55 +268,71 @@ class Font {
 			var count = bytes.getInt32(bytesPosition);
 			bytesPosition += 4;
 
+			var glyphSizes = new Array<{w:Int, h:Int}>();
+			var totalArea = 0;
+			var maxGlyphWidth = 0;
+			var maxGlyphHeight = 0;
+
+			for (i in 0...count) {
+				bytesPosition += 4;
+				var w = bytes.getInt32(bytesPosition);
+				bytesPosition += 4;
+				var h = bytes.getInt32(bytesPosition);
+				bytesPosition += 4;
+				bytesPosition += (4 * 2) + w * h;
+
+				glyphSizes.push({w: w, h: h});
+				totalArea += (w + 1) * (h + 1);
+				if (w > maxGlyphWidth) maxGlyphWidth = w;
+				if (h > maxGlyphHeight) maxGlyphHeight = h;
+			}
+
 			var bufferWidth = 128;
 			var bufferHeight = 128;
+
+			while (bufferWidth < maxGlyphWidth) bufferWidth *= 2;
+			while (bufferHeight < maxGlyphHeight) bufferHeight *= 2;
+			while (bufferWidth * bufferHeight < totalArea) {
+				if (bufferWidth <= bufferHeight)
+					bufferWidth *= 2;
+				else
+					bufferHeight *= 2;
+			}
+
 			var offsetX = 0;
 			var offsetY = 0;
 			var maxRows = 0;
-
 			var width, height;
-			var i = 0;
 
-			while (i < count) {
-				bytesPosition += 4;
-				width = bytes.getInt32(bytesPosition);
-				bytesPosition += 4;
-				height = bytes.getInt32(bytesPosition);
-				bytesPosition += 4;
+			var fits = false;
+			while (!fits) {
+				fits = true;
+				offsetX = 0;
+				offsetY = 0;
+				maxRows = 0;
 
-				bytesPosition += (4 * 2) + width * height;
+				for (i in 0...count) {
+					width = glyphSizes[i].w;
+					height = glyphSizes[i].h;
 
-				if (offsetX + width > bufferWidth) {
-					offsetY += maxRows + 1;
-					offsetX = 0;
-					maxRows = 0;
-				}
-
-				if (offsetY + height > bufferHeight) {
-					if (bufferWidth < bufferHeight) {
-						bufferWidth *= 2;
-					} else {
-						bufferHeight *= 2;
+					if (offsetX + width > bufferWidth) {
+						offsetY += maxRows + 1;
+						offsetX = 0;
+						maxRows = 0;
 					}
 
-					offsetX = 0;
-					offsetY = 0;
-					maxRows = 0;
+					if (offsetY + height > bufferHeight) {
+						if (bufferWidth <= bufferHeight)
+							bufferWidth *= 2;
+						else
+							bufferHeight *= 2;
+						fits = false;
+						break;
+					}
 
-					// TODO: make this better
-
-					bytesPosition = 4;
-					i = 0;
-					continue;
+					offsetX += width + 1;
+					if (height > maxRows) maxRows = height;
 				}
-
-				offsetX += width + 1;
-
-				if (height > maxRows) {
-					maxRows = height;
-				}
-
-				i++;
 			}
 
 			var map = new Map<Int, Image>();

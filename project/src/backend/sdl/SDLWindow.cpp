@@ -650,22 +650,52 @@ namespace lime {
 	}
 
 	void SDLWindow::ReadPixels(ImageBuffer* buffer, Rectangle* rect) {
+		int x = 0, y = 0, width = 0, height = 0;
+
+		if (rect) {
+			x = static_cast<int>(rect->x);
+			y = static_cast<int>(rect->y);
+			width = static_cast<int>(rect->width);
+			height = static_cast<int>(rect->height);
+		} else {
+			SDL_GetWindowSize(sdlWindow, &width, &height);
+		}
+
+		if (width <= 0 || height <= 0) return;
+
 		if (sdlRenderer) {
-			SDL_Rect bounds = { 0, 0, 0, 0 };
-
-			if (rect) {
-				bounds.x = static_cast<int>(rect->x);
-				bounds.y = static_cast<int>(rect->y);
-				bounds.w = static_cast<int>(rect->width);
-				bounds.h = static_cast<int>(rect->height);
-			} else {
-				SDL_GetWindowSize(sdlWindow, &bounds.w, &bounds.h);
-			}
-
-			buffer->Resize(bounds.w, bounds.h, 32);
+			SDL_Rect bounds = { x, y, width, height };
+			buffer->Resize(width, height, 32);
 			SDL_RenderReadPixels(sdlRenderer, &bounds, SDL_PIXELFORMAT_ABGR8888, buffer->data->buffer->b, buffer->Stride());
 		}
-		// TODO: Implement for context
+		#if defined(LIME_GLAD) || (defined(LIME_ANGLE) && defined(IPHONE))
+		else if (
+			#if defined(LIME_ANGLE) && defined(IPHONE)
+			eglContext != EGL_NO_CONTEXT
+			#else
+			context != nullptr
+			#endif
+		) {
+			buffer->Resize(width, height, 32);
+			int windowHeight;
+			SDL_GetWindowSize(sdlWindow, nullptr, &windowHeight);
+			int glY = windowHeight - y - height;
+			glReadPixels(x, glY, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer->data->buffer->b);
+
+			unsigned char* data = buffer->data->buffer->b;
+			int stride = buffer->Stride();
+			int halfHeight = height / 2;
+			std::vector<unsigned char> tempRow(stride);
+
+			for (int row = 0; row < halfHeight; row++) {
+				unsigned char* topRow = data + row * stride;
+				unsigned char* bottomRow = data + (height - 1 - row) * stride;
+				memcpy(tempRow.data(), topRow, stride);
+				memcpy(topRow, bottomRow, stride);
+				memcpy(bottomRow, tempRow.data(), stride);
+			}
+		}
+		#endif
 	}
 
 	void SDLWindow::Resize(int width, int height) {

@@ -30,7 +30,7 @@ namespace lime {
 
 	const char_t* FileDialog::OpenDirectory (const char_t* title, const char_t* filter, const char_t* defaultPath) {
 
-		// TODO: Filter?
+		(void)filter;
 
 		const char_t* path = tinyfd_selectFolderDialog(title, defaultPath);
 

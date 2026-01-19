@@ -33,6 +33,15 @@ import lime.utils.Bytes;
 		this.type = type;
 	}
 
+	@:noCompletion private inline function extractBytes(id:String):Bytes
+	{
+		var bytes = Bytes.alloc(lengths[id]);
+		bytes.blit(0, packedData, positions[id], lengths[id]);
+		if (type == "gzip") return bytes.decompress(GZIP);
+		if (type == "zip" || type == "deflate") return bytes.decompress(DEFLATE);
+		return bytes;
+	}
+
 	public static function fromBytes(bytes:Bytes, rootPath:String = null):PackedAssetLibrary
 	{
 		return cast fromManifest(AssetManifest.fromBytes(bytes, rootPath));
@@ -53,42 +62,26 @@ import lime.utils.Bytes;
 		#if (js && html5)
 		return super.getAudioBuffer(id);
 		#else
-		if (cachedAudioBuffers.exists(id))
-		{
-			return cachedAudioBuffers.get(id);
-		}
-		else
-		{
-			// TODO: More efficient method
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
-			return AudioBuffer.fromBytes(bytes);
-		}
+		var cached = cachedAudioBuffers.get(id);
+		if (cached != null) return cached;
+		return AudioBuffer.fromBytes(extractBytes(id));
 		#end
 	}
 
 	public override function getBytes(id:String):Bytes
 	{
-		if (cachedBytes.exists(id))
+		var cached = cachedBytes.get(id);
+		if (cached != null) return cached;
+
+		var text = cachedText.get(id);
+		if (text != null)
 		{
-			return cachedBytes.get(id);
-		}
-		else if (cachedText.exists(id))
-		{
-			var bytes = Bytes.ofString(cachedText.get(id));
+			var bytes = Bytes.ofString(text);
 			cachedBytes.set(id, bytes);
 			return bytes;
 		}
-		else
-		{
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
-			return bytes;
-		}
+
+		return extractBytes(id);
 	}
 
 	public override function getFont(id:String):Font
@@ -96,57 +89,31 @@ import lime.utils.Bytes;
 		#if (js && html5)
 		return super.getFont(id);
 		#else
-		if (cachedFonts.exists(id))
-		{
-			return cachedFonts.get(id);
-		}
-		else
-		{
-			// TODO: More efficient method
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
-			return Font.fromBytes(bytes);
-		}
+		var cached = cachedFonts.get(id);
+		if (cached != null) return cached;
+		return Font.fromBytes(extractBytes(id));
 		#end
 	}
 
 	public override function getImage(id:String):Image
 	{
-		if (cachedImages.exists(id))
-		{
-			return cachedImages.get(id);
-		}
-		else
-		{
-			// TODO: More efficient method
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
-			return Image.fromBytes(bytes);
-		}
+		var cached = cachedImages.get(id);
+		if (cached != null) return cached;
+		return Image.fromBytes(extractBytes(id));
 	}
 
 	public override function getText(id:String):String
 	{
-		if (cachedText.exists(id))
+		var cached = cachedText.get(id);
+		if (cached != null) return cached;
+
+		if (type == "gzip" || type == "zip" || type == "deflate")
 		{
-			return cachedText.get(id);
-		}
-		else if (type == "gzip" || type == "zip" || type == "deflate")
-		{
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
+			var bytes = extractBytes(id);
 			return bytes.getString(0, bytes.length);
 		}
-		else
-		{
-			return packedData.getString(positions[id], lengths[id]);
-		}
+
+		return packedData.getString(positions[id], lengths[id]);
 	}
 
 	public override function isLocal(id:String, type:String):Bool
@@ -256,37 +223,17 @@ import lime.utils.Bytes;
 		#if (js && html5)
 		return super.loadAudioBuffer(id);
 		#else
-		if (cachedAudioBuffers.exists(id))
-		{
-			return Future.withValue(cachedAudioBuffers.get(id));
-		}
-		else
-		{
-			// TODO: More efficient method, use `loadFromBytes` method
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
-			return Future.withValue(AudioBuffer.fromBytes(bytes));
-		}
+		var cached = cachedAudioBuffers.get(id);
+		if (cached != null) return Future.withValue(cached);
+		return Future.withValue(AudioBuffer.fromBytes(extractBytes(id)));
 		#end
 	}
 
 	public override function loadBytes(id:String):Future<Bytes>
 	{
-		if (cachedBytes.exists(id))
-		{
-			return Future.withValue(cachedBytes.get(id));
-		}
-		else
-		{
-			// TODO: More efficient method
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
-			return Future.withValue(bytes);
-		}
+		var cached = cachedBytes.get(id);
+		if (cached != null) return Future.withValue(cached);
+		return Future.withValue(extractBytes(id));
 	}
 
 	public override function loadFont(id:String):Future<Font>
@@ -294,19 +241,9 @@ import lime.utils.Bytes;
 		#if (js && html5)
 		return super.loadFont(id);
 		#else
-		if (cachedFonts.exists(id))
-		{
-			return Future.withValue(cachedFonts.get(id));
-		}
-		else
-		{
-			// TODO: More efficient method
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
-			return Font.loadFromBytes(bytes);
-		}
+		var cached = cachedFonts.get(id);
+		if (cached != null) return Future.withValue(cached);
+		return Font.loadFromBytes(extractBytes(id));
 		#end
 	}
 
@@ -339,54 +276,34 @@ import lime.utils.Bytes;
 
 	public override function loadImage(id:String):Future<Image>
 	{
-		if (cachedImages.exists(id))
-		{
-			return Future.withValue(cachedImages.get(id));
-		}
-		else
-		{
-			// TODO: More efficient method
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
-			return Image.loadFromBytes(bytes);
-		}
+		var cached = cachedImages.get(id);
+		if (cached != null) return Future.withValue(cached);
+		return Image.loadFromBytes(extractBytes(id));
 	}
 
 	public override function loadText(id:String):Future<String>
 	{
-		if (cachedText.exists(id))
-		{
-			return Future.withValue(cachedText.get(id));
-		}
-		else if (cachedBytes.exists(id))
+		var cached = cachedText.get(id);
+		if (cached != null) return Future.withValue(cached);
+
+		var cachedB = cachedBytes.get(id);
+		if (cachedB != null)
 		{
 			var bytes = getBytes(id);
+			if (bytes == null) return cast Future.withValue(null);
 
-			if (bytes == null)
-			{
-				return cast Future.withValue(null);
-			}
-			else
-			{
-				var text = bytes.getString(0, bytes.length);
-				cachedText.set(id, text);
-				return Future.withValue(text);
-			}
+			var text = bytes.getString(0, bytes.length);
+			cachedText.set(id, text);
+			return Future.withValue(text);
 		}
-		else if (type == "gzip" || type == "deflate")
+
+		if (type == "gzip" || type == "deflate")
 		{
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
+			var bytes = extractBytes(id);
 			return Future.withValue(bytes.getString(0, bytes.length));
 		}
-		else
-		{
-			return Future.withValue(packedData.getString(positions[id], lengths[id]));
-		}
+
+		return Future.withValue(packedData.getString(positions[id], lengths[id]));
 	}
 
 	public override function unload():Void {}

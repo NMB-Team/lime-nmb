@@ -123,32 +123,23 @@ class Preloader
 			library.load()
 				.onProgress(function(loaded, total)
 				{
-					if (!bytesLoadedCache.exists(library))
-					{
+					var cache = bytesLoadedCache.get(library);
+					if (cache == null)
 						bytesLoaded += loaded;
-					}
 					else
-					{
-						bytesLoaded += loaded - bytesLoadedCache.get(library);
-					}
+						bytesLoaded += loaded - cache;
 
 					bytesLoadedCache.set(library, loaded);
 
-					if (!simulateProgress)
-					{
-						onProgress.dispatch(bytesLoaded, bytesTotal);
-					}
+					if (!simulateProgress) onProgress.dispatch(bytesLoaded, bytesTotal);
 				})
 				.onComplete(function(_)
 				{
-					if (!bytesLoadedCache.exists(library))
-					{
+					var cache = bytesLoadedCache.get(library);
+					if (cache == null)
 						bytesLoaded += library.bytesTotal;
-					}
 					else
-					{
-						bytesLoaded += Std.int(library.bytesTotal) - bytesLoadedCache.get(library);
-					}
+						bytesLoaded += Std.int(library.bytesTotal) - cache;
 
 					loadedAssetLibrary();
 				})
@@ -223,7 +214,8 @@ class Preloader
 					{
 						if (total > 0)
 						{
-							if (!bytesTotalCache.exists(name))
+							var totalCache = bytesTotalCache.get(name);
+							if (totalCache == null)
 							{
 								bytesTotalCache.set(name, total);
 								bytesTotal += (total - 200);
@@ -231,40 +223,27 @@ class Preloader
 
 							if (loaded > total) loaded = total;
 
-							if (!bytesLoadedCache2.exists(name))
-							{
+							var loadedCache = bytesLoadedCache2.get(name);
+							if (loadedCache == null)
 								bytesLoaded += loaded;
-							}
 							else
-							{
-								bytesLoaded += loaded - bytesLoadedCache2.get(name);
-							}
+								bytesLoaded += loaded - loadedCache;
 
 							bytesLoadedCache2.set(name, loaded);
 
-							if (!simulateProgress)
-							{
-								onProgress.dispatch(bytesLoaded, bytesTotal);
-							}
+							if (!simulateProgress) onProgress.dispatch(bytesLoaded, bytesTotal);
 						}
 					})
 					.onComplete(function(library)
 					{
-						var total = 200;
+						var total = bytesTotalCache.get(name);
+						if (total == null) total = 200;
 
-						if (bytesTotalCache.exists(name))
-						{
-							total = bytesTotalCache.get(name);
-						}
-
-						if (!bytesLoadedCache2.exists(name))
-						{
+						var cache = bytesLoadedCache2.get(name);
+						if (cache == null)
 							bytesLoaded += total;
-						}
 						else
-						{
-							bytesLoaded += total - bytesLoadedCache2.get(name);
-						}
+							bytesLoaded += total - cache;
 
 						loadedAssetLibrary(name);
 					})

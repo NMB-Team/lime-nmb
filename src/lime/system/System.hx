@@ -494,8 +494,6 @@ class System
 	#if sys
 	private static function __parseArguments(attributes:WindowAttributes):Void
 	{
-		// TODO: Handle default arguments, like --window-fps=60
-
 		var arguments = Sys.args();
 		var stripQuotes = ~/^['"](.*)['"]$/;
 		var equals, argValue, parameters = null;
@@ -545,11 +543,12 @@ class System
 							attributes.context.background = (argValue == "" || argValue == "null") ? null : Std.parseInt(argValue);
 						case "borderless":
 							attributes.borderless = __parseBool(argValue);
-						case "colorDepth":
+						case "color-depth":
 							attributes.context.colorDepth = Std.parseInt(argValue);
 						case "depth", "depth-buffer":
 							attributes.context.depth = __parseBool(argValue);
-						// case "display": windowConfig.display = Std.parseInt (argValue);
+						case "fps", "framerate", "frame-rate":
+							attributes.frameRate = Std.parseFloat(argValue);
 						case "fullscreen":
 							attributes.fullscreen = __parseBool(argValue);
 						case "hardware":
@@ -570,7 +569,8 @@ class System
 							attributes.resizable = __parseBool(argValue);
 						case "stencil", "stencil-buffer":
 							attributes.context.stencil = __parseBool(argValue);
-						// case "title": windowConfig.title = argValue;
+						case "title":
+							attributes.title = argValue;
 						case "vsync":
 							attributes.context.vsync = __parseBool(argValue);
 						case "width":
