@@ -950,6 +950,46 @@ namespace lime {
 		SDL_WarpMouseInWindow(sdlWindow, x, y);
 	}
 
+	void SDLCursor::FreeCursors() {
+		auto safeFree = [](SDL_Cursor*& cursor) {
+			if (cursor) {
+				SDL_FreeCursor(cursor);
+				cursor = nullptr;
+			}
+		};
+
+		// standard cursors
+		safeFree(arrowCursor);
+		safeFree(crosshairCursor);
+		safeFree(moveCursor);
+		safeFree(pointerCursor);
+		safeFree(textCursor);
+		safeFree(waitCursor);
+		safeFree(waitArrowCursor);
+		safeFree(spinnerCursor);
+
+		// for resizing the window
+		safeFree(resizeNESWCursor);
+		safeFree(resizeNSCursor);
+		safeFree(resizeNWSECursor);
+		safeFree(resizeWECursor);
+		safeFree(resize_dope);
+
+		// drag & drop
+		safeFree(dragDropCursor);
+		safeFree(dragDropCopyCursor);
+		safeFree(dragDropMoveCursor);
+		safeFree(dragDropNoneCursor);
+
+		// transform cursors
+		safeFree(trans_diag);
+		safeFree(trans_horz);
+		safeFree(trans_vert);
+		safeFree(trans_rotate);
+		safeFree(trans_move);
+		safeFree(trans_diag2);
+	}
+
 	Window* CreateWindow(Application* application, int width, int height, int flags, const char* title) {
 		return new SDLWindow(application, width, height, flags, title);
 	}

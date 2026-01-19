@@ -1,5 +1,6 @@
 #include <math/ColorMatrix.h>
 #include <utils/Bytes.h>
+#include <cstring>
 
 
 namespace lime {
@@ -11,19 +12,11 @@ namespace lime {
 
 	ColorMatrix::ColorMatrix () {
 
-		for (int i = 0; i < 20; i++) {
-
-			if (i % 6 == 0) {
-
-				data[i] = 1;
-
-			} else {
-
-				data[i] = 0;
-
-			}
-
-		}
+		memset(data, 0, sizeof(data));
+		data[0] = 1;
+		data[6] = 1;
+		data[12] = 1;
+		data[18] = 1;
 
 	}
 
@@ -40,26 +33,14 @@ namespace lime {
 		value buffer_value = val_field (colorMatrix, id_buffer);
 		Bytes bytes;
 		bytes.Set (buffer_value);
-		float* src = (float*)bytes.b;
-
-		for (int i = 0; i < 20; i++) {
-
-			data[i] = src[i];
-
-		}
+		memcpy(data, bytes.b, 20 * sizeof(float));
 
 	}
 
 
 	ColorMatrix::ColorMatrix (ArrayBufferView* colorMatrix) {
 
-		float* src = (float*)colorMatrix->buffer->b;
-
-		for (int i = 0; i < 20; i++) {
-
-			data[i] = src[i];
-
-		}
+		memcpy(data, colorMatrix->buffer->b, 20 * sizeof(float));
 
 	}
 

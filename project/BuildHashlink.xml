@@ -1,5 +1,5 @@
 <xml>
-	<set name="PLATFORM" value="android-21" if="android" />
+	<set name="PLATFORM" value="android-28" if="android" />
 	<set name="HXCPP_CPP_LATEST" value="1" />
 
 	<include name="${HXCPP}/build-tool/BuildCommon.xml" />

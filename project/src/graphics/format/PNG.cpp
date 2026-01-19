@@ -133,6 +133,7 @@ namespace lime {
 
 			png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
 			if (file) lime::fclose (file);
+			if (data) delete data;
 			return false;
 
 		}
@@ -276,22 +277,16 @@ namespace lime {
 				unsigned char *buf = &row_data[0];
 				const unsigned char *src = (const unsigned char *)(imageData + (stride * y));
 
-				for (int x = 0; x < w; x++) {
-
-					buf[0] = src[0];
-					buf[1] = src[1];
-					buf[2] = src[2];
-					src += 3;
-					buf += 3;
-
-					if (do_alpha) {
-
-						*buf++ = *src;
-
+				if (do_alpha) {
+					memcpy(buf, src, w * 4);
+				} else {
+					for (int x = 0; x < w; x++) {
+						buf[0] = src[0];
+						buf[1] = src[1];
+						buf[2] = src[2];
+						src += 4;
+						buf += 3;
 					}
-
-					src++;
-
 				}
 
 				png_write_rows (png_ptr, &row, 1);

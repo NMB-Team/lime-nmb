@@ -555,6 +555,7 @@ namespace lime {
 			static SDL_Cursor* trans_diag2;
 
 			static SDL_Cursor* CreateImageCursor(ImageBuffer *imageBuffer, int hot_x, int hot_y);
+			static void FreeCursors();
 
 	};
 

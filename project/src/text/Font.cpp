@@ -645,7 +645,7 @@ namespace lime {
 			alloc_field (ret, val_id ("descend"), alloc_int (calculatedDescender));
 			alloc_field (ret, val_id ("height"), alloc_int (calculatedHeight));
 
-			delete family_name;
+			free (family_name);
 
 			// 'glyphs' field
 			value neko_glyphs = alloc_array (num_glyphs);
@@ -721,10 +721,10 @@ namespace lime {
 			if (family_name != NULL) {
 
 				int length = std::wcslen (family_name);
-				char* result = (char*)malloc (length + 1);
-				std::wcstombs (result, family_name, length);
-				result[length] = '\0';
-				delete family_name;
+				_family_name = (char*)malloc (length + 1);
+				std::wcstombs (_family_name, family_name, length);
+				_family_name[length] = '\0';
+				free (family_name);
 
 			} else {
 
@@ -993,7 +993,7 @@ namespace lime {
 					if (sfnt_name.platform_id == TT_PLATFORM_MACINTOSH) {
 
 						len = sfnt_name.string_len;
-						family_name = new wchar_t[len + 1];
+						family_name = (wchar_t*)malloc ((len + 1) * sizeof (wchar_t));
 						#if defined(ANDROID) && !defined(HXCPP_CLANG)
 						// Fix some devices (Android 4.x or older) that have a bad stdc implementation
 						_mbsrtowcs (family_name, (const char**)&sfnt_name.string, len, 0);
@@ -1345,23 +1345,22 @@ namespace lime {
 				//Copy the bitmap data row by row, copying each RGB triplet and adding padding for 32-bit alignment
 				for (int i = 0; i < height; i++)
 				{
+					const unsigned char* srcRow = bitmap.buffer + i * pitch;
+					unsigned char* destPtr = position + i * width * 4;
+
 					for (int j = 0; j < width; j++)
 					{
-						unsigned char r = bitmap.buffer[i * pitch + j * 3 + 0];
-						unsigned char g = bitmap.buffer[i * pitch + j * 3 + 1];
-						unsigned char b = bitmap.buffer[i * pitch + j * 3 + 2];
-						unsigned char a = (r + g + b) / 3;
+						unsigned char r = srcRow[0];
+						unsigned char g = srcRow[1];
+						unsigned char b = srcRow[2];
 
-						//Red
-						position[(i * width + j) * 4 + 0] = r;
-						//Green
-						position[(i * width + j) * 4 + 1] = g;
-						//Blue
-						position[(i * width + j) * 4 + 2] = b;
-						//Alpha (fully opaque)
-						position[(i * width + j) * 4 + 3] = 255;
-						//Alpha
-						position[(i * width + j) * 4 + 3] = a;
+						destPtr[0] = r;
+						destPtr[1] = g;
+						destPtr[2] = b;
+						destPtr[3] = (r + g + b) / 3;
+
+						srcRow += 3;
+						destPtr += 4;
 					}
 				}
 
