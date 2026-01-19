@@ -3469,66 +3469,49 @@ namespace lime {
 	value lime_alc_get_device_list (int param) {
 
 		const char* result = alcGetString (NULL, param);
-		if (!result || *result == '\0')
-		{
-
+		if (!result || *result == '\0') {
 			return alloc_null ();
-
-		}
-		else
-		{
-
+		} else {
 			value list = alloc_array (0);
 
-			do
-			{
+			do {
 				val_array_push (list, alloc_string(result));
 				result += strlen(result) + 1;
-			}
-			while(*result != '\0');
+			} while(*result != '\0');
 
 			return list;
-
 		}
+
 	}
 
 
 	HL_PRIM hl_varray* HL_NAME(hl_alc_get_device_list) (int param) {
 
 		const char* result = alcGetString (NULL, param);
-		if (!result || *result == '\0')
-		{
-
+		if (!result || *result == '\0') {
 			return 0;
-
-		}
-		else
-		{
-
+		} else {
 			std::size_t total = 0;
 			const char* prevResult = result;
 
-			do
-			{
+			do {
 				result += strlen(result) + 1;
 				total++;
-			}
-			while(*result != '\0');
+			} while(*result != '\0');
 
 			result = prevResult;
 
 			hl_varray* resultArray = (hl_varray*)hl_alloc_array (&hlt_bytes, total);
 			vbyte** resultData = hl_aptr (resultArray, vbyte*);
 
-			while(*result != '\0')
-			{
+			while(*result != '\0') {
 				*resultData++ = (vbyte*)result;
 				result += strlen(result) + 1;
 			}
 
 			return resultArray;
-
 		}
+
 	}
 
 
@@ -3538,18 +3521,14 @@ namespace lime {
 		const char* result = alcGetString (alcDevice, param);
 
 		if (!result || *result == '\0') {
-
 			return alloc_null ();
-
 		}
 
 		value list = alloc_array (0);
 
 		while (*result != '\0') {
-
 			val_array_push (list, alloc_string (result));
 			result += strlen (result) + 1;
-
 		}
 
 		return list;
@@ -3563,25 +3542,20 @@ namespace lime {
 		const char* result = alcGetString(alcDevice, param);
 
 		if (!result || *result == '\0') {
-
 			return 0;
-
 		}
 
 		int count = 0;
 		const char* temp = result;
 		while (*temp != '\0') {
-
 			count++;
 			temp += strlen (temp) + 1;
-
 		}
 
 		varray* list = hl_alloc_array (&hlt_bytes, count);
 		vbyte** listData = hl_aptr (list, vbyte*);
 
 		while (*result != '\0') {
-
 			int length = strlen (result) + 1;
 			char* _result = (char*)hl_alloc_bytes (length);
 			strcpy (_result, result);
@@ -3590,7 +3564,6 @@ namespace lime {
 			listData++;
 
 			result += length;
-
 		}
 
 		return list;

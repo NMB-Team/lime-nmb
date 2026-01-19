@@ -232,6 +232,9 @@ class AL
 	public static inline var FILTER_LOWPASS:Int = 0x0001;
 	public static inline var FILTER_HIGHPASS:Int = 0x0002;
 	public static inline var FILTER_BANDPASS:Int = 0x0003;
+
+	public static inline var STEREO_ANGLES:Int = 0x1030;
+
 	#if lime_openalsoft
 	public static inline var STOP_SOURCES_ON_DISCONNECT_SOFT:Int = 0x19AB;
 	/* AL_SOFT_direct_channels extension */
@@ -240,8 +243,11 @@ class AL
 	public static inline var DROP_UNMATCHED_SOFT:Int = 0x0001;
 	public static inline var REMIX_UNMATCHED_SOFT:Int = 0x0002;
 	/* AL_SOFT_source_latency extension */
-	public static inline var SAMPLE_OFFSET_LATENCY_SOFT = 0x1200;
-	public static inline var SEC_OFFSET_LATENCY_SOFT = 0x1201;
+	public static inline var SAMPLE_OFFSET_LATENCY_SOFT:Int = 0x1200;
+	public static inline var SAMPLE_OFFSET_CLOCK_SOFT:Int = 0x1202;
+	public static inline var SEC_OFFSET_LATENCY_SOFT:Int = 0x1201;
+
+	public static inline var LOOP_POINTS_SOFT:Int = 0x2015;
 	#end
 
 	public static function removeDirectFilter(source:ALSource)
@@ -441,6 +447,27 @@ class AL
 		var sources = _sources;
 		#end
 		NativeCFFI.lime_al_delete_sources(sources.length, sources);
+		#end
+	}
+
+	public static function deleteEffect(effect:ALEffect):Void
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_delete_effect(effect);
+		#end
+	}
+
+	public static function deleteFilter(filter:ALFilter):Void
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_delete_filter(filter);
+		#end
+	}
+
+	public static function deleteAux(aux:ALAuxiliaryEffectSlot):Void
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_delete_auxiliary_effect_slot(aux);
 		#end
 	}
 
