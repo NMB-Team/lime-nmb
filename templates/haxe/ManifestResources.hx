@@ -74,7 +74,13 @@ import sys.FileSystem;
 
 		var data, manifest, library, bundle;
 
-		::if (assets != null)::::foreach assets::::if (type == "manifest")::::if (embed)::data = '::data::';
+		::if (assets != null)::::foreach assets::::if (type == "manifest")::::if (embed)::
+		#if cpp
+		var _bytes:haxe.io.Bytes = new __ASSET__::flatName:: ();
+		data = _bytes.getString (0, _bytes.length);
+		#else
+		data = '::data::';
+		#end
 		manifest = AssetManifest.parse (data, rootPath);
 		library = AssetLibrary.fromManifest (manifest);
 		Assets.registerLibrary ("::library::", library);

@@ -112,8 +112,21 @@ namespace lime {
 		sdlRenderer = nullptr;
 		sdlWindow = nullptr;
 
+		#if !(defined (LIME_ANGLE) && defined (IPHONE))
+		SDL_SetHint(SDL_HINT_VIDEO_X11_FORCE_EGL, "1");
+
 		#ifdef HX_WINDOWS
-		SDL_SetHint(SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
+			OSVERSIONINFOW osvi;
+			ZeroMemory(&osvi, sizeof(osvi));
+			osvi.dwOSVersionInfoSize = sizeof(osvi);
+			GetVersionExW(&osvi);
+			if (osvi.dwMajorVersion < 6 || (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion < 2))
+				SDL_SetHint(SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_43.dll");
+			else
+				SDL_SetHint(SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
+		#endif
+
+		SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
 		#endif
 
 		#if !(defined (LIME_ANGLE) && defined (IPHONE))
@@ -159,16 +172,6 @@ namespace lime {
 			SDL_SetHint(SDL_HINT_IME_SUPPORT_EXTENDED_TEXT, "1");
 			sdlHintsInitialized = true;
 		}
-		#endif
-
-		#if !(defined (LIME_ANGLE) && defined (IPHONE))
-		SDL_SetHint(SDL_HINT_VIDEO_X11_FORCE_EGL, "1");
-
-		#ifdef HX_WINDOWS
-		SDL_SetHint(SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
-		#endif
-
-		SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
 		#endif
 
 		#if defined(LIME_ANGLE) && defined(IPHONE)

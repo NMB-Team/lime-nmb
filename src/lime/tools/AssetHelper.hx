@@ -594,7 +594,7 @@ class AssetHelper
 						asset.embed = true;
 
 						if (!library.preload)
-							return;
+							continue;
 					}
 					else
 					{
