@@ -165,7 +165,7 @@ namespace lime {
 		SDL_SetHint(SDL_HINT_VIDEO_X11_FORCE_EGL, "1");
 
 		#ifdef HX_WINDOWS
-		SDL_SetHint(SDL_HINT_VIDEO_WIN_D3DCOMPILER, "none");
+		SDL_SetHint(SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
 		#endif
 
 		SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");

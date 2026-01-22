@@ -95,6 +95,8 @@
 		</section>
 
 		<section if="windows">
+			<dependency path="dependencies/angle/Windows/d3dcompiler_43.dll" />
+			<dependency path="dependencies/angle/Windows/d3dcompiler_47.dll" />
 			<dependency path="dependencies/angle/Windows/libEGL.dll" />
 			<dependency path="dependencies/angle/Windows/libGLESv2.dll" />
 		</section>
