@@ -95,7 +95,6 @@
 		</section>
 
 		<section if="windows">
-			<dependency path="dependencies/angle/Windows/d3dcompiler_47.dll" />
 			<dependency path="dependencies/angle/Windows/libEGL.dll" />
 			<dependency path="dependencies/angle/Windows/libGLESv2.dll" />
 		</section>
@@ -106,18 +105,13 @@
 		</section>
 
 		<section if="linux">
-			<dependency path="dependencies/angle/Linux/libEGL.so" />
-			<dependency path="dependencies/angle/Linux/libGLESv2.so" />
-			<dependency path="dependencies/angle/Linux/libvk_swiftshader.so" />
-			<dependency path="dependencies/angle/Linux/libVkICD_mock_icd.so" />
+			<dependency path="dependencies/angle/Linux/libEGL.so" if="linux" />
+			<dependency path="dependencies/angle/Linux/libGLESv2.so" if="linux" />
 		</section>
 
 		<section if="ios">
-			<dependency path="dependencies/angle/iPhone/arm64/libEGL.framework" embed="true" unless="simulator" />
-			<dependency path="dependencies/angle/iPhone/arm64/libGLESv2.framework" embed="true" unless="simulator" />
-
-			<dependency path="dependencies/angle/iPhone/arm64_x86_64-simulator/libEGL.framework" embed="true" if="simulator" />
-			<dependency path="dependencies/angle/iPhone/arm64_x86_64-simulator/libGLESv2.framework" embed="true" if="simulator" />
+			<dependency path="dependencies/angle/iPhone/libEGL.xcframework" embed="true" if="ios" />
+			<dependency path="dependencies/angle/iPhone/libGLESv2.xcframework" embed="true" if="ios" />
 		</section>
 
 

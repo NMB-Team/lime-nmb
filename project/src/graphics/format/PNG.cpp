@@ -1,12 +1,11 @@
 extern "C" {
 
-	#include <png.h>
-	#include <pngstruct.h>
+	#define SPNG_STATIC
+	#include <spng.h>
 	#define PNG_SIG_SIZE 8
 
 }
 
-#include <setjmp.h>
 #include <graphics/format/PNG.h>
 #include <graphics/ImageBuffer.h>
 #include <system/System.h>
@@ -17,77 +16,13 @@ extern "C" {
 namespace lime {
 
 
-	struct ReadBuffer {
-
-		ReadBuffer (const unsigned char* data, int length) : data (data), length (length), position (0) {}
-
-		bool Read (unsigned char* out, int count) {
-
-			if (position >= length) return false;
-
-			if (count > length - position) {
-
-				memcpy (out, data + position, length - position);
-				position = length;
-
-			} else {
-
-				memcpy (out, data + position, count);
-				position += count;
-
-			}
-
-			return true;
-
-		}
-
-		char unused; // the first byte gets corrupted when passed to libpng?
-		const unsigned char* data;
-		int length;
-		int position;
-
-	};
-
-
-	static void user_error_fn (png_structp png_ptr, png_const_charp error_msg) {
-
-		longjmp (png_ptr->jmp_buf_local, 1);
-
-	}
-
-
-	static void user_read_data_fn (png_structp png_ptr, png_bytep data, png_size_t length) {
-
-		ReadBuffer* buffer = (ReadBuffer*)png_get_io_ptr (png_ptr);
-		if (!buffer->Read (data, length)) {
-			png_error (png_ptr, "Read Error");
-		}
-
-	}
-
-	static void user_warning_fn (png_structp png_ptr, png_const_charp warning_msg) {}
-
-
-	void user_write_data (png_structp png_ptr, png_bytep data, png_size_t length) {
-
-		QuickVec<unsigned char> *buffer = (QuickVec<unsigned char> *)png_get_io_ptr (png_ptr);
-		buffer->append ((unsigned char *)data,(int)length);
-
-	}
-
-
-	void user_flush_data (png_structp png_ptr) {}
-
-
 	bool PNG::Decode (Resource *resource, ImageBuffer *imageBuffer, bool decodeData) {
 
-		png_structp png_ptr;
-		png_infop info_ptr;
-		png_uint_32 width, height;
-		int bit_depth, color_type, interlace_type;
+		spng_ctx *ctx = NULL;
 
 		FILE_HANDLE* file = NULL;
 		Bytes* data = NULL;
+		int ret = 0;
 
 		if (resource->path) {
 
@@ -96,16 +31,23 @@ namespace lime {
 
 			unsigned char png_sig[PNG_SIG_SIZE];
 			int read = lime::fread (&png_sig, PNG_SIG_SIZE, 1, file);
-			if (png_sig_cmp (png_sig, 0, PNG_SIG_SIZE)) {
+
+			if (!read || png_sig[0] != 0x89 || png_sig[1] != 'P' || png_sig[2] != 'N' || png_sig[3] != 'G') {
 
 				lime::fclose (file);
 				return false;
 
 			}
 
+			#ifndef ANDROID
+			lime::fseek (file, 0, SEEK_SET);
+			#endif
+
 		} else {
 
-			if (png_sig_cmp (resource->data->b, 0, PNG_SIG_SIZE)) {
+			const unsigned char *sig = resource->data->b;
+
+			if (sig[0] != 0x89 || sig[1] != 'P' || sig[2] != 'N' || sig[3] != 'G') {
 
 				return false;
 
@@ -113,108 +55,99 @@ namespace lime {
 
 		}
 
-		if ((png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL)) == NULL) {
+		ctx = spng_ctx_new (0);
+
+		if (!ctx) {
 
 			if (file) lime::fclose (file);
 			return false;
 
 		}
 
-		if ((info_ptr = png_create_info_struct (png_ptr)) == NULL) {
-
-			png_destroy_read_struct (&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
-			if (file) lime::fclose (file);
-			return false;
-
-		}
-
-		// sets the point which libpng will jump back to in the case of an error
-		if (setjmp (png_jmpbuf (png_ptr))) {
-
-			png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
-			if (file) lime::fclose (file);
-			if (data) delete data;
-			return false;
-
-		}
+		spng_set_crc_action (ctx, SPNG_CRC_USE, SPNG_CRC_USE);
 
 		if (file) {
 
 			if (file->isFile ()) {
 
-				png_init_io (png_ptr, file->getFile ());
-				png_set_sig_bytes (png_ptr, PNG_SIG_SIZE);
+				ret = spng_set_png_file (ctx, file->getFile ());
+
+				if (ret) {
+
+					spng_ctx_free (ctx);
+					lime::fclose (file);
+					return false;
+
+				}
 
 			} else {
 
 				data = new Bytes ();
 				data->ReadFile (resource->path);
-				ReadBuffer buffer (data->b, data->length);
-				png_set_read_fn (png_ptr, &buffer, user_read_data_fn);
+				spng_set_png_buffer(ctx, data->b, data->length);
 
 			}
 
 		} else {
 
-			ReadBuffer buffer (resource->data->b, resource->data->length);
-			png_set_read_fn (png_ptr, &buffer, user_read_data_fn);
+			spng_set_png_buffer(ctx, resource->data->b, resource->data->length);
 
 		}
 
-		png_read_info (png_ptr, info_ptr);
-		png_get_IHDR (png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, &interlace_type, NULL, NULL);
+		struct spng_ihdr ihdr;
+		ret = spng_get_ihdr (ctx, &ihdr);
+
+		if (ret) {
+
+			spng_ctx_free (ctx);
+
+			if (file) lime::fclose (file);
+			if (data) delete data;
+
+			return false;
+
+		}
 
 		if (decodeData) {
 
-			//bool has_alpha = (color_type == PNG_COLOR_TYPE_GRAY_ALPHA || color_type == PNG_COLOR_TYPE_RGB_ALPHA || png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS));
+			size_t out_size;
 
-			png_set_expand (png_ptr);
+			ret = spng_decoded_image_size (ctx, SPNG_FMT_RGBA8, &out_size);
 
-			png_set_filler (png_ptr, 0xff, PNG_FILLER_AFTER);
-			//png_set_gray_1_2_4_to_8 (png_ptr);
-			png_set_palette_to_rgb (png_ptr);
-			png_set_gray_to_rgb (png_ptr);
+			if (ret) {
 
-			if (bit_depth < 8) {
+				spng_ctx_free (ctx);
 
-				png_set_packing (png_ptr);
+				if (file) lime::fclose (file);
+				if (data) delete data;
 
-			} else if (bit_depth == 16) {
-
-				png_set_scale_16 (png_ptr);
+				return false;
 
 			}
 
-			//png_set_bgr (png_ptr);
+			imageBuffer->Resize (ihdr.width, ihdr.height, 32);
 
-			imageBuffer->Resize (width, height, 32);
+			ret = spng_decode_image (ctx, imageBuffer->data->buffer->b, out_size, SPNG_FMT_RGBA8, SPNG_DECODE_TRNS);
 
-			const unsigned int stride = imageBuffer->Stride ();
-			unsigned char *bytes = imageBuffer->data->buffer->b;
+			if (ret) {
 
-			int number_of_passes = png_set_interlace_handling (png_ptr);
+				spng_ctx_free (ctx);
 
-			for (int pass = 0; pass < number_of_passes; pass++) {
+				if (file) lime::fclose (file);
+				if (data) delete data;
 
-				for (int i = 0; i < height; i++) {
-
-					png_bytep anAddr = (png_bytep)(bytes + i * stride);
-					png_read_rows (png_ptr, (png_bytepp) &anAddr, NULL, 1);
-
-				}
+				return false;
 
 			}
-
-			png_read_end (png_ptr, NULL);
 
 		} else {
 
-			imageBuffer->width = width;
-			imageBuffer->height = height;
+			imageBuffer->width = ihdr.width;
+			imageBuffer->height = ihdr.height;
 
 		}
 
-		png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
+		spng_ctx_free (ctx);
 
 		if (file) lime::fclose (file);
 		if (data) delete data;
@@ -226,91 +159,80 @@ namespace lime {
 
 	bool PNG::Encode (ImageBuffer *imageBuffer, Bytes* bytes) {
 
-		png_structp png_ptr = png_create_write_struct (PNG_LIBPNG_VER_STRING, NULL, user_error_fn, user_warning_fn);
+		spng_ctx *ctx = spng_ctx_new (SPNG_CTX_ENCODER);
 
-		if (!png_ptr) {
+		if (!ctx) {
 
 			return false;
 
 		}
 
-		png_infop info_ptr = png_create_info_struct (png_ptr);
+		int ret = spng_set_option (ctx, SPNG_ENCODE_TO_BUFFER, 1);
 
-		if (!info_ptr) {
+		if (ret) {
 
-			png_destroy_write_struct (&png_ptr, NULL);
+			spng_ctx_free (ctx);
 			return false;
 
 		}
 
-		if (setjmp (png_jmpbuf (png_ptr))) {
+		struct spng_ihdr ihdr = {0};
+		ihdr.width = imageBuffer->width;
+		ihdr.height = imageBuffer->height;
+		ihdr.bit_depth = 8;
+		ihdr.color_type = SPNG_COLOR_TYPE_TRUECOLOR_ALPHA;
+		ret = spng_set_ihdr (ctx, &ihdr);
 
-			png_destroy_write_struct (&png_ptr, &info_ptr);
+		if (ret) {
+
+			spng_ctx_free (ctx);
 			return false;
 
 		}
 
-		QuickVec<unsigned char> out_buffer;
+		QuickVec<unsigned char> temp_buffer;
 
-		png_set_write_fn (png_ptr, &out_buffer, user_write_data, user_flush_data);
+		temp_buffer.reserve (ihdr.width * ihdr.height * 4);
 
-		int w = imageBuffer->width;
-		int h = imageBuffer->height;
+		for (int y = 0; y < ihdr.height; y++) {
 
-		int bit_depth = 8;
-		//int color_type = (inSurface->Format () & pfHasAlpha) ? PNG_COLOR_TYPE_RGB_ALPHA : PNG_COLOR_TYPE_RGB;
-		int color_type = PNG_COLOR_TYPE_RGB_ALPHA;
-		png_set_IHDR (png_ptr, info_ptr, w, h, bit_depth, color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-
-		png_write_info (png_ptr, info_ptr);
-
-		bool do_alpha = (color_type == PNG_COLOR_TYPE_RGBA);
-		unsigned char* imageData = imageBuffer->data->buffer->b;
-		int stride = imageBuffer->Stride ();
-
-		{
-			QuickVec<unsigned char> row_data (w * 4);
-			png_bytep row = &row_data[0];
-
-			for (int y = 0; y < h; y++) {
-
-				unsigned char *buf = &row_data[0];
-				const unsigned char *src = (const unsigned char *)(imageData + (stride * y));
-
-				if (do_alpha) {
-					memcpy(buf, src, w * 4);
-				} else {
-					for (int x = 0; x < w; x++) {
-						buf[0] = src[0];
-						buf[1] = src[1];
-						buf[2] = src[2];
-						src += 4;
-						buf += 3;
-					}
-				}
-
-				png_write_rows (png_ptr, &row, 1);
-
-			}
+			temp_buffer.append (imageBuffer->data->buffer->b + (imageBuffer->Stride() + y), ihdr.width * 4);
 
 		}
 
-		png_write_end (png_ptr, NULL);
+		ret = spng_encode_image (ctx, &temp_buffer[0], ihdr.width * ihdr.height * 4, SPNG_FMT_PNG, SPNG_ENCODE_FINALIZE);
 
-		int size = out_buffer.size ();
+		if (ret) {
 
-		if (size > 0) {
-
-			bytes->Resize (size);
-			memcpy (bytes->b, &out_buffer[0], size);
+			spng_ctx_free (ctx);
+			return false;
 
 		}
 
-		png_destroy_write_struct (&png_ptr, &info_ptr);
+		size_t out_size;
+
+		void *out_buffer = spng_get_png_buffer (ctx, &out_size, &ret);
+
+		if (out_buffer == NULL) {
+
+			spng_ctx_free (ctx);
+			return false;
+
+		}
+
+		if (out_size > 0) {
+
+			bytes->Resize (out_size);
+			memcpy (bytes->b, out_buffer, out_size);
+
+		}
+
+		free (out_buffer);
+
+		spng_ctx_free (ctx);
 
 		return true;
 
 	}
-
 
 }

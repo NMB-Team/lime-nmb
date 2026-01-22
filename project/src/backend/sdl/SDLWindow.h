@@ -8,8 +8,8 @@
 #include <ui/Window.h>
 
 #if defined (LIME_ANGLE) && defined (IPHONE)
-	#include <libEGL/egl.h>
-	#include <libEGL/eglext.h>
+	#include <EGL/egl.h>
+	#include <EGL/eglext.h>
 #endif
 
 #include <vector>
@@ -82,6 +82,7 @@ namespace lime {
 			std::vector<EGLint> egl_config_attribs;
 			std::vector<EGLint> egl_context_attribs;
 
+			SDL_MetalView eglMetalView;
 			EGLDisplay eglDisplay;
 			EGLContext eglContext;
 			EGLSurface eglSurface;

@@ -373,30 +373,42 @@ class IOSPlatform extends PlatformTarget
 			var name = null;
 			var path = null;
 			var fileType = null;
+			var embed = null;
 
 			if (Path.extension(dependency.name) == "framework")
 			{
 				name = dependency.name;
 				path = "/System/Library/Frameworks/" + dependency.name;
 				fileType = "wrapper.framework";
+				embed = false;
 			}
 			else if (Path.extension(dependency.name) == "tbd")
 			{
 				name = dependency.name;
 				path = "/usr/lib/" + dependency.name;
 				fileType = "sourcecode.text-based-dylib-definition";
+				embed = false;
 			}
 			else if (Path.extension(dependency.path) == "framework")
 			{
 				name = Path.withoutDirectory(dependency.path);
 				path = Path.tryFullPath(dependency.path);
 				fileType = "wrapper.framework";
+				embed = dependency.embed;
 			}
 			else if (Path.extension(dependency.path) == "xcframework")
 			{
 				name = Path.withoutDirectory(dependency.path);
 				path = Path.tryFullPath(dependency.path);
 				fileType = "wrapper.xcframework";
+				embed = dependency.embed;
+			}
+			else if (Path.extension(dependency.path) == "bundle")
+			{
+				name = Path.withoutDirectory(dependency.path);
+				path = Path.tryFullPath(dependency.path);
+				fileType = "wrapper.plug-in";
+				embed = false;
 			}
 
 			if (name != null)
@@ -578,6 +590,11 @@ class IOSPlatform extends PlatformTarget
 		];
 
 		context.HAS_ICON = true;
+
+		// if (project.adaptiveIcon != null && project.adaptiveIcon.iconComposerFile) {
+			// context.IOS_ADAPTIVE_ICON = project.adaptiveIcon.path;
+			// ProjectHelper.recursiveSmartCopyDirectory(project, project.adaptiveIcon.path, Path.combine(projectDirectory, "AppIcon.icon"), context);
+		// }
 
 		var iconPath = Path.combine(projectDirectory, "Images.xcassets/AppIcon.appiconset");
 		System.mkdir(iconPath);
