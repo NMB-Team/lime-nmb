@@ -98,6 +98,7 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/openal/core/effectslot.cpp" />
 		<file name="${NATIVE_TOOLKIT_PATH}/openal/core/cpu_caps.cpp" />
 		<file name="${NATIVE_TOOLKIT_PATH}/openal/core/fpu_ctrl.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/openal/core/tsmefilter.cpp" />
 		<file name="${NATIVE_TOOLKIT_PATH}/openal/core/mixer/mixer_c.cpp" />
 		<file name="${NATIVE_TOOLKIT_PATH}/openal/core/mixer/mixer_neon.cpp" if="rpi || HXCPP_ARM64" />
 		<file name="${NATIVE_TOOLKIT_PATH}/openal/core/mixer/mixer_sse.cpp" unless="rpi || android || HXCPP_ARM64" />
@@ -105,6 +106,7 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/openal/core/mixer/mixer_sse3.cpp" unless="rpi || android || HXCPP_ARM64" />
 		<file name="${NATIVE_TOOLKIT_PATH}/openal/core/mixer/mixer_sse41.cpp" unless="rpi || android || HXCPP_ARM64" />
 		<file name="${NATIVE_TOOLKIT_PATH}/openal/alc/panning.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/openal/common/almalloc.cpp" />
 		<file name="${NATIVE_TOOLKIT_PATH}/openal/common/filesystem.cpp" />
 		<file name="${NATIVE_TOOLKIT_PATH}/openal/core/uhjfilter.cpp" />
 		<file name="${NATIVE_TOOLKIT_PATH}/openal/core/voice.cpp" />
