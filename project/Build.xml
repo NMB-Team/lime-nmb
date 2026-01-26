@@ -16,14 +16,11 @@
 	<set name="LIME_CURL" value="1" unless="winrt" />
 	<set name="LIME_EFSW" value="1" if="windows || mac || linux" unless="winrt" />
 	<set name="LIME_JPEG" value="1" />
-	<!-- <set name="LIME_FAUDIO" value="1" /> -->
 	<set name="LIME_FREETYPE" value="1" />
 	<set name="LIME_HARFBUZZ" value="1" unless="winrt" />
-	<!-- <set name="LIME_HASHLINK" value="1" if="windows || mac || linux" /> -->
 	<set name="LIME_HASHLINK" value="1" if="hashlink" />
 	<set name="LIME_LZMA" value="1" />
 	<set name="LIME_MBEDTLS" value="1" unless="emscripten || winrt" />
-	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
 	<set name="LIME_OPENALSOFT" value="1" if="lime-openalsoft" unless="tvos" />
 	<set name="LIME_OPENAL" value="1" if="lime-openal" />
@@ -37,8 +34,6 @@
 	<set name="LIME_SDL_SOUND" value="1" />
 	<set name="LIME_TINYFILEDIALOGS" value="1" if="windows || mac || linux" unless="winrt || emscripten" />
 	<set name="LIME_VORBIS" value="1" />
-	<!-- <set name="LIME_VPX" value="1" />
-	<set name="LIME_WEBM" value="1" /> -->
 	<set name="LIME_ZLIB" value="1" />
 
 	<set name="OUTPUT_DIR" value="../ndll" unless="OUTPUT_DIR" />
@@ -96,13 +91,6 @@
 
 		</section>
 
-		<section if="LIME_FAUDIO">
-
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/faudio/src" />
-			<compilerflag value="-DLIME_FAUDIO" />
-
-		</section>
-
 		<section if="LIME_FREETYPE">
 
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/freetype/include" />
@@ -157,15 +145,6 @@
 			<compilerflag value="-DLIME_LZMA" />
 
 			<file name="src/utils/compress/LZMA.cpp" />
-
-		</section>
-
-		<section if="LIME_NEKO">
-
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/neko/vm/" />
-			<compilerflag value="-DLIME_NEKO" />
-
-			<file name="src/vm/NekoVM.cpp" />
 
 		</section>
 
@@ -381,7 +360,6 @@
 	<include name="lib/cairo-files.xml" />
 	<include name="lib/curl-files.xml" />
 	<include name="lib/efsw-files.xml" />
-	<include name="lib/faudio-files.xml" if="LIME_FAUDIO" />
 	<include name="lib/freetype-files.xml" />
 	<include name="lib/harfbuzz-files.xml" />
 	<include name="lib/glad-files.xml" if="LIME_GLAD" />
@@ -389,7 +367,6 @@
 	<include name="lib/lzma-files.xml" />
 	<include name="lib/mbedtls-files.xml" />
 	<include name="lib/mojoal-files.xml" />
-	<include name="lib/neko-files.xml" />
 	<include name="lib/ogg-files.xml" />
 	<include name="lib/openal-files.xml" />
 	<include name="lib/pixman-files.xml" />
@@ -398,8 +375,6 @@
 	<include name="lib/sdl_sound-files.xml" />
 	<include name="lib/tinyfiledialogs-files.xml" />
 	<include name="lib/vorbis-files.xml" />
-	<include name="lib/vpx-files.xml" />
-	<include name="lib/webm-files.xml" />
 	<include name="lib/zlib-files.xml" />
 
 	<set name="DEBUGEXTRA" value="-debug" if="fulldebug" />
@@ -416,14 +391,12 @@
 		<files id="native-toolkit-cairo" if="LIME_CAIRO" />
 		<files id="native-toolkit-curl" if="LIME_CURL" />
 		<files id="native-toolkit-efsw" if="LIME_EFSW" />
-		<files id="native-toolkit-faudio" if="LIME_FAUDIO" />
 		<files id="native-toolkit-freetype" if="LIME_FREETYPE" />
 		<files id="native-toolkit-harfbuzz" if="LIME_HARFBUZZ" />
 		<files id="native-toolkit-jpeg" if="LIME_JPEG" />
 		<files id="native-toolkit-lzma" if="LIME_LZMA" />
 		<files id="native-toolkit-mbedtls" if="LIME_MBEDTLS" />
 		<files id="native-toolkit-mojoal" if="LIME_MOJOAL" />
-		<files id="native-toolkit-neko" if="LIME_NEKO" />
 		<files id="native-toolkit-ogg" if="LIME_OGG" />
 		<files id="native-toolkit-openal" if="LIME_OPENALSOFT" />
 		<files id="native-toolkit-pixman" if="LIME_PIXMAN" />
@@ -433,8 +406,6 @@
 		<files id="native-toolkit-glad" if="LIME_GLAD" />
 		<files id="native-toolkit-tinyfiledialogs" if="LIME_TINYFILEDIALOGS" />
 		<files id="native-toolkit-vorbis" if="LIME_VORBIS" />
-		<files id="native-toolkit-vpx" if="LIME_VPX" />
-		<files id="native-toolkit-webm" if="LIME_WEBM" />
 		<files id="native-toolkit-zlib" if="LIME_ZLIB" />
 
 		<section unless="static_link">
@@ -485,9 +456,6 @@
 				<lib name="-lpthread" />
 				<lib name="-lrt" />
 
-				<lib name="-lgc" if="LIME_NEKO" />
-				<lib name="-lm" if="LIME_NEKO" />
-
 				<lib name="-L../templates/bin/hl/${BINDIR}" if="LIME_HASHLINK" />
 				<lib name="-lhl" if="LIME_HASHLINK" />
 
@@ -508,9 +476,6 @@
 				<vflag name="-framework" value="Carbon" />
 				<vflag name="-framework" value="AppKit" />
 				<vflag name="-framework" value="SystemConfiguration" />
-
-				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
-				<lib name="-lm" if="LIME_NEKO" />
 
 				<lib name="-L../templates/bin/hl/${BINDIR}" if="LIME_HASHLINK" />
 				<lib name="-lhl" if="LIME_HASHLINK" />

@@ -5,7 +5,7 @@
 
 	<set name="lime" />
 
-	<define name="native" if="cpp || neko || nodejs || cs || java || hl" />
+	<define name="native" if="cpp || nodejs || cs || java || hl" />
 	<define name="howlerjs" if="html5" />
 
 	<define name="lime-cairo" if="native" />

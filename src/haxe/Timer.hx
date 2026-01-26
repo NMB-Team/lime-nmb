@@ -169,17 +169,13 @@ class Timer {
 		between two values make sense.
 	**/
 	public static inline function stamp():Float {
-		#if flash
-		return flash.Lib.getTimer() * .001;
-		#elseif (neko || php)
-		return Sys.time();
-		#elseif js
+		#if js
 		return Date.now().getTime() * .001;
 		#elseif cpp
 		return untyped __global__.__time_stamp();
 		#elseif python
 		return Sys.cpuTime();
-		#elseif sys
+		#elseif (sys || php)
 		return Sys.time();
 		#else
 		return 0;
