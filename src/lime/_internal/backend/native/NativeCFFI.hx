@@ -1792,6 +1792,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_alc_get_string(device:CFFIPointer, param:Int):Dynamic;
 
+	@:cffi private static function lime_alc_get_strings(device:CFFIPointer, param:Int):Dynamic;
+
 	@:cffi private static function lime_alc_get_string_list(device:CFFIPointer, param:Int):Array<Dynamic>;
 
 	@:cffi private static function lime_alc_get_device_list(param:Int):Dynamic;
@@ -1990,6 +1992,7 @@ class NativeCFFI
 	private static var lime_alc_get_integerv = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_alc_get_integerv",
 		"oiio", false));
 	private static var lime_alc_get_string = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_alc_get_string", "oio", false));
+	private static var lime_alc_get_strings = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_alc_get_strings", "oio", false));
 	private static var lime_alc_get_string_list = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_alc_get_string_list", "oio", false));
 	private static var lime_alc_get_device_list = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_alc_get_device_list", "io", false));
 	private static var lime_alc_make_context_current = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_alc_make_context_current", "ob",
@@ -2136,6 +2139,7 @@ class NativeCFFI
 	private static var lime_alc_get_error = CFFI.load("lime", "lime_alc_get_error", 1);
 	private static var lime_alc_get_integerv = CFFI.load("lime", "lime_alc_get_integerv", 3);
 	private static var lime_alc_get_string = CFFI.load("lime", "lime_alc_get_string", 2);
+	private static var lime_alc_get_strings = CFFI.load("lime", "lime_alc_get_strings", 2);
 	private static var lime_alc_get_string_list = CFFI.load("lime", "lime_alc_get_string_list", 2);
 	private static var lime_alc_get_device_list = CFFI.load("lime", "lime_alc_get_device_list", 1);
 	private static var lime_alc_make_context_current = CFFI.load("lime", "lime_alc_make_context_current", 1);
@@ -2519,6 +2523,11 @@ class NativeCFFI
 	@:hlNative("lime", "hl_alc_make_context_current") private static function lime_alc_make_context_current(context:ALContext):Bool
 	{
 		return false;
+	}
+
+	@:hlNative("lime", "hl_alc_get_strings") private static function lime_alc_get_strings(device:CFFIPointer, param:Int):hl.NativeArray<hl.Bytes>
+	{
+		return null;
 	}
 
 	@:hlNative("lime", "hl_alc_open_device") private static function lime_alc_open_device(devicename:String):CFFIPointer
