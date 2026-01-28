@@ -4334,6 +4334,7 @@ namespace lime {
 	#define _TSENSOR_EVENT _OBJ (_I32 _F64 _F64 _F64 _I32)
 	#define _TTEXT_EVENT _OBJ (_I32 _I32 _I32 _BYTES _I32 _I32)
 	#define _TTOUCH_EVENT _OBJ (_I32 _F64 _F64 _I32 _F64 _I32 _F64 _F64)
+	#define _TGESTURE_EVENT _OBJ (_I32 _I32 _F64 _F64 _F64 _F64 _I32 _I32 _F64 _F64)
 	#define _TVECTOR2 _OBJ (_F64 _F64)
 	#define _TVORBISFILE _OBJ (_I32 _DYN)
 	#define _TWINDOW_EVENT _OBJ (_I32 _I32 _I32 _I32 _I32 _I32)
@@ -4464,7 +4465,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_system_set_windows_console_mode, _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_text_event_manager_register, _FUN (_VOID, _NO_ARG) _TTEXT_EVENT);
 	DEFINE_HL_PRIM (_VOID, hl_touch_event_manager_register, _FUN (_VOID, _NO_ARG) _TTOUCH_EVENT);
-	DEFINE_HL_PRIM (_VOID, hl_gesture_event_manager_register, _FUN (_VOID, _NO_ARG) _TTOUCH_EVENT);
+	DEFINE_HL_PRIM (_VOID, hl_gesture_event_manager_register, _FUN (_VOID, _NO_ARG) _TGESTURE_EVENT);
 	DEFINE_HL_PRIM (_VOID, hl_window_alert, _TCFFIPOINTER _STRING _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_window_close, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_context_flip, _TCFFIPOINTER);
