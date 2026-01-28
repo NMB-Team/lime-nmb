@@ -14,6 +14,8 @@
 #include <ui/MouseEvent.h>
 #include <ui/TextEvent.h>
 #include <ui/TouchEvent.h>
+#include <ui/GestureEvent.h>
+#include <ui/Gesture.h>
 #include <ui/WindowEvent.h>
 #include "SDLWindow.h"
 
@@ -42,6 +44,10 @@ namespace lime {
 			void ProcessKeyEvent(SDL_Event* event);
 			void ProcessMouseEvent(SDL_Event* event);
 
+			#ifdef HX_MACOS
+			void InitializeGesture(SDL_Window *window);
+			#endif
+
 			#if defined(ANDROID) || defined(IPHONE)
 			void InitializeSensors();
 			void ProcessSensorEvent(SDL_Event* event);
@@ -50,6 +56,7 @@ namespace lime {
 			void ProcessTextEvent(SDL_Event* event);
 			void ProcessTouchEvent(SDL_Event* event);
 			void ProcessWindowEvent(SDL_Event* event);
+			void ProcessGestureEvent(SDL_Event* event);
 
 			static void UpdateFrame();
 			static void UpdateFrame(void*);
@@ -76,6 +83,7 @@ namespace lime {
 			SensorEvent sensorEvent;
 			TextEvent textEvent;
 			TouchEvent touchEvent;
+			GestureEvent gestureEvent;
 			WindowEvent windowEvent;
 	};
 

@@ -75,6 +75,11 @@ namespace lime {
 		initFlags |= SDL_INIT_AUDIO;
 		#endif
 
+		// #ifdef HX_MACOS
+		// huh
+		// SDL_SetHint(SDL_HINT_TRACKPAD_IS_TOUCH_ONLY, "1");
+		// #endif
+
 		#ifdef HX_WINDOWS
 		// Define DPI awareness types if not available
 		#ifndef DPI_AWARENESS_CONTEXT
@@ -186,6 +191,59 @@ namespace lime {
 	}
 	#endif
 
+	#ifdef HX_MACOS
+	void SDLApplication::InitializeGesture(SDL_Window *window) {
+		GestureCallbacks callbacks{};
+
+		static double magS = 0;
+		static double rotS = 0;
+		static int stateS = 0;
+
+		callbacks.onMagEvent = [&](double mag, int state, double x, double y) {
+			magS = mag;
+			stateS = state;
+
+			if (SDL_GetEventState(SDL_MULTIGESTURE) == SDL_ENABLE) {
+				SDL_Event event;
+				event.mgesture.type = SDL_MULTIGESTURE;
+				event.mgesture.touchId = 0; // idk
+				event.mgesture.x = x;
+				event.mgesture.y = y;
+				event.mgesture.dTheta = rotS;
+				event.mgesture.dDist = magS;
+				event.mgesture.numFingers = 2; // idk
+				event.mgesture.padding = stateS - 1;
+				SDL_PushEvent(&event);
+
+				// printf ("mag: %f.\n", mag);
+			}
+
+			// ProcessGestureEvent(&event);
+		};
+
+		callbacks.onRotEvent = [&](double rot, int state, double x, double y) {
+			rotS = rot;
+			stateS = state;
+
+			if (SDL_GetEventState(SDL_MULTIGESTURE) == SDL_ENABLE) {
+				SDL_Event event;
+				event.mgesture.type = SDL_MULTIGESTURE;
+				event.mgesture.touchId = 0; // idk
+				event.mgesture.x = x;
+				event.mgesture.y = y;
+				event.mgesture.dTheta = rotS;
+				event.mgesture.dDist = magS;
+				event.mgesture.numFingers = 2; // idk
+				event.mgesture.padding = stateS - 1;
+				SDL_PushEvent(&event);
+			}
+
+		};
+
+		lime::RegisterCallback(&callbacks, window);
+	}
+	#endif
+
 	SDLApplication::~SDLApplication() {
 		#if defined(ANDROID) || defined(IPHONE)
 		if (gyroscopeSensor) {
@@ -267,6 +325,17 @@ namespace lime {
 				break;
 
 			case SDL_DROPFILE:
+				// SDL_Event event1;
+				// event1.mgesture.dDist = 0.45;
+				// event1.mgesture.dTheta = 0.1;
+				// event1.mgesture.numFingers = 2;
+				// event1.mgesture.timestamp = 0;
+				// event1.mgesture.touchId = 0;
+				// event1.mgesture.type = 0;
+				// event1.mgesture.x = 0;
+				// event1.mgesture.y = 0;
+				// ProcessGestureEvent(&event1);
+
 				ProcessDropEvent(event);
 				break;
 
@@ -322,6 +391,10 @@ namespace lime {
 
 			case SDL_WINDOWEVENT:
 				HandleWindowEvent(event);
+				break;
+
+			case SDL_MULTIGESTURE:
+				ProcessGestureEvent(event);
 				break;
 
 			case SDL_QUIT:
@@ -697,6 +770,34 @@ namespace lime {
 		TouchEvent::Dispatch(&touchEvent);
 	}
 
+	//.h
+	void SDLApplication::ProcessGestureEvent (SDL_Event* event) {
+
+		if (GestureEvent::callback) {
+
+			gestureEvent.id = event->mgesture.touchId;
+			gestureEvent.timestamp = event->mgesture.timestamp;
+			gestureEvent.dTheta = event->mgesture.dTheta;
+			gestureEvent.dDist = event->mgesture.dDist;
+			gestureEvent.x = event->mgesture.x;
+			gestureEvent.y = event->mgesture.y;
+			gestureEvent.numFingers = event->mgesture.numFingers;
+
+			#ifdef HX_MACOS
+			gestureEvent.state = event->mgesture.padding;
+			gestureEvent.magnification = event->mgesture.dDist;
+			gestureEvent.rotation = event->mgesture.dTheta;
+			gestureEvent.dTheta = 0.0;
+			gestureEvent.dDist = 0.0;
+			#else
+			#endif
+
+			GestureEvent::Dispatch(&gestureEvent);
+
+		}
+
+	}
+
 	void SDLApplication::ProcessWindowEvent(SDL_Event* event) {
 		if (!WindowEvent::callback) return;
 
@@ -744,6 +845,10 @@ namespace lime {
 	}
 
 	void SDLApplication::RegisterWindow(SDLWindow* window) {
+		#ifdef HX_MACOS
+		InitializeGesture(window->sdlWindow);
+		#endif
+
 		#ifdef IPHONE
 		SDL_iPhoneSetAnimationCallback(window -> sdlWindow, 1, UpdateFrame, nullptr);
 		#endif
